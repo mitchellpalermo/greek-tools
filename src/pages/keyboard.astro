@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GreekKeyboard from '../components/GreekKeyboard';
+---
+
+<Layout title="Greek Keyboard" description="Type Koine Greek using your English keyboard. Supports diacritics, breathing marks, and final sigma.">
+  <h1 class="text-3xl font-bold text-primary mb-2">Greek Keyboard</h1>
+  <p class="text-text-muted mb-6">Type on your English keyboard to produce polytonic Koine Greek. Diacritics are typed after the letter.</p>
+  <GreekKeyboard client:load />
+</Layout>

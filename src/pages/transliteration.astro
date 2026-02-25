@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Transliteration from '../components/Transliteration';
+---
+
+<Layout
+  title="Transliteration"
+  description="Convert polytonic Koine Greek to SBL romanized transliteration and back. Handles breathing marks, accents, iota subscripts, and gamma nasals."
+>
+  <h1 class="text-3xl font-bold text-primary mb-2">Transliteration</h1>
+  <p class="text-text-muted mb-6">
+    Convert between polytonic Greek and SBL (Society of Biblical Literature) romanized transliteration.
+    Edit either side and the other updates instantly.
+  </p>
+  <Transliteration client:load />
+</Layout>

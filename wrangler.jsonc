@@ -20,5 +20,10 @@
       // Run `wrangler d1 create greek-tools-db` and paste the database_id here.
       "database_id": "REPLACE_WITH_D1_DATABASE_ID"
     }
-  ]
+  ],
+  "vars": {
+    // Feature flags — set to "true" to enable, anything else (or absent) = disabled.
+    // Override per-environment with: wrangler secret put DRILLS_ENABLED
+    "DRILLS_ENABLED": "false"
+  }
 }

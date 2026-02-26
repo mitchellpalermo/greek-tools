@@ -3,9 +3,15 @@ import Layout from '../layouts/Layout.astro';
 import ParsingDrills from '../components/ParsingDrills';
 import UpgradeGate from '../components/UpgradeGate';
 import { hasActiveSubscription } from '../lib/subscription';
+import { isDrillsEnabled } from '../lib/features';
 import { SignInButton } from '@clerk/astro/components';
 
 export const prerender = false;
+
+// Feature flag — return 404 when drills are not yet enabled
+if (!isDrillsEnabled(Astro.locals.runtime.env)) {
+  return Astro.rewrite('/404');
+}
 
 const auth = Astro.locals.auth();
 const userId = auth.userId;

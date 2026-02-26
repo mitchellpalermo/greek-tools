@@ -9,10 +9,11 @@ interface Props {
 const { title, description = "Free tools for Koine Greek students — keyboard, flashcards, and more." } = Astro.props;
 
 const navLinks = [
-  { href: '/keyboard',       label: 'Keyboard'        },
-  { href: '/flashcards',     label: 'Flashcards'      },
+  { href: '/keyboard',        label: 'Keyboard'        },
+  { href: '/flashcards',      label: 'Flashcards'      },
+  { href: '/reader',          label: 'Reader'          },
   { href: '/transliteration', label: 'Transliteration' },
-  { href: '/grammar',        label: 'Grammar'         },
+  { href: '/grammar',         label: 'Grammar'         },
 ];
 
 const currentPath = Astro.url.pathname;

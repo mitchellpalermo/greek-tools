@@ -3,7 +3,7 @@ import { vocabulary, type VocabWord } from '../data/vocabulary';
 import {
   type SRSCard,
   loadSRSStore, saveSRSStore, loadStats, saveStats,
-  recordReview, newCard, nextSRS, isDue, STREAK_THRESHOLD,
+  recordReview, newCard, nextSRS, isDue, STREAK_THRESHOLD, normalizeKey,
 } from '../data/srs';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ function buildQueue(
   const due: VocabWord[] = [];
   const fresh: VocabWord[] = [];
   for (const w of vocab) {
-    const c = store[w.greek];
+    const c = store[normalizeKey(w.greek)];
     if (!c) fresh.push(w);
     else if (isDue(c)) due.push(w);
   }
@@ -125,11 +125,11 @@ export default function Flashcards() {
 
   // SRS stats for display
   const dueCount = useMemo(
-    () => filteredVocab.filter(w => { const c = srsStore[w.greek]; return c ? isDue(c) : false; }).length,
+    () => filteredVocab.filter(w => { const c = srsStore[normalizeKey(w.greek)]; return c ? isDue(c) : false; }).length,
     [filteredVocab, srsStore],
   );
   const newCount = useMemo(
-    () => filteredVocab.filter(w => !srsStore[w.greek]).length,
+    () => filteredVocab.filter(w => !srsStore[normalizeKey(w.greek)]).length,
     [filteredVocab, srsStore],
   );
 
@@ -178,9 +178,10 @@ export default function Flashcards() {
 
       if (studyMode === 'srs') {
         setSrsStore(prev => {
-          const existing = prev[card.greek] ?? newCard(card.greek);
+          const k = normalizeKey(card.greek);
+          const existing = prev[k] ?? newCard(k);
           const updated = nextSRS(existing, correct ? 4 : 1);
-          const next = { ...prev, [card.greek]: updated };
+          const next = { ...prev, [k]: updated };
           saveSRSStore(next);
           return next;
         });

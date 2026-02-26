@@ -5,7 +5,9 @@
   "packageManager": "pnpm@10.28.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/build-morphgnt.mjs && astro build",
+    "build:data": "node scripts/build-morphgnt.mjs",
+    "build:data:force": "node scripts/build-morphgnt.mjs --force",
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest",

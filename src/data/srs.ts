@@ -18,8 +18,20 @@ export interface StudyStats {
   totalCorrect: number;
 }
 
-const SRS_KEY = 'greek-tools-srs-v1';
+const SRS_KEY_V1 = 'greek-tools-srs-v1';
+const SRS_KEY = 'greek-tools-srs-v2';
 const STATS_KEY = 'greek-tools-stats-v1';
+
+/**
+ * Normalize a vocabulary entry's greek field to a single canonical lemma form.
+ * Compound entries like 'ὁ, ἡ, τό' become 'ὁ' (the first/primary form).
+ * Simple entries like 'καί' pass through unchanged.
+ * This key is used in the SRS store so lemmas match MorphGNT format.
+ */
+export function normalizeKey(greek: string): string {
+  const comma = greek.indexOf(', ');
+  return comma === -1 ? greek : greek.slice(0, comma);
+}
 
 /** Cards per day required to count as a study day for streak purposes */
 export const STREAK_THRESHOLD = 10;
@@ -86,12 +98,53 @@ export function nextSRS(card: SRSCard, quality: number): SRSCard {
   };
 }
 
-export function loadSRSStore(): Record<string, SRSCard> {
+/**
+ * Migrate v1 store (compound keys like 'ὁ, ἡ, τό') to v2 (first-lemma keys like 'ὁ').
+ * Runs once on first load after upgrade; v1 data is then removed.
+ */
+function migrateV1(): Record<string, SRSCard> {
   try {
-    return JSON.parse(localStorage.getItem(SRS_KEY) ?? '{}') as Record<string, SRSCard>;
+    const raw = localStorage.getItem(SRS_KEY_V1);
+    if (!raw) return {};
+    const v1 = JSON.parse(raw) as Record<string, SRSCard>;
+    const v2: Record<string, SRSCard> = {};
+    for (const [k, card] of Object.entries(v1)) {
+      const newKey = normalizeKey(k);
+      // Don't overwrite if a v2 entry already exists for this key
+      if (!v2[newKey]) v2[newKey] = { ...card, key: newKey };
+    }
+    localStorage.setItem(SRS_KEY, JSON.stringify(v2));
+    localStorage.removeItem(SRS_KEY_V1);
+    return v2;
   } catch {
     return {};
   }
+}
+
+export function loadSRSStore(): Record<string, SRSCard> {
+  try {
+    const raw = localStorage.getItem(SRS_KEY);
+    if (!raw) {
+      // First load after upgrade: check for v1 data to migrate
+      return migrateV1();
+    }
+    return JSON.parse(raw) as Record<string, SRSCard>;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Return the set of lemmas the student has successfully reviewed at least once.
+ * Used by the GNT Reader to visually mark known words.
+ */
+export function getStudiedLemmas(): Set<string> {
+  const store = loadSRSStore();
+  const studied = new Set<string>();
+  for (const [key, card] of Object.entries(store)) {
+    if (card.repetition > 0) studied.add(key);
+  }
+  return studied;
 }
 
 export function saveSRSStore(store: Record<string, SRSCard>): void {

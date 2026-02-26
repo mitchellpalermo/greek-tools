@@ -1,30 +1,160 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const tools = [
+  {
+    href: '/keyboard',
+    icon: '⌨',
+    title: 'Greek Keyboard',
+    description: 'Type Koine Greek using your English keyboard. Supports breathing marks, accents, and iota subscripts.',
+    accentColor: '#1D4ED8',   // cobalt blue
+    bgColor: '#EEF2FF',
+  },
+  {
+    href: '/flashcards',
+    icon: '◫',
+    title: 'Flashcards',
+    description: 'Study vocabulary from the Greek New Testament with spaced-repetition. Learn the most common words first.',
+    accentColor: '#7C3AED',   // grape violet
+    bgColor: '#F5F3FF',
+  },
+  {
+    href: '/reader',
+    icon: '𐤁',
+    title: 'GNT Reader',
+    description: 'Read the Greek New Testament chapter by chapter. Click any word for its lexical form, gloss, and full morphological parse.',
+    accentColor: '#8B4513',   // saddle brown (matches --color-greek)
+    bgColor: '#FDF6EE',
+  },
+  {
+    href: '/transliteration',
+    icon: 'Tt',
+    title: 'Transliteration',
+    description: 'Convert polytonic Greek to SBL romanized transliteration and back. Handles breathing marks, accents, and iota subscripts.',
+    accentColor: '#0D9488',   // teal
+    bgColor: '#F0FDFA',
+  },
+  {
+    href: '/grammar',
+    icon: '⊞',
+    title: 'Grammar Reference',
+    description: 'Paradigm tables for noun declensions, verb conjugations, pronouns, prepositions, and accent rules.',
+    accentColor: '#F43F5E',   // coral rose
+    bgColor: '#FFF1F2',
+  },
+] as const;
 ---
 
 <Layout title="Home">
-  <div class="text-center py-16">
-    <h1 class="text-4xl font-bold text-primary mb-4">greek.tools</h1>
-    <p class="text-lg text-text-muted max-w-2xl mx-auto mb-12">
-      Free, simple utilities for Koine Greek students. Type in Greek, study vocabulary, and strengthen your reading of the New Testament and Septuagint.
+
+  <!-- ── Hero ──────────────────────────────────────────────────────────── -->
+  <div class="text-center pt-12 pb-10">
+
+    <!-- Greek ornament -->
+    <p
+      class="text-5xl mb-4 select-none opacity-20"
+      style="font-family: var(--font-greek); color: var(--color-primary);"
+      aria-hidden="true"
+    >
+      Αα Ββ Γγ
     </p>
 
-    <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-      <a href="/keyboard" class="block bg-bg-card rounded-xl shadow-md hover:shadow-lg transition-shadow p-8 text-left border border-gray-100">
-        <div class="text-3xl mb-3">⌨️</div>
-        <h2 class="text-xl font-semibold text-primary mb-2">Greek Keyboard</h2>
-        <p class="text-text-muted text-sm">
-          Type Koine Greek using your English keyboard. Supports breathing marks, accents, and iota subscripts. Copy and paste anywhere.
-        </p>
-      </a>
+    <h1
+      class="text-5xl font-extrabold mb-4 leading-tight"
+      style="color: var(--color-primary);"
+    >
+      greek<span style="color: var(--color-accent);">.tools</span>
+    </h1>
 
-      <a href="/flashcards" class="block bg-bg-card rounded-xl shadow-md hover:shadow-lg transition-shadow p-8 text-left border border-gray-100">
-        <div class="text-3xl mb-3">📇</div>
-        <h2 class="text-xl font-semibold text-primary mb-2">Flashcards</h2>
-        <p class="text-text-muted text-sm">
-          Study vocabulary from the Greek New Testament. Sorted by frequency so you learn the most common words first.
-        </p>
-      </a>
-    </div>
+    <p class="text-lg text-text-muted max-w-xl mx-auto leading-relaxed">
+      Free, simple utilities for Koine Greek students. Type, study, and
+      strengthen your reading of the New Testament and Septuagint.
+    </p>
   </div>
+
+  <!-- ── Tool cards ────────────────────────────────────────────────────── -->
+  <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto pb-16">
+    {tools.map(({ href, icon, title, description, accentColor, bgColor }) => (
+      <a
+        href={href}
+        class="group block bg-bg-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-white hover:-translate-y-0.5"
+      >
+        <!-- Colored top strip -->
+        <div class="h-1.5 w-full" style={`background: ${accentColor};`} />
+
+        <div class="p-6">
+          <!-- Icon badge -->
+          <div
+            class="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 font-mono font-bold"
+            style={`background: ${bgColor}; color: ${accentColor};`}
+          >
+            {icon}
+          </div>
+
+          <h2
+            class="text-lg font-bold mb-2 group-hover:opacity-80 transition-opacity"
+            style={`color: ${accentColor};`}
+          >
+            {title}
+          </h2>
+
+          <p class="text-text-muted text-sm leading-relaxed">
+            {description}
+          </p>
+        </div>
+
+        <!-- Footer hint -->
+        <div
+          class="px-6 pb-4 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          style={`color: ${accentColor};`}
+        >
+          Open →
+        </div>
+      </a>
+    ))}
+  </div>
+
 </Layout>
+
+<script>
+  // Show "Continue reading" label on the Reader card if a prior passage is saved
+  const READER_HISTORY_KEY = 'greek-tools-reader-last';
+  try {
+    const last = localStorage.getItem(READER_HISTORY_KEY);
+    if (last) {
+      const parts = last.split('.');
+      const bookCode = parts[0];
+      const chapter = parts[1];
+
+      const card = document.querySelector('a[href="/reader"]') as HTMLAnchorElement | null;
+      if (card) {
+      // Point the card to the last passage
+      card.href = `/reader?ref=${last}`;
+
+      // Resolve book name from books.json if available; fall back to code
+      let label = `${bookCode} ${chapter}`;
+
+      const inject = () => {
+        const p = document.createElement('p');
+        p.className = 'text-xs mt-2 font-medium';
+        p.style.color = '#8B4513';
+        p.textContent = `Continue reading: ${label}`;
+        card.querySelector('.p-6')?.appendChild(p);
+      };
+
+      fetch('/data/morphgnt/books.json')
+        .then(r => r.ok ? r.json() : null)
+        .then((books: Array<{ code: string; name: string }> | null) => {
+          if (books) {
+            const match = books.find(b => b.code === bookCode);
+            if (match) label = `${match.name} ${chapter}`;
+          }
+          inject();
+        })
+        .catch(inject);
+      }
+    }
+  } catch {
+    // localStorage unavailable — no-op
+  }
+</script>

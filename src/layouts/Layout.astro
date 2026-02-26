@@ -7,6 +7,16 @@ interface Props {
 }
 
 const { title, description = "Free tools for Koine Greek students — keyboard, flashcards, and more." } = Astro.props;
+
+const navLinks = [
+  { href: '/keyboard',        label: 'Keyboard'        },
+  { href: '/flashcards',      label: 'Flashcards'      },
+  { href: '/reader',          label: 'Reader'          },
+  { href: '/transliteration', label: 'Transliteration' },
+  { href: '/grammar',         label: 'Grammar'         },
+];
+
+const currentPath = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -17,27 +27,94 @@ const { title, description = "Free tools for Koine Greek students — keyboard, 
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title} | greek.tools</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans (all UI) + Noto Sans (Greek text rendering) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
+
   <body class="bg-bg text-text min-h-screen flex flex-col">
-    <nav class="bg-primary text-white px-4 sm:px-6 py-3 sm:py-4">
+
+    <!-- ── Rainbow accent line at top of page ─────────────────────────── -->
+    <div
+      class="h-1 w-full"
+      style="background: linear-gradient(90deg, #1D4ED8 0%, #7C3AED 30%, #F43F5E 55%, #F59E0B 75%, #059669 100%);"
+    ></div>
+
+    <!-- ── Nav ────────────────────────────────────────────────────────── -->
+    <nav class="bg-primary text-white px-4 sm:px-6 py-4 shadow-md">
       <div class="max-w-5xl mx-auto flex items-center justify-between">
-        <a href="/" class="text-lg sm:text-xl font-bold tracking-wide hover:text-accent-light transition-colors">
-          greek.tools
+
+        <!-- Logo -->
+        <a
+          href="/"
+          class="group flex items-baseline gap-0 hover:opacity-90 transition-opacity"
+          aria-label="greek.tools home"
+        >
+          <span class="text-xl font-extrabold tracking-tight leading-none">
+            greek
+          </span>
+          <span class="text-xl font-extrabold tracking-tight leading-none text-accent-light">
+            .tools
+          </span>
         </a>
-        <div class="flex gap-4 sm:gap-6 text-sm">
-          <a href="/keyboard" class="hover:text-accent-light transition-colors">Keyboard</a>
-          <a href="/flashcards" class="hover:text-accent-light transition-colors">Flashcards</a>
-          <a href="/grammar" class="hover:text-accent-light transition-colors">Grammar</a>
+
+        <!-- Nav links -->
+        <div class="flex gap-1">
+          {navLinks.map(({ href, label }) => {
+            const isActive = currentPath.startsWith(href);
+            return (
+              <a
+                href={href}
+                class={[
+                  'px-3 py-1.5 rounded-md text-sm font-semibold transition-colors',
+                  isActive
+                    ? 'bg-white/20 text-white'
+                    : 'text-white/80 hover:text-white hover:bg-white/10',
+                ].join(' ')}
+              >
+                {label}
+              </a>
+            );
+          })}
         </div>
+
       </div>
     </nav>
 
+    <!-- ── Main content ────────────────────────────────────────────────── -->
     <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
       <slot />
     </main>
 
-    <footer class="bg-primary text-white/60 text-sm text-center py-4">
-      <p>greek.tools — free utilities for Koine Greek students</p>
+    <!-- ── Footer ─────────────────────────────────────────────────────── -->
+    <footer class="bg-primary text-white/60 text-sm text-center py-5">
+      <p>
+        greek.tools — free utilities for Koine Greek students
+        <span class="mx-2 opacity-40">·</span>
+        <!-- Easter egg: ὁπλον means "tool" in ancient Greek -->
+        <span class="group relative inline-block cursor-help">
+          <span
+            class="opacity-30 group-hover:opacity-100 transition-all duration-300 group-hover:text-accent-light"
+            style="font-family: var(--font-greek);"
+          >
+            ὁπλον
+          </span>
+          <span class="
+            pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+            bg-text text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap
+            opacity-0 group-hover:opacity-100 transition-opacity duration-200
+            shadow-lg
+          ">
+            ancient Greek for <em>"tool"</em>
+          </span>
+        </span>
+      </p>
     </footer>
+
   </body>
 </html>

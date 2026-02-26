@@ -8,7 +8,7 @@ A set of clean, scannable reference tables covering the core grammatical paradig
 
 ## Status
 
-**Complete.** All five sections implemented in `GrammarReference.tsx` and live at `/grammar`: noun/adjective declension tables, verb conjugation tables, pronoun reference, preposition quick reference, and accent rules summary. Includes sticky sidebar nav, hover tooltips, and endings-only toggle.
+**Complete.** All five sections implemented in `GrammarReference.tsx` and live at `/grammar`: noun/adjective declension tables, verb conjugation tables, pronoun reference, preposition quick reference, and accent rules summary. Includes sticky sidebar nav (desktop), horizontal scroll nav (mobile), hover tooltips, and endings-only toggle.
 
 ---
 
@@ -54,7 +54,7 @@ Display indicative and common non-indicative paradigms for λύω as the base mo
 **Behavior:**
 - Person × number grid (1sg, 2sg, 3sg, 1pl, 2pl, 3pl)
 - Label each form with its full parse on hover
-- Navigation tabs or a sidebar to switch between tense/mood/voice combinations
+- Sidebar navigation to switch between tense/mood/voice combinations
 
 ### 3. Pronoun Reference
 
@@ -71,9 +71,8 @@ Quick-reference tables for the pronouns students encounter most.
 A single-page reference card for all GNT prepositions, organized by the case(s) they govern.
 
 **Behavior:**
-- Group prepositions by case (genitive only, accusative only, both, dative, all three)
+- Group prepositions by case (genitive only, accusative only, dative only, multiple cases)
 - For each preposition: show the Greek form, the case(s) it takes, and primary glosses per case
-- Visual diagram optional (showing spatial sense of each preposition)
 
 ### 5. Accent Rules Summary
 
@@ -93,10 +92,11 @@ A structured summary of Greek accent rules for students who need a reference whi
 - Paradigm-based quizzing (see Parsing & Drills PRD)
 - Syntax rules or clause-level grammar
 - Audio
+- Print/PDF export (see below)
 
 ---
 
-## Open Questions
+## Decisions
 
-- Should all paradigms live on one long scrollable page with anchor links, or be split across sub-pages by category?
-- Is a print/PDF export button worth including?
+- **Layout:** One long scrollable page with sticky sidebar nav (desktop) / horizontal scroll nav (mobile). Sub-pages were considered but add navigation overhead for a reference tool; single-page with anchors is faster for lookup.
+- **Print export:** Not implemented. The browser's native print/PDF functionality (Cmd+P) is sufficient for the use case of printing paradigm tables. A dedicated export button would add complexity without meaningful gain.

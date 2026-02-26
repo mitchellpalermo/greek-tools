@@ -8,13 +8,15 @@ Extend the existing flashcard tool with smarter study modes, filtering, and prog
 
 ## Status
 
-**Partially complete.** Four of six features shipped:
+**Partially complete.** Six of eight features shipped:
 - ✅ Feature 1 — Spaced Repetition (SRS)
 - ✅ Feature 2 — Frequency & Part-of-Speech Filters
 - ❌ Feature 3 — Textbook Chapter Sets (not started)
 - ✅ Feature 4 — Answer Modes (flip + type)
 - ✅ Feature 5 — Progress Tracking & Streaks
 - ❌ Feature 6 — Custom Deck Builder (not started)
+- ✅ Feature 7 — Direction Toggle (Greek → English / English → Greek)
+- ✅ Feature 8 — Keyboard Shortcuts
 
 ---
 
@@ -34,18 +36,19 @@ Replace random card cycling with a simple spaced repetition algorithm. When a us
 
 **Behavior:**
 - Cards marked "hard" reappear sooner; cards marked "easy" reappear later
-- Use a simplified SM-2 or Leitner-style algorithm
-- Session state and intervals stored in `localStorage`
-- "Reset progress" option available in settings
+- Simplified SM-2 algorithm; SRS mode vs. "Study All" toggle in the UI
+- Session state and intervals stored in `localStorage` under `greek-tools-srs-v2`
+- "Reset SRS" option available in the footer
 
 ### 2. Frequency & Part-of-Speech Filters
 
 Let students narrow the deck before starting a session.
 
 **Behavior:**
-- Frequency filter: slider or preset ranges (e.g., 500+, 100–499, 50–99, <50 occurrences)
-- Part-of-speech filter: checkboxes for noun, verb, adjective, pronoun, preposition, conjunction, adverb
-- Filters persist for the session; reset on page load
+- Frequency filter: preset ranges (500+, 100–499, 50–99, <50 occurrences)
+- Part-of-speech filter: toggles for noun, verb, adjective, pronoun, preposition, conjunction, adverb, article
+- Active filter count shown on the Filters button
+- Filters reset on page load
 
 ### 3. Textbook Chapter Sets
 
@@ -64,22 +67,22 @@ Pre-built vocabulary lists mapped to common Koine Greek textbooks.
 
 Give students two ways to interact with cards.
 
-**Flip mode (current):** Show Greek, click to reveal English gloss.
+**Flip mode:** Show front, click to reveal back; rate as "Got it" or "Still Learning."
 
-**Type mode:** Show Greek, student types the gloss, submission is checked with fuzzy matching (case-insensitive, minor spelling tolerance).
+**Type mode:** Student types the answer; submission is checked with fuzzy matching (case-insensitive, Levenshtein distance ≤ 1 for strings > 3 chars). Correct answer shown after wrong submission.
 
 **Behavior:**
 - Toggle between modes in the UI
-- Type mode shows correct answer after wrong submission before advancing
+- In type mode, Enter key submits the answer
 
 ### 5. Progress Tracking & Streaks
 
 Lightweight persistence using `localStorage` to reward consistent study.
 
 **Behavior:**
-- Track cards studied per day
-- Show a streak counter (consecutive days with at least 10 cards reviewed)
-- Show a simple stats panel: total cards learned, current streak, accuracy rate
+- Track cards studied per day; streak increments when daily goal (10 cards) is met
+- Stats bar shows: Due / New (SRS mode) or Card N/Total (Study All), Today's progress, Streak, Accuracy
+- Session summary screen on completion: percentage score, known vs. still-learning count
 - No account required; data lives in the browser
 
 ### 6. Custom Deck Builder
@@ -91,6 +94,25 @@ Let students create and save their own word lists.
 - Name and save multiple decks to `localStorage`
 - Study a custom deck the same as any other
 
+### 7. Direction Toggle (Greek → English / English → Greek)
+
+Study cards in either direction.
+
+**Behavior:**
+- Toggle in the controls bar: "Greek → English" / "English → Greek"
+- Front and back of cards swap accordingly
+- Compatible with both Flip and Type answer modes
+
+### 8. Keyboard Shortcuts
+
+Desktop keyboard navigation for faster review in Flip mode.
+
+**Behavior:**
+- `Space` or `Enter` — flip the card
+- `→` — mark as "Got it" (after flip)
+- `←` — mark as "Still Learning" (after flip)
+- In Type mode, `Enter` submits the answer
+
 ---
 
 ## Out of Scope
@@ -101,7 +123,7 @@ Let students create and save their own word lists.
 
 ---
 
-## Open Questions
+## Decisions
 
-- Should textbook chapter data be bundled in the codebase or fetched from a file?
-- What fuzzy matching threshold works well for type mode?
+- **Fuzzy matching threshold:** Levenshtein distance ≤ 1 for words longer than 3 characters, plus prefix matching (answer is prefix of correct gloss). Handles minor typos without being too lenient.
+- **Textbook chapter data:** Will be bundled in the codebase as a static JSON file.

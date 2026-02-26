@@ -8,7 +8,7 @@ A passage reader for the Greek New Testament with inline vocabulary help and mor
 
 ## Status
 
-**Complete.** GNTReader component, `/reader` route, MorphGNT data layer, and build script are all implemented. Reading history (localStorage) and homepage "Continue reading" integration are live.
+**Complete.** GNTReader component, `/reader` route, MorphGNT data layer, and build script are all implemented. Reading history (localStorage) and homepage "Continue reading" integration are live. Chapter navigation arrows and verse-anchor scrolling are also implemented.
 
 ---
 
@@ -41,10 +41,11 @@ The dataset provides per word: word form, normalized form, lemma, part of speech
 Student selects a passage to read by book and chapter. The full chapter is always loaded.
 
 **Behavior:**
-- Dropdown or searchable selector: Book → Chapter
-- URL reflects the selected passage (e.g., `/reader?ref=John.3`) for shareability and bookmarking
+- Two dropdowns: Book → Chapter
+- URL reflects the selected passage (e.g., `/reader?ref=JHN.3`) for shareability and bookmarking
 - Default on first load: John 1
-- Individual verse anchors in the URL are supported for linking to a specific starting point within a chapter (e.g., `/reader?ref=John.3.16` scrolls to verse 16)
+- Individual verse anchors in the URL are supported for deep-linking (e.g., `/reader?ref=JHN.3.16` scrolls to verse 16)
+- **Chapter navigation arrows (← →)** in the toolbar for sequential reading; previous button disabled on chapter 1, next disabled on the final chapter
 
 ### 2. Greek Text Display
 
@@ -52,24 +53,25 @@ Render the passage word by word, styled for comfortable reading.
 
 **Behavior:**
 - Words displayed in natural reading order, left to right, with line wrapping
-- Each word is an interactive element (hover/tap triggers the word popup — see below)
-- Font: a serif Greek font (e.g., SBL Greek or GFS Didot) at a comfortable reading size
-- Verse numbers displayed inline in a smaller, muted style
-- Punctuation preserved and displayed
+- Each word is an interactive element (click/tap triggers the word popup)
+- Font: GFS Didot (open source, LGPL) at 1.35rem
+- Verse numbers displayed inline as superscripts in a smaller, muted style
+- Punctuation preserved and displayed (separated from the word span so it doesn't interfere with tap targets)
 
 ### 3. Word Popup (On Demand Help)
 
 Clicking or tapping a word reveals a small popup with:
 - The lexical form (lemma)
-- Gloss (English meaning)
+- Gloss (English meaning, from `vocabulary.ts`)
 - Full morphological parse (e.g., "Verb — Present Active Indicative 3rd Singular")
 - Frequency in the GNT
 - Link to study this word in Flashcards
 
 **Behavior:**
-- Popup dismisses on click-away or pressing Escape
+- Popup dismisses on click-away, scroll, or pressing Escape
 - Only one popup open at a time
-- Words the student has already studied in Flashcards can be visually marked (subtle underline or color) if progress data is available in localStorage
+- Popup positioned below the tapped word, constrained within the viewport
+- Words the student has already studied in Flashcards marked with a dotted underline
 
 ### 4. Inline Gloss Mode
 
@@ -77,17 +79,17 @@ A toggle that shows a small gloss beneath every word simultaneously, turning the
 
 **Behavior:**
 - Toggle button in the toolbar ("Show glosses" / "Hide glosses")
-- Glosses appear in a smaller font directly below each Greek word
-- Intended as a check after reading, not a crutch — the toggle state is not persisted
+- Glosses appear in a smaller font (0.62rem) directly below each Greek word
+- First gloss segment only shown (before the first comma) to keep it compact
+- Toggle state is not persisted
 
 ### 5. Reading History
 
 Remember the student's most recent passage so they can pick up where they left off.
 
 **Behavior:**
-- Store the single most recently visited passage reference in localStorage
-- Homepage shows a "Continue reading: [Book Chapter:Verse]" link when a prior passage exists
-- No list, no account required
+- Store the single most recently visited passage reference in `localStorage` under `greek-tools-reader-last`
+- Homepage shows a "Continue reading: [Book Chapter]" link when a prior passage exists and routes directly to that passage
 
 ---
 
@@ -103,10 +105,10 @@ Remember the student's most recent passage so they can pick up where they left o
 ## Decisions
 
 - **Dataset:** MorphGNT (decided)
-- **Bundling strategy:** Per-book JSON files generated at build time from MorphGNT source, output to `public/data/morphgnt/` (e.g., `JHN.json`, `ROM.json`). Fetched on demand at runtime when the user selects a passage; cached in memory for the session. Cloudflare Workers serves these with Brotli compression automatically.
+- **Bundling strategy:** Per-book JSON files generated at build time from MorphGNT source, output to `public/data/morphgnt/` (e.g., `JHN.json`, `ROM.json`). Fetched on demand at runtime when the user selects a passage; cached in memory for the session. Cloudflare serves these with Brotli compression automatically.
 - **Passage granularity:** Chapter at a time. The selector is Book → Chapter. Individual verse anchors are supported in the URL for deep-linking.
-- **Gloss data source:** MorphGNT provides lemmas but not English glosses. The existing `vocabulary.ts` dataset (high-frequency GNT words with glosses) will be the primary source. For lemmas not covered by that list, display the lemma only with no English gloss — this is acceptable since lower-frequency words are less likely to be needed on demand. A fuller open lexicon can be added later if the gap is significant.
-- **Greek font:** GFS Didot (open source, LGPL) as the default; SBL Greek listed as an alternative note in the UI since it requires a separate download and has distribution restrictions.
-- **Mobile tap interaction:** Use tap delay + movement detection on touch devices. On `touchstart`, start a short timer; if the finger moves more than ~5px before `touchend` (scroll intent), cancel the popup. If the finger lifts without moving, open the popup. This is invisible to the user and avoids accidental popups while scrolling.
-- **Flashcards integration:** SRS card keys will be normalized to individual lemma forms (e.g., `'ὁ'` not `'ὁ, ἡ, τό'`) so they match MorphGNT lemmas directly. This requires bumping the store to `greek-tools-srs-v2` with a one-time migration from `v1`. The Reader reads studied words via a `getStudiedLemmas(): Set<string>` helper exported from `srs.ts`.
-- **LXX:** Out of scope for v1.
+- **Gloss data source:** MorphGNT provides lemmas but not English glosses. The existing `vocabulary.ts` dataset is the primary source. For lemmas not covered, the popup shows "gloss not available" — acceptable since lower-frequency words are less likely to be needed on demand. A fuller open lexicon can be added later (see Lexicon PRD).
+- **Greek font:** GFS Didot (open source, LGPL).
+- **Mobile tap interaction:** `touchAction: 'manipulation'` on word tokens suppresses the 300ms tap delay and prevents double-tap zoom without requiring custom timer logic. The simpler approach was chosen over the described timer + movement detection.
+- **Flashcards integration:** SRS card keys are normalized to individual lemma forms so they match MorphGNT lemmas directly. The Reader reads studied words via `getStudiedLemmas(): Set<string>` exported from `srs.ts`.
+- **LXX:** Out of scope for v1 (see LXX Reader PRD).

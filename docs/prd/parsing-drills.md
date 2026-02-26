@@ -40,9 +40,9 @@ Present a Greek word form and ask the student to identify its grammatical parse.
 - Track accuracy per session
 - Option to filter drill by: word category (nouns only, verbs only, all), difficulty (common forms only vs. including 3rd declension / perfect / participles)
 
-**Data requirement:**
-- Needs a dataset of inflected forms with their correct parses
-- Could start with a curated hand-built set of ~200–400 common forms; expand later
+**Data source:**
+- MorphGNT is now fully integrated and available at `public/data/morphgnt/`. It provides inflected forms with correct morphological tags for every word in the GNT — this is the preferred data source. Filter to high-frequency lemmas for a starter drill set.
+- A curated hand-built set of ~200–400 common forms is also viable as a lighter alternative.
 
 ### 2. Principal Parts Drill
 
@@ -77,12 +77,11 @@ A targeted drill for beginners on matching the definite article to a noun in cas
 ## Out of Scope
 
 - Full sentence parsing or syntax analysis
-- Generating novel inflected forms programmatically at runtime (start with a curated dataset)
+- Generating novel inflected forms programmatically at runtime (start with a dataset)
 - Timed/competitive modes
 
 ---
 
 ## Open Questions
 
-- Where does the inflected form dataset come from? Options: hand-curate a starter set, use a public morphologically-tagged GNT dataset (e.g., MorphGNT), or generate forms from paradigm rules.
 - Should parsing drill and principal parts live on one `/drills` page with tabs, or separate routes?

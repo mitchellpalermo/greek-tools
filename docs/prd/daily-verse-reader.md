@@ -16,7 +16,7 @@ A daily reading feature that surfaces one GNT verse per day in Greek, tracks a r
 
 ## Status
 
-**Complete.** All four features implemented: `/daily` route with `DailyVerse` component, 62-verse curated list in `src/data/dailyVerses.ts`, localStorage streak tracking, vocabulary crossover from Flashcards SRS data, and homepage card + nav link. Word-popup help reuses shared `GreekText.tsx` components. Open questions resolved: verse sequence is hard-coded in the codebase; started with a curated 62-verse list (expandable).
+**Complete.** All features implemented: `/daily` route with `DailyVerse` component, 62-verse curated list in `src/data/dailyVerses.ts`, localStorage streak tracking, vocabulary crossover from Flashcards SRS data, inline gloss toggle, and homepage card + nav link. Word-popup help reuses shared `GreekText.tsx` components.
 
 ---
 
@@ -35,9 +35,10 @@ Show one GNT verse per day in Greek with the same word-popup help as the GNT Rea
 **Behavior:**
 - Verse is the same for all users on a given calendar day (deterministic selection, not personalized)
 - Verse changes at midnight local time
-- Default verse sequence: curated list of pedagogically useful passages (not random); could follow a simple through-the-NT order or a hand-selected list of ~365 verses
+- Verse sequence: 62-verse hand-curated list hard-coded in `src/data/dailyVerses.ts`; cycles after the last verse
 - Verse reference displayed below the text (e.g., "John 3:16")
 - Link to open the full chapter in the GNT Reader
+- **Show/Hide glosses toggle** — inline gloss mode identical to the GNT Reader; displays a small English gloss beneath each Greek word. Toggle state is not persisted.
 
 ### 2. Reading Streak
 
@@ -51,12 +52,13 @@ Track consecutive days the student has opened the daily verse.
 
 ### 3. Vocabulary Crossover
 
-Words in the verse that the student has already marked as known in Flashcards are visually distinguished (subtle underline or muted color).
+Words in the verse that the student has already studied in Flashcards are visually distinguished (dotted underline).
 
 **Behavior:**
-- Reads known-word list from `localStorage` (same key used by Flashcards SRS data)
-- Words not yet studied are displayed normally, prompting curiosity
-- Does not require Flashcards to be used first; gracefully degrades if no data exists
+- Reads studied lemma set from `localStorage` via `getStudiedLemmas()` from `srs.ts`
+- Words not yet studied are displayed normally
+- Gracefully degrades if no SRS data exists
+- A legend below the verse explains the dotted underline when SRS data is present
 
 ### 4. Entry Point
 
@@ -68,11 +70,11 @@ A dedicated `/daily` route plus a prominent card on the homepage directing stude
 
 - User-selected verse sequences or custom schedules
 - Push notifications or email reminders
-- Social sharing
+- Social sharing (see Share a Verse PRD)
 
 ---
 
-## Open Questions
+## Decisions
 
-- Should the verse sequence be hard-coded in the codebase or driven by a data file?
-- Is a curated 365-verse list feasible to assemble, or should we start with a simpler through-the-NT approach?
+- **Verse sequence:** Hard-coded 62-verse curated list in `dailyVerses.ts`. Started with a manageable set rather than a full 365-verse list; can be expanded incrementally.
+- **Inline glosses:** Added Show/Hide glosses toggle (same as GNT Reader) since the shared `GreekText.tsx` `WordToken` component already supports it at zero extra cost.

@@ -11,6 +11,14 @@ export const prerender = false;
  * parsing combination (written by the challenge endpoint) to reflect correctness.
  */
 export const POST: APIRoute = async ({ request, locals }) => {
+  // Dev bypass — no Clerk/D1 in astro dev
+  if (import.meta.env.DEV && typeof locals.auth !== 'function') {
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const { userId } = locals.auth();
   if (!userId) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {

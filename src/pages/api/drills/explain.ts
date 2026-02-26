@@ -9,7 +9,34 @@ import {
 
 export const prerender = false;
 
+// Dev mock — streamed explanation returned when running `astro dev` without Clerk/D1
+const DEV_MOCK_EXPLANATION =
+  'λόγος ends in -ος, the standard nominative singular ending for 2nd-declension masculine nouns. ' +
+  'The lexical form λόγος is itself nominative singular masculine — so when you see this word ' +
+  'unmodified in a sentence it is functioning as a subject. ' +
+  'Compare the genitive λόγου (-ου) and dative λόγῳ (-ῳ) to see how the ending shifts across cases.';
+
 export const POST: APIRoute = async ({ request, locals }) => {
+  // Dev bypass — stream a canned explanation without calling Anthropic
+  if (import.meta.env.DEV && typeof locals.auth !== 'function') {
+    const encoder = new TextEncoder();
+    const words = DEV_MOCK_EXPLANATION.split(' ');
+    const readable = new ReadableStream({
+      async start(controller) {
+        for (const word of words) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: word + ' ' })}\n\n`));
+          await new Promise(r => setTimeout(r, 40)); // simulate streaming
+        }
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
+      },
+    });
+    return new Response(readable, {
+      status: 200,
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' },
+    });
+  }
+
   const { userId } = locals.auth();
   if (!userId) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {

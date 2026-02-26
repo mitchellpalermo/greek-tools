@@ -2,7 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import { isDrillsEnabled } from '../lib/features';
 
-const drillsOn = isDrillsEnabled(Astro.locals.runtime?.env);
+const drillsOn =
+  isDrillsEnabled(Astro.locals.runtime?.env) ||
+  import.meta.env.PUBLIC_DRILLS_ENABLED === 'true';
 
 const tools = [
   {
@@ -59,7 +61,7 @@ const drillCard = {
   href: '/drills',
   icon: 'α',
   title: 'Parsing Drills',
-  description: 'AI-powered parsing challenges from the Greek New Testament. Get instant feedback and detailed explanations. Subscription required.',
+  description: 'Drill morphological parsing with real Greek New Testament words. Covers nouns, adjectives, verbs, infinitives, and participles.',
   accentColor: '#7C3AED',   // grape violet
   bgColor: '#F5F3FF',
 } as const;

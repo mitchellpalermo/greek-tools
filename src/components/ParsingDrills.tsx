@@ -4,7 +4,7 @@ import { formatParse } from '../data/morphgnt';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type DrillState = 'loading' | 'answering' | 'feedback' | 'explaining';
+type DrillState = 'loading' | 'answering' | 'feedback';
 
 const NOMINAL_POS = new Set(['N-', 'A-', 'RA', 'RP', 'RR', 'RD', 'RI', 'RX']);
 
@@ -73,9 +73,7 @@ export default function ParsingDrills() {
   const [challenge, setChallenge] = useState<ChallengeResponse | null>(null);
   const [selection, setSelection] = useState<ParseSelection>({});
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [explanation, setExplanation] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
-  const explanationRef = useRef('');
 
   // ── Fetch a new challenge ────────────────────────────────────────────────────
   const loadChallenge = useCallback(async () => {
@@ -83,17 +81,10 @@ export default function ParsingDrills() {
     setChallenge(null);
     setSelection({});
     setIsCorrect(null);
-    setExplanation('');
-    explanationRef.current = '';
     setLoadError(null);
 
     try {
       const res = await fetch('/api/drills/challenge', { method: 'POST' });
-      if (res.status === 429) {
-        setLoadError("You've reached today's challenge limit. Come back tomorrow!");
-        setState('feedback');
-        return;
-      }
       if (!res.ok) {
         const data = (await res.json()) as { error?: string };
         setLoadError(data.error ?? 'Failed to load challenge');
@@ -123,7 +114,7 @@ export default function ParsingDrills() {
     setIsCorrect(correct);
     setState('feedback');
 
-    // Record result (fire-and-forget)
+    // Record result fire-and-forget (best-effort; will no-op in dev without D1)
     fetch('/api/drills/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -134,64 +125,6 @@ export default function ParsingDrills() {
         correct,
       }),
     }).catch(() => {/* ignore */});
-  }
-
-  // ── Stream explanation ───────────────────────────────────────────────────────
-  async function handleExplain() {
-    if (!challenge) return;
-    setState('explaining');
-    setExplanation('');
-    explanationRef.current = '';
-
-    const correctParse = formatParse(challenge.pos, challenge.parsing);
-    const studentParse = formatParse(challenge.pos, buildStudentParseCode(challenge, selection));
-
-    try {
-      const res = await fetch('/api/drills/explain', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          word: challenge.word,
-          lemma: challenge.lemma,
-          pos: challenge.pos,
-          correctParse,
-          studentParse,
-        }),
-      });
-
-      if (!res.ok || !res.body) {
-        setExplanation('Could not load explanation. Please try again.');
-        return;
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const payload = line.slice(6);
-          if (payload === '[DONE]' || payload === '[ERROR]') continue;
-          try {
-            const { text } = JSON.parse(payload) as { text: string };
-            explanationRef.current += text;
-            setExplanation(explanationRef.current);
-          } catch {
-            // ignore malformed SSE line
-          }
-        }
-      }
-    } catch {
-      setExplanation('Failed to load explanation.');
-    }
   }
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -289,7 +222,6 @@ export default function ParsingDrills() {
               {challenge.parsing[3] !== 'N' && (
                 <ButtonGroup label="Mood" options={MOODS} labels={MOOD_LABELS} value={selection.mood ?? (challenge.parsing[3] === 'P' ? 'P' : undefined)} onChange={v => setField('mood', v)} disabled={!isAnswering} />
               )}
-              {/* Infinitives: just tense + voice (already shown above) */}
               {/* Participles: add case/number/gender */}
               {(selection.mood === 'P' || challenge.parsing[3] === 'P') && (
                 <>
@@ -322,7 +254,7 @@ export default function ParsingDrills() {
       )}
 
       {/* ── Feedback card ─────────────────────────────────────────────────── */}
-      {(state === 'feedback' || state === 'explaining') && challenge && !loadError && (
+      {state === 'feedback' && challenge && !loadError && (
         <div
           className="rounded-2xl p-6 mb-6"
           style={{
@@ -340,30 +272,6 @@ export default function ParsingDrills() {
             <span className="font-medium">Correct parse: </span>
             {formatParse(challenge.pos, challenge.parsing)}
           </p>
-
-          {!isCorrect && state === 'feedback' && (
-            <button
-              onClick={() => void handleExplain()}
-              className="mt-4 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all"
-              style={{ background: 'var(--color-coral, #F43F5E)' }}
-            >
-              Explain this →
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* ── Explanation panel ─────────────────────────────────────────────── */}
-      {state === 'explaining' && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-muted)' }}>
-            Explanation
-          </p>
-          {explanation ? (
-            <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-wrap">{explanation}</p>
-          ) : (
-            <p className="text-sm text-text-muted animate-pulse">Generating explanation…</p>
-          )}
         </div>
       )}
 
@@ -375,7 +283,7 @@ export default function ParsingDrills() {
       )}
 
       {/* ── Next challenge button ──────────────────────────────────────────── */}
-      {(state === 'feedback' || state === 'explaining') && (
+      {state === 'feedback' && (
         <div className="text-center">
           <button
             onClick={() => void loadChallenge()}
@@ -388,32 +296,4 @@ export default function ParsingDrills() {
       )}
     </div>
   );
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Build an approximate 8-char parse code from the student's selection.
- * Used only for display purposes in the explanation prompt.
- */
-function buildStudentParseCode(
-  challenge: ChallengeResponse,
-  sel: ParseSelection,
-): string {
-  const p = challenge.parsing.split('');
-  if (NOMINAL_POS.has(challenge.pos)) {
-    if (sel.case)   p[4] = sel.case;
-    if (sel.number) p[5] = sel.number;
-    if (sel.gender) p[6] = sel.gender;
-  } else if (challenge.pos === 'V-') {
-    const mood = sel.mood ?? challenge.parsing[3];
-    if (sel.person) p[0] = sel.person;
-    if (sel.tense)  p[1] = sel.tense;
-    if (sel.voice)  p[2] = sel.voice;
-    p[3] = mood ?? '-';
-    if (sel.case)   p[4] = sel.case;
-    if (sel.number) p[5] = sel.number;
-    if (sel.gender) p[6] = sel.gender;
-  }
-  return p.join('');
 }

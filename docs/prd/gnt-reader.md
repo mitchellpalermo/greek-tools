@@ -6,6 +6,12 @@ A passage reader for the Greek New Testament with inline vocabulary help and mor
 
 ---
 
+## Status
+
+**Complete.** GNTReader component, `/reader` route, MorphGNT data layer, and build script are all implemented. Reading history (localStorage) and homepage "Continue reading" integration are live.
+
+---
+
 ## Priority
 
 High — foundational feature; Daily Verse Reader and Verse Memorization both depend on it.

@@ -6,6 +6,12 @@ A set of clean, scannable reference tables covering the core grammatical paradig
 
 ---
 
+## Status
+
+**Complete.** All five sections implemented in `GrammarReference.tsx` and live at `/grammar`: noun/adjective declension tables, verb conjugation tables, pronoun reference, preposition quick reference, and accent rules summary. Includes sticky sidebar nav, hover tooltips, and endings-only toggle.
+
+---
+
 ## Goals
 
 - Give students a fast, browser-accessible alternative to flipping through a textbook

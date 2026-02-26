@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DailyVerse from '../components/DailyVerse';
+---
+
+<Layout
+  title="Daily Verse"
+  description="Read one Greek New Testament verse per day in the original Greek. Build a reading habit with streak tracking and on-demand vocabulary help."
+>
+  <div class="mb-6">
+    <h1
+      class="text-3xl font-bold mb-1"
+      style="color: var(--color-accent);"
+    >
+      Daily Verse
+    </h1>
+    <p class="text-text-muted">
+      One verse per day in the original Greek. Click any word for its lexical form, gloss, and parse.
+    </p>
+  </div>
+
+  <DailyVerse client:load />
+</Layout>

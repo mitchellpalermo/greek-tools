@@ -22,5 +22,8 @@
   },
   "devDependencies": {
     "wrangler": "^4.68.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp", "workerd"]
   }
 }

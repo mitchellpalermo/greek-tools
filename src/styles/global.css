@@ -1,13 +1,53 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens ─────────────────────────────────────────────────────────
+   Single source of truth for the design system.
+   All --color-* values become Tailwind utilities (bg-*, text-*, border-*).
+   All --font-* values become Tailwind utilities (font-*).
+   ──────────────────────────────────────────────────────────────────────── */
+
 @theme {
-  --color-primary: #1e3a5f;
-  --color-primary-light: #2d5a8e;
-  --color-accent: #c49b3c;
-  --color-accent-light: #d4af5f;
-  --color-bg: #faf8f5;
-  --color-bg-card: #ffffff;
-  --color-text: #2c2c2c;
-  --color-text-muted: #6b7280;
-  --color-greek: #8b4513;
+  /* ── Brand palette ──────────────────────────────────────────────────── */
+  --color-primary:        #1D4ED8;   /* Cobalt blue — nav, buttons, links        */
+  --color-primary-light:  #3B82F6;   /* Sky blue — hover state                   */
+
+  --color-accent:         #F59E0B;   /* Amber gold — streak, highlights          */
+  --color-accent-light:   #FCD34D;   /* Pale gold — soft accents                 */
+
+  /* ── Vibrant accent palette ─────────────────────────────────────────── */
+  --color-coral:          #F43F5E;   /* Rose coral — danger / still-learning     */
+  --color-jade:           #059669;   /* Emerald green — correct / success        */
+  --color-grape:          #7C3AED;   /* Violet — tertiary accent                 */
+
+  /* ── Surfaces ───────────────────────────────────────────────────────── */
+  --color-bg:             #F0F4FF;   /* Indigo-tinted page background            */
+  --color-bg-card:        #FFFFFF;   /* Pure white cards                         */
+
+  /* ── Text ───────────────────────────────────────────────────────────── */
+  --color-text:           #1E1B4B;   /* Deep indigo — primary text               */
+  --color-text-muted:     #6B7280;   /* Cool gray — secondary / hint text        */
+
+  /* ── Greek script color (alias for grape) ───────────────────────────── */
+  --color-greek:          #7C3AED;   /* Vivid violet — Greek text rendering      */
+
+  /* ── Typography ─────────────────────────────────────────────────────── */
+  --font-sans:   'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-greek:  'Noto Sans', system-ui, sans-serif;   /* Greek-script text */
+}
+
+/* ─── Base Styles ──────────────────────────────────────────────────────────
+   Keep this section minimal — component-specific styles live in the
+   components themselves via Tailwind utilities.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }

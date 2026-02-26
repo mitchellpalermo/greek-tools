@@ -25,3 +25,10 @@ pnpm-debug.log*
 
 # Claude Code worktrees
 .claude/worktrees/
+
+# test coverage output
+coverage/
+
+# Playwright test results
+playwright-report/
+test-results/

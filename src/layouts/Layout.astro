@@ -132,7 +132,7 @@ function isActive(href: string) {
         style="background: linear-gradient(90deg, #1D4ED8 0%, #7C3AED 30%, #F43F5E 55%, #F59E0B 75%, #059669 100%);"
       ></div>
 
-      <div class="flex justify-around items-stretch h-16">
+      <div class="flex justify-around items-stretch h-[72px]">
 
         <!-- Keyboard -->
         <a
@@ -142,7 +142,7 @@ function isActive(href: string) {
           aria-current={isActive('/keyboard') ? 'page' : undefined}
         >
           <span class:list={["tab-pill", { "tab-pill-active": isActive('/keyboard') }]}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="2" y="6" width="20" height="12" rx="2" ry="2"/>
               <circle cx="6" cy="10" r="1" fill="currentColor" stroke="none"/>
               <circle cx="10" cy="10" r="1" fill="currentColor" stroke="none"/>
@@ -164,7 +164,7 @@ function isActive(href: string) {
           aria-current={isActive('/flashcards') ? 'page' : undefined}
         >
           <span class:list={["tab-pill", { "tab-pill-active": isActive('/flashcards') }]}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="2" y="6" width="20" height="14" rx="2"/>
               <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
               <line x1="12" y1="11" x2="12" y2="16"/>
@@ -182,7 +182,7 @@ function isActive(href: string) {
           aria-current={isActive('/daily') ? 'page' : undefined}
         >
           <span class:list={["tab-pill", { "tab-pill-active": isActive('/daily') }]}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="4"/>
               <line x1="12" y1="2" x2="12" y2="5"/>
               <line x1="12" y1="19" x2="12" y2="22"/>
@@ -205,7 +205,7 @@ function isActive(href: string) {
           aria-current={isActive('/reader') ? 'page' : undefined}
         >
           <span class:list={["tab-pill", { "tab-pill-active": isActive('/reader') }]}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
             </svg>
@@ -221,7 +221,7 @@ function isActive(href: string) {
           aria-current={isActive('/transliteration') ? 'page' : undefined}
         >
           <span class:list={["tab-pill", { "tab-pill-active": isActive('/transliteration') }]}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="4 7 4 4 20 4 20 7"/>
               <line x1="9" y1="20" x2="15" y2="20"/>
               <line x1="12" y1="4" x2="12" y2="20"/>
@@ -238,7 +238,7 @@ function isActive(href: string) {
           aria-current={isActive('/grammar') ? 'page' : undefined}
         >
           <span class:list={["tab-pill", { "tab-pill-active": isActive('/grammar') }]}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
               <line x1="9" y1="7" x2="15" y2="7"/>
@@ -295,7 +295,7 @@ function isActive(href: string) {
   }
 
   .tab-label {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.02em;
     line-height: 1;

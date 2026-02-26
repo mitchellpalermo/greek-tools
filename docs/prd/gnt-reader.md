@@ -6,6 +6,12 @@ A passage reader for the Greek New Testament with inline vocabulary help and mor
 
 ---
 
+## Priority
+
+High — foundational feature; Daily Verse Reader and Verse Memorization both depend on it.
+
+---
+
 ## Goals
 
 - Let students read GNT passages directly in the browser without a physical interlinear
@@ -26,12 +32,13 @@ The dataset provides per word: word form, normalized form, lemma, part of speech
 
 ### 1. Passage Selection
 
-Student selects a passage to read by book, chapter, and verse range.
+Student selects a passage to read by book and chapter. The full chapter is always loaded.
 
 **Behavior:**
-- Dropdown or searchable selector: Book → Chapter → Verse(s)
-- URL reflects the selected passage (e.g., `/reader?ref=John.3.16`) for shareability and bookmarking
-- Default on first load: John 1:1
+- Dropdown or searchable selector: Book → Chapter
+- URL reflects the selected passage (e.g., `/reader?ref=John.3`) for shareability and bookmarking
+- Default on first load: John 1
+- Individual verse anchors in the URL are supported for linking to a specific starting point within a chapter (e.g., `/reader?ref=John.3.16` scrolls to verse 16)
 
 ### 2. Greek Text Display
 
@@ -69,12 +76,12 @@ A toggle that shows a small gloss beneath every word simultaneously, turning the
 
 ### 5. Reading History
 
-Track which passages the student has opened.
+Remember the student's most recent passage so they can pick up where they left off.
 
 **Behavior:**
-- Store last 10 passages visited in localStorage
-- "Recently read" list on the reader page for quick return
-- No account required
+- Store the single most recently visited passage reference in localStorage
+- Homepage shows a "Continue reading: [Book Chapter:Verse]" link when a prior passage exists
+- No list, no account required
 
 ---
 
@@ -91,4 +98,9 @@ Track which passages the student has opened.
 
 - **Dataset:** MorphGNT (decided)
 - **Bundling strategy:** Per-book JSON files generated at build time from MorphGNT source, output to `public/data/morphgnt/` (e.g., `JHN.json`, `ROM.json`). Fetched on demand at runtime when the user selects a passage; cached in memory for the session. Cloudflare Workers serves these with Brotli compression automatically.
+- **Passage granularity:** Chapter at a time. The selector is Book → Chapter. Individual verse anchors are supported in the URL for deep-linking.
+- **Gloss data source:** MorphGNT provides lemmas but not English glosses. The existing `vocabulary.ts` dataset (high-frequency GNT words with glosses) will be the primary source. For lemmas not covered by that list, display the lemma only with no English gloss — this is acceptable since lower-frequency words are less likely to be needed on demand. A fuller open lexicon can be added later if the gap is significant.
+- **Greek font:** GFS Didot (open source, LGPL) as the default; SBL Greek listed as an alternative note in the UI since it requires a separate download and has distribution restrictions.
+- **Mobile tap interaction:** Use tap delay + movement detection on touch devices. On `touchstart`, start a short timer; if the finger moves more than ~5px before `touchend` (scroll intent), cancel the popup. If the finger lifts without moving, open the popup. This is invisible to the user and avoids accidental popups while scrolling.
+- **Flashcards integration:** SRS card keys will be normalized to individual lemma forms (e.g., `'ὁ'` not `'ὁ, ἡ, τό'`) so they match MorphGNT lemmas directly. This requires bumping the store to `greek-tools-srs-v2` with a one-time migration from `v1`. The Reader reads studied words via a `getStudiedLemmas(): Set<string>` helper exported from `srs.ts`.
 - **LXX:** Out of scope for v1.

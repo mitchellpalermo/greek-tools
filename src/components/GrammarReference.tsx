@@ -337,7 +337,7 @@ function VerbSection() {
       </p>
 
       {/* Mood group tabs */}
-      <div className="flex gap-1 mb-4 p-1 rounded-lg w-fit" style={{ background: 'rgba(30,58,95,0.07)' }}>
+      <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(30,58,95,0.07)' }}>
         {groups.map(g => (
           <button
             key={g}
@@ -345,7 +345,7 @@ function VerbSection() {
               setActiveGroup(g);
               setActiveId(grouped[g][0].id);
             }}
-            className="px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
+            className="flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
             style={
               activeGroup === g
                 ? { background: 'var(--color-primary)', color: '#fff' }
@@ -357,18 +357,18 @@ function VerbSection() {
         ))}
       </div>
 
-      <div className="flex gap-4">
-        {/* Paradigm selector list */}
-        <nav className="shrink-0 w-52 space-y-0.5">
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* Paradigm selector list — horizontal scroll on mobile, vertical on desktop */}
+        <nav className="flex md:flex-col gap-1 overflow-x-auto pb-1 md:pb-0 md:shrink-0 md:w-52 md:space-y-0.5">
           {grouped[activeGroup].map(p => (
             <button
               key={p.id}
               onClick={() => setActiveId(p.id)}
-              className="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
+              className="shrink-0 md:shrink md:w-full text-left px-3 py-2 rounded-lg text-sm transition-colors whitespace-nowrap"
               style={
                 activeId === p.id
                   ? { background: 'var(--color-primary)', color: '#fff' }
-                  : { background: 'transparent', color: 'var(--color-text)' }
+                  : { background: 'rgba(30,58,95,0.07)', color: 'var(--color-text)' }
               }
             >
               {p.label}

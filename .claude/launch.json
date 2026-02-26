@@ -4,8 +4,9 @@
     {
       "name": "greek-tools",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "4322"],
-      "port": 4322
+      "runtimeArgs": ["run", "dev"],
+      "port": 4322,
+      "autoPort": true
     }
   ]
 }

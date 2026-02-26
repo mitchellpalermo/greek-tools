@@ -19,12 +19,12 @@ const { title, description = "Free tools for Koine Greek students — keyboard, 
     <title>{title} | greek.tools</title>
   </head>
   <body class="bg-bg text-text min-h-screen flex flex-col">
-    <nav class="bg-primary text-white px-6 py-4">
+    <nav class="bg-primary text-white px-4 sm:px-6 py-3 sm:py-4">
       <div class="max-w-5xl mx-auto flex items-center justify-between">
-        <a href="/" class="text-xl font-bold tracking-wide hover:text-accent-light transition-colors">
+        <a href="/" class="text-lg sm:text-xl font-bold tracking-wide hover:text-accent-light transition-colors">
           greek.tools
         </a>
-        <div class="flex gap-6 text-sm">
+        <div class="flex gap-4 sm:gap-6 text-sm">
           <a href="/keyboard" class="hover:text-accent-light transition-colors">Keyboard</a>
           <a href="/flashcards" class="hover:text-accent-light transition-colors">Flashcards</a>
           <a href="/grammar" class="hover:text-accent-light transition-colors">Grammar</a>
@@ -32,7 +32,7 @@ const { title, description = "Free tools for Koine Greek students — keyboard, 
       </div>
     </nav>
 
-    <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-8">
+    <main class="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
       <slot />
     </main>
 

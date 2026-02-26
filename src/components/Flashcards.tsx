@@ -271,17 +271,17 @@ export default function Flashcards() {
             You're all caught up! Check back tomorrow for more reviews.
           </p>
         )}
-        <div className="flex justify-center gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2 px-4 sm:px-0">
           <button
             onClick={startSession}
-            className="px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
+            className="px-5 py-3 sm:py-2.5 bg-primary text-white rounded-lg hover:bg-primary-light transition-colors font-medium"
           >
             Study Again
           </button>
           {studyMode === 'srs' && (
             <button
               onClick={() => setStudyMode('all')}
-              className="px-5 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              className="px-5 py-3 sm:py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium"
             >
               Study All Cards
             </button>
@@ -476,65 +476,53 @@ export default function Flashcards() {
       )}
 
       {/* ── Stats bar ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-muted bg-bg-card rounded-xl border border-gray-200 px-4 py-2.5">
-        {studyMode === 'srs' ? (
-          <>
+      <div className="bg-bg-card rounded-xl border border-gray-200 px-4 py-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm text-text-muted">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {studyMode === 'srs' ? (
+              <>
+                <span>Due: <strong className="text-text">{dueCount}</strong></span>
+                <span className="hidden sm:inline text-gray-300">|</span>
+                <span>New: <strong className="text-text">{newCount}</strong></span>
+                <span className="hidden sm:inline text-gray-300">|</span>
+              </>
+            ) : (
+              <>
+                <span>Card: <strong className="text-text">{index + 1}/{queue.length}</strong></span>
+                <span className="hidden sm:inline text-gray-300">|</span>
+              </>
+            )}
             <span>
-              Due: <strong className="text-text">{dueCount}</strong>
-            </span>
-            <span className="text-gray-300">|</span>
-            <span>
-              New: <strong className="text-text">{newCount}</strong>
-            </span>
-            <span className="text-gray-300">|</span>
-          </>
-        ) : (
-          <>
-            <span>
-              Card:{' '}
+              Today:{' '}
               <strong className="text-text">
-                {index + 1}/{queue.length}
+                {Math.min(stats.cardsStudiedToday, STREAK_THRESHOLD)}/{STREAK_THRESHOLD}
               </strong>
             </span>
-            <span className="text-gray-300">|</span>
-          </>
-        )}
-
-        {/* Daily progress toward streak */}
-        <span>
-          Today:{' '}
-          <strong className="text-text">
-            {Math.min(stats.cardsStudiedToday, STREAK_THRESHOLD)}/{STREAK_THRESHOLD}
-          </strong>
-        </span>
-        <span className="text-gray-300">|</span>
-
-        <span>
-          Streak: <strong className="text-text">{stats.streak}d</strong>
-          {stats.cardsStudiedToday >= STREAK_THRESHOLD && (
-            <span className="ml-1 text-accent text-xs">✓</span>
-          )}
-        </span>
-
-        {accuracy !== null && (
-          <>
-            <span className="text-gray-300">|</span>
+            <span className="hidden sm:inline text-gray-300">|</span>
             <span>
-              Accuracy: <strong className="text-text">{accuracy}%</strong>
+              Streak: <strong className="text-text">{stats.streak}d</strong>
+              {stats.cardsStudiedToday >= STREAK_THRESHOLD && (
+                <span className="ml-1 text-accent text-xs">✓</span>
+              )}
             </span>
-          </>
-        )}
-
-        <span className="ml-auto text-xs">
-          ✓ {sessionScore.known} · ✗ {sessionScore.learning}
-        </span>
+            {accuracy !== null && (
+              <>
+                <span className="hidden sm:inline text-gray-300">|</span>
+                <span>Accuracy: <strong className="text-text">{accuracy}%</strong></span>
+              </>
+            )}
+          </div>
+          <span className="text-xs shrink-0">
+            ✓ {sessionScore.known} · ✗ {sessionScore.learning}
+          </span>
+        </div>
       </div>
 
       {/* ── Card ──────────────────────────────────────────────────────────── */}
       <div
         onClick={answerMode === 'flip' && !flipped ? handleFlip : undefined}
-        className={`bg-bg-card rounded-xl shadow-lg border border-gray-100 px-10 py-8 text-center select-none min-h-[220px] flex flex-col items-center justify-center transition-shadow ${
-          answerMode === 'flip' && !flipped ? 'cursor-pointer hover:shadow-xl' : ''
+        className={`bg-bg-card rounded-xl shadow-lg border border-gray-100 px-4 py-6 sm:px-10 sm:py-8 text-center select-none min-h-[200px] sm:min-h-[220px] flex flex-col items-center justify-center transition-shadow ${
+          answerMode === 'flip' && !flipped ? 'cursor-pointer active:shadow-lg hover:shadow-xl' : ''
         }`}
       >
         {/* Front side */}
@@ -553,7 +541,10 @@ export default function Flashcards() {
 
         {/* Flip mode: reveal hint */}
         {answerMode === 'flip' && !flipped && (
-          <p className="text-text-muted text-xs mt-6">click or press space to reveal</p>
+          <p className="text-text-muted text-xs mt-6">
+            <span className="sm:hidden">tap to reveal</span>
+            <span className="hidden sm:inline">click or press space to reveal</span>
+          </p>
         )}
 
         {/* Flip mode: back side */}
@@ -578,7 +569,7 @@ export default function Flashcards() {
 
         {/* Type mode: input */}
         {answerMode === 'type' && answerResult === null && (
-          <div className="mt-6 flex gap-2 w-full max-w-sm">
+          <div className="mt-6 flex flex-col sm:flex-row gap-2 w-full max-w-sm">
             <input
               ref={inputRef}
               type="text"
@@ -588,13 +579,13 @@ export default function Flashcards() {
               placeholder={
                 direction === 'gr-en' ? 'Type the English gloss…' : 'Type the Greek word…'
               }
-              className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none text-sm"
+              className="flex-1 px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none text-base sm:text-sm"
               autoComplete="off"
               spellCheck={false}
             />
             <button
               onClick={handleTypeSubmit}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-light text-sm font-medium transition-colors"
+              className="px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-light text-sm font-medium transition-colors"
             >
               Check
             </button>
@@ -627,16 +618,16 @@ export default function Flashcards() {
 
       {/* ── Action buttons ────────────────────────────────────────────────── */}
       {answerMode === 'flip' && flipped && (
-        <div className="flex justify-center gap-4">
+        <div className="flex gap-3 sm:gap-4 sm:justify-center">
           <button
             onClick={() => handleReview(false)}
-            className="px-6 py-2.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium"
+            className="flex-1 sm:flex-none px-6 py-3 sm:py-2.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 active:bg-red-200 transition-colors font-medium"
           >
             ← Still Learning
           </button>
           <button
             onClick={() => handleReview(true)}
-            className="px-6 py-2.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-medium"
+            className="flex-1 sm:flex-none px-6 py-3 sm:py-2.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 active:bg-green-200 transition-colors font-medium"
           >
             Got It →
           </button>
@@ -644,21 +635,21 @@ export default function Flashcards() {
       )}
 
       {answerMode === 'type' && answerResult !== null && (
-        <div className="flex justify-center gap-4">
+        <div className="flex gap-3 sm:gap-4 sm:justify-center">
           {answerResult === 'incorrect' && (
             <button
               onClick={() => handleReview(false)}
-              className="px-6 py-2.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium"
+              className="flex-1 sm:flex-none px-6 py-3 sm:py-2.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 active:bg-red-200 transition-colors font-medium"
             >
               ← Still Learning
             </button>
           )}
           <button
             onClick={() => handleReview(answerResult === 'correct')}
-            className={`px-6 py-2.5 rounded-lg transition-colors font-medium ${
+            className={`flex-1 sm:flex-none px-6 py-3 sm:py-2.5 rounded-lg transition-colors font-medium ${
               answerResult === 'correct'
-                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                : 'bg-gray-100 text-text hover:bg-gray-200'
+                ? 'bg-green-100 text-green-700 hover:bg-green-200 active:bg-green-200'
+                : 'bg-gray-100 text-text hover:bg-gray-200 active:bg-gray-200'
             }`}
           >
             {answerResult === 'correct' ? 'Got It →' : 'Next →'}
@@ -666,9 +657,9 @@ export default function Flashcards() {
         </div>
       )}
 
-      {/* ── Keyboard hints ────────────────────────────────────────────────── */}
+      {/* ── Keyboard hints (desktop only) ────────────────────────────────── */}
       {answerMode === 'flip' && (
-        <p className="text-xs text-text-muted text-center">
+        <p className="hidden sm:block text-xs text-text-muted text-center">
           Keyboard:{' '}
           <kbd className="bg-gray-100 px-1 rounded">Space</kbd> flip ·{' '}
           <kbd className="bg-gray-100 px-1 rounded">→</kbd> got it ·{' '}
@@ -676,7 +667,7 @@ export default function Flashcards() {
         </p>
       )}
       {answerMode === 'type' && (
-        <p className="text-xs text-text-muted text-center">
+        <p className="hidden sm:block text-xs text-text-muted text-center">
           Keyboard: <kbd className="bg-gray-100 px-1 rounded">Enter</kbd> check answer
         </p>
       )}

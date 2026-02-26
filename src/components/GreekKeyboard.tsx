@@ -1,28 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-
-// Beta-code style mapping: English key → Greek character
-const GREEK_MAP: Record<string, string> = {
-  a: 'α', b: 'β', g: 'γ', d: 'δ', e: 'ε', z: 'ζ', h: 'η', q: 'θ',
-  i: 'ι', k: 'κ', l: 'λ', m: 'μ', n: 'ν', c: 'ξ', o: 'ο', p: 'π',
-  r: 'ρ', s: 'σ', w: 'ω', t: 'τ', u: 'υ', f: 'φ', x: 'χ', y: 'ψ',
-  // Uppercase
-  A: 'Α', B: 'Β', G: 'Γ', D: 'Δ', E: 'Ε', Z: 'Ζ', H: 'Η', Q: 'Θ',
-  I: 'Ι', K: 'Κ', L: 'Λ', M: 'Μ', N: 'Ν', C: 'Ξ', O: 'Ο', P: 'Π',
-  R: 'Ρ', S: 'Σ', W: 'Ω', T: 'Τ', U: 'Υ', F: 'Φ', X: 'Χ', Y: 'Ψ',
-};
-
-// Diacritical combining characters
-const SMOOTH_BREATHING = '\u0313';   // ̓
-const ROUGH_BREATHING = '\u0314';    // ̔
-const ACUTE = '\u0301';              // ́
-const GRAVE = '\u0300';              // ̀
-const CIRCUMFLEX = '\u0342';         // ͂
-const IOTA_SUB = '\u0345';           // ͅ
-
-// Final sigma: σ at end of word becomes ς
-function applyFinalSigma(text: string): string {
-  return text.replace(/σ(?=[\s.,;·!?\-—""''"\n\r]|$)/g, 'ς');
-}
+import { GREEK_MAP, DIACRITIC_MAP, applyFinalSigma, processGreekKey } from '../lib/greek-input';
 
 export default function GreekKeyboard() {
   const [text, setText] = useState('');
@@ -30,48 +7,10 @@ export default function GreekKeyboard() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Allow ctrl/cmd shortcuts
-    if (e.ctrlKey || e.metaKey) return;
-
-    const key = e.key;
-
-    // Diacritical modifiers (type after the vowel)
-    let diacritic: string | null = null;
-    switch (key) {
-      case ')': diacritic = SMOOTH_BREATHING; break;
-      case '(': diacritic = ROUGH_BREATHING; break;
-      case '/': diacritic = ACUTE; break;
-      case '\\': diacritic = GRAVE; break;
-      case '=': diacritic = CIRCUMFLEX; break;
-      case '|': diacritic = IOTA_SUB; break;
-    }
-
-    if (diacritic) {
+    const { preventDefault, append } = processGreekKey(e.key, e.ctrlKey || e.metaKey);
+    if (preventDefault) {
       e.preventDefault();
-      setText(prev => prev + diacritic);
-      return;
-    }
-
-    // Greek letter mapping
-    const greek = GREEK_MAP[key];
-    if (greek) {
-      e.preventDefault();
-      setText(prev => prev + greek);
-      return;
-    }
-
-    // Period key → Greek ano teleia (·) with shift
-    if (key === ':') {
-      e.preventDefault();
-      setText(prev => prev + '·');
-      return;
-    }
-
-    // Question mark → Greek question mark (;)
-    if (key === '?') {
-      e.preventDefault();
-      setText(prev => prev + ';');
-      return;
+      if (append) setText(prev => prev + append);
     }
   }, []);
 
@@ -129,12 +68,22 @@ export default function GreekKeyboard() {
             </div>
           ))}
           <div className="font-bold col-span-full mt-4 mb-1 text-text-muted uppercase tracking-wide text-xs">Diacritics (type after the vowel)</div>
-          <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">)</kbd><span className="text-text-muted text-xs">smooth breathing ̓</span></div>
-          <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">(</kbd><span className="text-text-muted text-xs">rough breathing ̔</span></div>
-          <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">/</kbd><span className="text-text-muted text-xs">acute accent ́</span></div>
-          <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">\</kbd><span className="text-text-muted text-xs">grave accent ̀</span></div>
-          <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">=</kbd><span className="text-text-muted text-xs">circumflex ͂</span></div>
-          <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">|</kbd><span className="text-text-muted text-xs">iota subscript ͅ</span></div>
+          {Object.entries(DIACRITIC_MAP).map(([key, _]) => {
+            const labels: Record<string, string> = {
+              ')': 'smooth breathing ̓',
+              '(': 'rough breathing ̔',
+              '/': 'acute accent ́',
+              '\\': 'grave accent ̀',
+              '=': 'circumflex ͂',
+              '|': 'iota subscript ͅ',
+            };
+            return (
+              <div key={key} className="flex gap-2 items-center">
+                <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">{key}</kbd>
+                <span className="text-text-muted text-xs">{labels[key]}</span>
+              </div>
+            );
+          })}
           <div className="font-bold col-span-full mt-4 mb-1 text-text-muted uppercase tracking-wide text-xs">Punctuation</div>
           <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">?</kbd><span className="text-text-muted text-xs">Greek question mark (;)</span></div>
           <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">:</kbd><span className="text-text-muted text-xs">ano teleia (·)</span></div>

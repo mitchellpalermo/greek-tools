@@ -127,8 +127,7 @@ const tools = [
       const chapter = parts[1];
 
       const card = document.querySelector('a[href="/reader"]') as HTMLAnchorElement | null;
-      if (!card) return;
-
+      if (card) {
       // Point the card to the last passage
       card.href = `/reader?ref=${last}`;
 
@@ -153,6 +152,7 @@ const tools = [
           inject();
         })
         .catch(inject);
+      }
     }
   } catch {
     // localStorage unavailable — no-op

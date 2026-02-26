@@ -80,8 +80,8 @@ A small curated starter list of commonly memorized GNT passages, pre-loaded so s
 
 ## Dependencies
 
-- MorphGNT dataset (shared with GNT Reader) for verse text lookup
-- GNT Reader must be built first if verse selection is to pull from the dataset dynamically; alternatively, the starter list can be hard-coded to unblock development
+- MorphGNT dataset — **resolved.** GNT Reader is complete and the full MorphGNT dataset is available at `public/data/morphgnt/`. Verse text can be fetched using the same `fetchBook()` function already used by the GNT Reader and Daily Verse components.
+- Greek keyboard component — available at `src/components/GreekKeyboard.tsx` for Mode 3 input.
 
 ---
 

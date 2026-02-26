@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "greek-tools-nervous-borg",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "4324"],
-      "port": 4324
+      "name": "dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["astro", "dev", "--port", "4330"],
+      "port": 4330
     }
   ]
 }

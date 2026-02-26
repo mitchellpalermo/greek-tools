@@ -2,12 +2,16 @@
  * ParadigmQuiz — three-phase interactive quiz for Greek paradigm tables.
  *
  * Phases:
- *   1. Select  — pick a paradigm and a difficulty mode
+ *   1. Select  — pick a paradigm, difficulty, and grading options
  *   2. Quiz    — fill in the blanked cells using Beta Code keyboard input
  *   3. Results — see score, per-cell color coding, and retry options
+ *
+ * Grading options:
+ *   - accentStrict: when true (default) accent errors are marked wrong (yellow);
+ *     when false, any cell with the right consonants/vowels counts as correct.
  */
 
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   buildTableModels,
   applyDensity,
@@ -21,6 +25,30 @@ import {
   type CellResult,
 } from '../lib/paradigm-quiz';
 import { applyFinalSigma, checkAnswer, processGreekKey } from '../lib/greek-input';
+
+// ---------------------------------------------------------------------------
+// BetaCodeReference — data tables
+// ---------------------------------------------------------------------------
+
+/** Lowercase letter rows for the keyboard reference chart (Greek-alphabet order). */
+const LETTER_ROWS: [string, string][][] = [
+  [['a','α'],['b','β'],['g','γ'],['d','δ'],['e','ε'],['z','ζ']],
+  [['h','η'],['q','θ'],['i','ι'],['k','κ'],['l','λ'],['m','μ']],
+  [['n','ν'],['c','ξ'],['o','ο'],['p','π'],['r','ρ'],['s','σ']],
+  [['t','τ'],['u','υ'],['f','φ'],['x','χ'],['y','ψ'],['w','ω']],
+];
+
+/** Diacritic / punctuation entries with a concrete Greek example. */
+const DIACRITIC_ENTRIES: { key: string; name: string; example: string }[] = [
+  { key: ')',  name: 'smooth breathing',  example: 'ἀ' },
+  { key: '(',  name: 'rough breathing',   example: 'ἁ' },
+  { key: '/',  name: 'acute accent',      example: 'ά' },
+  { key: '\\', name: 'grave accent',      example: 'ὰ' },
+  { key: '=',  name: 'circumflex',        example: 'ᾶ' },
+  { key: '|',  name: 'iota subscript',    example: 'ᾳ' },
+  { key: ':',  name: 'ano teleia',        example: '·' },
+  { key: '?',  name: 'question mark',     example: ';' },
+];
 
 // ---------------------------------------------------------------------------
 // Phase types
@@ -37,10 +65,6 @@ type InputMap = Record<number, string>; // cell.index → raw text
 // Helpers
 // ---------------------------------------------------------------------------
 
-function cellKey(rowIndex: number, colIndex: number): string {
-  return `${rowIndex}-${colIndex}`;
-}
-
 const DENSITY_LABELS: Record<Density, string> = {
   easy:   'Easy (25%)',
   medium: 'Medium (50%)',
@@ -53,11 +77,91 @@ const DENSITY_DESCS: Record<Density, string> = {
   hard:   'Every cell is blank — full recall from memory.',
 };
 
+/** Raw result styles — used when accentStrict is on, or for non-accent results. */
 const RESULT_STYLES: Record<CellResult, { bg: string; border: string; text: string }> = {
-  correct:      { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
+  correct:       { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
   'accent-only': { bg: '#fef3c7', border: '#fcd34d', text: '#78350f' },
   wrong:         { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
 };
+
+/**
+ * Resolve the display result for a cell, taking the accent-strict setting into account.
+ * When accentStrict is off, accent-only errors count as correct.
+ */
+function resolveDisplayResult(raw: CellResult, accentStrict: boolean): CellResult {
+  return !accentStrict && raw === 'accent-only' ? 'correct' : raw;
+}
+
+// ---------------------------------------------------------------------------
+// BetaCodeReference — expandable keyboard mapping shown during quiz
+// ---------------------------------------------------------------------------
+
+function BetaCodeReference() {
+  return (
+    <details
+      open
+      className="rounded-xl overflow-hidden"
+      style={{ border: '1px solid #e5e7eb', background: 'var(--color-bg-card)' }}
+    >
+      <summary
+        className="px-4 py-3 cursor-pointer text-xs font-semibold uppercase tracking-wider select-none"
+        style={{ color: 'var(--color-text-muted)' }}
+      >
+        Beta Code Reference
+      </summary>
+      <div className="px-4 pb-4 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {/* Letters */}
+        <div>
+          <div className="text-xs font-semibold mb-2" style={{ color: 'var(--color-text-muted)' }}>
+            Letters
+          </div>
+          <div
+            className="grid gap-y-1.5"
+            style={{ gridTemplateColumns: 'repeat(6, minmax(2.5rem, auto))', columnGap: '0.5rem' }}
+          >
+            {LETTER_ROWS.flat().map(([key, greek]) => (
+              <div key={key} className="flex items-center gap-1 text-xs">
+                <kbd
+                  className="px-1 rounded font-mono text-xs"
+                  style={{ background: '#f3f4f6', color: 'var(--color-text)', border: '1px solid #e5e7eb' }}
+                >
+                  {key}
+                </kbd>
+                <span style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}>{greek}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Diacritics & Punctuation */}
+        <div>
+          <div className="text-xs font-semibold mb-2" style={{ color: 'var(--color-text-muted)' }}>
+            Diacritics &amp; Punctuation
+          </div>
+          <div className="space-y-1.5">
+            {DIACRITIC_ENTRIES.map(({ key, name, example }) => (
+              <div key={key} className="flex items-center gap-2 text-xs">
+                <kbd
+                  className="px-1.5 rounded font-mono text-xs min-w-[1.75rem] text-center"
+                  style={{ background: '#f3f4f6', color: 'var(--color-text)', border: '1px solid #e5e7eb' }}
+                >
+                  {key}
+                </kbd>
+                <span style={{ color: 'var(--color-text-muted)' }}>{name}</span>
+                <span
+                  className="ml-auto font-serif"
+                  style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}
+                >
+                  {example}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </details>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // CellInput — single Greek-keyboard-enabled input for a blank cell
@@ -76,8 +180,7 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      // append is non-null whenever preventDefault is true (processGreekKey contract).
-      // Combining into one check avoids an unreachable branch.
+      // append is non-null whenever a Greek key is pressed (processGreekKey contract).
       const { append } = processGreekKey(e.key, e.ctrlKey || e.metaKey);
       if (append !== null) {
         e.preventDefault();
@@ -112,14 +215,78 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
 }
 
 // ---------------------------------------------------------------------------
+// AccentToggle — shared pill toggle used in both select and quiz phases
+// ---------------------------------------------------------------------------
+
+interface AccentToggleProps {
+  accentStrict: boolean;
+  onChange: (value: boolean) => void;
+  /** Compact layout for the quiz/results header */
+  compact?: boolean;
+}
+
+function AccentToggle({ accentStrict, onChange, compact }: AccentToggleProps) {
+  if (compact) {
+    return (
+      <button
+        onClick={() => onChange(!accentStrict)}
+        className="flex items-center gap-1.5 text-xs font-medium rounded-full px-2.5 py-1 transition-colors"
+        style={
+          accentStrict
+            ? { background: 'rgba(30,58,95,0.12)', color: 'var(--color-primary)' }
+            : { background: 'rgba(0,0,0,0.05)', color: 'var(--color-text-muted)' }
+        }
+        aria-pressed={accentStrict}
+        title={accentStrict ? 'Accent checking on — click to relax' : 'Accent checking off — click to enable'}
+      >
+        <span>{accentStrict ? 'Accents: on' : 'Accents: off'}</span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <div className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>
+          Accent Checking
+        </div>
+        <div className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+          {accentStrict
+            ? 'Accents required — wrong accent = marked incorrect'
+            : 'Relaxed — right letters, any accentuation = correct'}
+        </div>
+      </div>
+      {/* Toggle switch */}
+      <button
+        role="switch"
+        aria-checked={accentStrict}
+        onClick={() => onChange(!accentStrict)}
+        className="relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2"
+        style={{
+          background: accentStrict ? 'var(--color-primary)' : '#d1d5db',
+        }}
+        aria-label={`Accent checking ${accentStrict ? 'on' : 'off'}`}
+      >
+        <span
+          className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform"
+          style={{ transform: accentStrict ? 'translateX(1.25rem)' : 'translateX(0)' }}
+        />
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // ParadigmSelector — phase 1
 // ---------------------------------------------------------------------------
 
 interface ParadigmSelectorProps {
+  accentStrict: boolean;
+  onToggleAccent: (value: boolean) => void;
   onStart: (table: TableModel, density: Density) => void;
 }
 
-function ParadigmSelector({ onStart }: ParadigmSelectorProps) {
+function ParadigmSelector({ accentStrict, onToggleAccent, onStart }: ParadigmSelectorProps) {
   const tables = useMemo(() => buildTableModels(), []);
   const [activeCategory, setActiveCategory] = useState<Category>('noun');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -182,28 +349,37 @@ function ParadigmSelector({ onStart }: ParadigmSelectorProps) {
         })}
       </div>
 
-      {/* Density selector */}
-      <div className="rounded-xl p-4 space-y-3" style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}>
-        <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
-          Difficulty
+      {/* Settings card: difficulty + accent toggle */}
+      <div className="rounded-xl p-4 space-y-4" style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}>
+        {/* Difficulty */}
+        <div className="space-y-2">
+          <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+            Difficulty
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {(['easy', 'medium', 'hard'] as Density[]).map(d => (
+              <button
+                key={d}
+                onClick={() => setDensity(d)}
+                className="rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left"
+                style={
+                  density === d
+                    ? { background: 'var(--color-primary)', color: '#fff' }
+                    : { background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid #e5e7eb' }
+                }
+              >
+                <div className="font-semibold">{DENSITY_LABELS[d].split(' (')[0]}</div>
+                <div className="text-xs opacity-70 mt-0.5">{DENSITY_DESCS[d].split('.')[0]}</div>
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          {(['easy', 'medium', 'hard'] as Density[]).map(d => (
-            <button
-              key={d}
-              onClick={() => setDensity(d)}
-              className="rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left"
-              style={
-                density === d
-                  ? { background: 'var(--color-primary)', color: '#fff' }
-                  : { background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid #e5e7eb' }
-              }
-            >
-              <div className="font-semibold">{DENSITY_LABELS[d].split(' (')[0]}</div>
-              <div className="text-xs opacity-70 mt-0.5">{DENSITY_DESCS[d].split('.')[0]}</div>
-            </button>
-          ))}
-        </div>
+
+        {/* Divider */}
+        <div style={{ borderTop: '1px solid #e5e7eb' }} />
+
+        {/* Accent toggle */}
+        <AccentToggle accentStrict={accentStrict} onChange={onToggleAccent} />
       </div>
 
       {/* Keyboard hint */}
@@ -229,7 +405,7 @@ function ParadigmSelector({ onStart }: ParadigmSelectorProps) {
 }
 
 // ---------------------------------------------------------------------------
-// QuizTable — phase 2
+// QuizTable — phase 2 & 3
 // ---------------------------------------------------------------------------
 
 interface QuizTableProps {
@@ -239,14 +415,11 @@ interface QuizTableProps {
   onInputChange: (cellIndex: number, raw: string) => void;
   submitted: boolean;
   results: Record<number, CellResult>;
+  accentStrict: boolean;
 }
 
-function QuizTable({ table, cells, inputs, onInputChange, submitted, results }: QuizTableProps) {
+function QuizTable({ table, cells, inputs, onInputChange, submitted, results, accentStrict }: QuizTableProps) {
   const blankSet = useMemo(() => new Set(cells.filter(c => c.isBlank).map(c => c.index)), [cells]);
-  const cellMap = useMemo(
-    () => new Map(cells.map(c => [c.index, c])),
-    [cells],
-  );
 
   const hasColGroups = !!table.colGroups;
   const numGroups = table.colGroups?.length ?? 0;
@@ -258,7 +431,6 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results }: 
     <div className="overflow-x-auto rounded-xl shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
       <table className="w-full text-sm">
         <thead>
-          {/* Column group row (e.g., Singular / Plural for adjectives) */}
           {hasColGroups && (
             <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
               <th className="px-3 py-2" style={{ width: '5rem' }} />
@@ -274,7 +446,6 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results }: 
               ))}
             </tr>
           )}
-          {/* Leaf column header row */}
           <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
             <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', width: '5rem' }} />
             {table.cols.map((col, ci) => (
@@ -303,8 +474,7 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results }: 
               {row.answers.map((answer, colIndex) => {
                 const idx = rowIndex * table.cols.length + colIndex;
                 const isBlank = blankSet.has(idx);
-                const result = submitted ? results[idx] : undefined;
-                const cell = cellMap.get(idx);
+                const rawResult = submitted ? results[idx] : undefined;
 
                 if (answer === null) {
                   return (
@@ -326,20 +496,22 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results }: 
                   );
                 }
 
-                // Blank cell
+                // Blank cell — quiz input
                 const shouldAutoFocus = !submitted && firstBlank;
                 if (firstBlank) firstBlank = false;
 
-                if (submitted && result) {
-                  const style = RESULT_STYLES[result];
+                if (submitted && rawResult) {
+                  const displayResult = resolveDisplayResult(rawResult, accentStrict);
+                  const style = RESULT_STYLES[displayResult];
                   const userInput = applyFinalSigma((inputs[idx] ?? '').trim());
+                  const wasAccentOnly = rawResult === 'accent-only';
                   return (
                     <td key={colIndex} className="px-2 py-1.5 text-center">
                       <div
                         className="rounded px-1.5 py-1 text-sm font-serif"
                         style={{ background: style.bg, border: `1px solid ${style.border}`, color: style.text }}
                       >
-                        {result === 'correct' ? (
+                        {displayResult === 'correct' ? (
                           <span>{answer}</span>
                         ) : (
                           <span>
@@ -349,8 +521,13 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results }: 
                           </span>
                         )}
                       </div>
-                      {result === 'accent-only' && (
+                      {/* Accent annotation: shown only when strict mode is ON */}
+                      {wasAccentOnly && accentStrict && (
                         <div className="text-xs mt-0.5" style={{ color: style.text }}>accent</div>
+                      )}
+                      {/* Relaxed-mode annotation: shown when strict is OFF and accent was wrong */}
+                      {wasAccentOnly && !accentStrict && (
+                        <div className="text-xs mt-0.5" style={{ color: '#059669' }}>accent relaxed</div>
                       )}
                     </td>
                   );
@@ -380,20 +557,34 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results }: 
 // ScoreBadge
 // ---------------------------------------------------------------------------
 
-function ScoreBadge({ correct, accentOnly, total }: { correct: number; accentOnly: number; total: number }) {
-  const pct = total === 0 ? 0 : Math.round((correct / total) * 100);
+interface ScoreBadgeProps {
+  correct: number;
+  accentOnly: number;
+  wrong: number;
+  total: number;
+  accentStrict: boolean;
+}
+
+function ScoreBadge({ correct, accentOnly, wrong, total, accentStrict }: ScoreBadgeProps) {
+  const effectiveCorrect = accentStrict ? correct : correct + accentOnly;
+  const pct = total === 0 ? 0 : Math.round((effectiveCorrect / total) * 100);
   const color = pct >= 90 ? '#059669' : pct >= 70 ? '#d97706' : '#dc2626';
   return (
     <div className="flex items-baseline gap-3 flex-wrap">
       <span className="text-4xl font-extrabold" style={{ color }}>
-        {correct}/{total}
+        {effectiveCorrect}/{total}
       </span>
       <span className="text-xl font-semibold" style={{ color }}>
         {pct}%
       </span>
-      {accentOnly > 0 && (
+      {accentStrict && accentOnly > 0 && (
         <span className="text-sm px-2 py-0.5 rounded-full font-medium" style={{ background: '#fef3c7', color: '#78350f' }}>
           +{accentOnly} accent {accentOnly === 1 ? 'error' : 'errors'}
+        </span>
+      )}
+      {!accentStrict && accentOnly > 0 && (
+        <span className="text-sm px-2 py-0.5 rounded-full font-medium" style={{ background: '#d1fae5', color: '#065f46' }}>
+          {accentOnly} accent {accentOnly === 1 ? 'error' : 'errors'} (ignored)
         </span>
       )}
     </div>
@@ -408,6 +599,9 @@ export default function ParadigmQuiz() {
   const [phase, setPhase] = useState<Phase>({ name: 'select' });
   const [inputs, setInputs] = useState<InputMap>({});
   const [results, setResults] = useState<Record<number, CellResult>>({});
+  // Accent checking persists across retries and new paradigms
+  const [accentStrict, setAccentStrict] = useState(true);
+
   const submitted = phase.name === 'results';
 
   const handleStart = useCallback((table: TableModel, density: Density) => {
@@ -446,24 +640,26 @@ export default function ParadigmQuiz() {
     setResults({});
   }, []);
 
-  // Score computation for results phase
+  // Score computation — always from raw results; accentStrict affects display
   const score = useMemo(() => {
     if (phase.name !== 'results') return { correct: 0, accentOnly: 0, wrong: 0, total: 0 };
     const vals = Object.values(results);
     return {
-      correct:     vals.filter(r => r === 'correct').length,
-      accentOnly:  vals.filter(r => r === 'accent-only').length,
-      wrong:       vals.filter(r => r === 'wrong').length,
-      total:       vals.length,
+      correct:    vals.filter(r => r === 'correct').length,
+      accentOnly: vals.filter(r => r === 'accent-only').length,
+      wrong:      vals.filter(r => r === 'wrong').length,
+      total:      vals.length,
     };
   }, [phase, results]);
 
   // ── Select phase ──────────────────────────────────────────────────────────
   if (phase.name === 'select') {
     return (
-      <div>
-        <ParadigmSelector onStart={handleStart} />
-      </div>
+      <ParadigmSelector
+        accentStrict={accentStrict}
+        onToggleAccent={setAccentStrict}
+        onStart={handleStart}
+      />
     );
   }
 
@@ -472,20 +668,31 @@ export default function ParadigmQuiz() {
   const activeInputs = phase.name === 'results' ? phase.inputs : inputs;
   const blankCount = cells.filter(c => c.isBlank).length;
 
+  // Effective score counts accent-only as correct when not strict
+  const effectiveCorrect = accentStrict ? score.correct : score.correct + score.accentOnly;
+
   return (
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
+        <div className="flex flex-col gap-1.5">
           <h2 className="text-xl font-bold" style={{ color: 'var(--color-primary)' }}>
             {table.label}
           </h2>
-          <span
-            className="inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(30,58,95,0.1)', color: 'var(--color-primary)' }}
-          >
-            {DENSITY_LABELS[density]} — {blankCount} blank{blankCount !== 1 ? 's' : ''}
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span
+              className="text-xs font-semibold px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(30,58,95,0.1)', color: 'var(--color-primary)' }}
+            >
+              {DENSITY_LABELS[density]} — {blankCount} blank{blankCount !== 1 ? 's' : ''}
+            </span>
+            {/* Accent toggle: compact pill in quiz/results header */}
+            <AccentToggle
+              accentStrict={accentStrict}
+              onChange={setAccentStrict}
+              compact
+            />
+          </div>
         </div>
         <button
           onClick={handleNewParadigm}
@@ -499,10 +706,18 @@ export default function ParadigmQuiz() {
       {/* Score (results phase only) */}
       {phase.name === 'results' && (
         <div className="rounded-xl p-4" style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}>
-          <ScoreBadge correct={score.correct} accentOnly={score.accentOnly} total={score.total} />
+          <ScoreBadge
+            correct={score.correct}
+            accentOnly={score.accentOnly}
+            wrong={score.wrong}
+            total={score.total}
+            accentStrict={accentStrict}
+          />
           <div className="mt-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>
-            {score.correct === score.total
+            {effectiveCorrect === score.total
               ? 'Perfect! Every cell correct.'
+              : !accentStrict && score.accentOnly > 0
+              ? 'Green = correct (accents ignored). Red = wrong form.'
               : score.accentOnly > 0
               ? 'Yellow = correct letters, wrong accent. Red = wrong form.'
               : 'Red = wrong form — correct answer shown.'}
@@ -518,6 +733,7 @@ export default function ParadigmQuiz() {
         onInputChange={handleInputChange}
         submitted={submitted}
         results={results}
+        accentStrict={accentStrict}
       />
 
       {/* Legend (results phase) */}
@@ -527,10 +743,12 @@ export default function ParadigmQuiz() {
             <span className="inline-block w-3 h-3 rounded" style={{ background: '#d1fae5', border: '1px solid #6ee7b7' }} />
             <span style={{ color: 'var(--color-text-muted)' }}>Correct</span>
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 rounded" style={{ background: '#fef3c7', border: '1px solid #fcd34d' }} />
-            <span style={{ color: 'var(--color-text-muted)' }}>Accent error</span>
-          </span>
+          {accentStrict && (
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-3 h-3 rounded" style={{ background: '#fef3c7', border: '1px solid #fcd34d' }} />
+              <span style={{ color: 'var(--color-text-muted)' }}>Accent error</span>
+            </span>
+          )}
           <span className="flex items-center gap-1.5">
             <span className="inline-block w-3 h-3 rounded" style={{ background: '#fee2e2', border: '1px solid #fca5a5' }} />
             <span style={{ color: 'var(--color-text-muted)' }}>Wrong</span>
@@ -569,12 +787,8 @@ export default function ParadigmQuiz() {
         )}
       </div>
 
-      {/* Keyboard hint (quiz phase only) */}
-      {phase.name === 'quiz' && (
-        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          Type English letters for Greek (Beta Code): <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">l</kbd>→λ, <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">/</kbd>→acute, <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">(</kbd>→rough breathing, <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">)</kbd>→smooth breathing, <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">=</kbd>→circumflex, <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">|</kbd>→iota subscript.
-        </p>
-      )}
+      {/* Keyboard reference chart (quiz phase only) */}
+      {phase.name === 'quiz' && <BetaCodeReference />}
     </div>
   );
 }

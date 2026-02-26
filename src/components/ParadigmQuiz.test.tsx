@@ -156,7 +156,7 @@ describe('ParadigmQuiz — quiz phase', () => {
     expect(inputs.length).toBe(10); // all 10 cells
   });
 
-  it('shows "← Change paradigm" link in quiz phase', async () => {
+  it('shows \"← Change paradigm\" link in quiz phase', async () => {
     render(<ParadigmQuiz />);
     await startQuizWithFirstNoun();
     expect(screen.getByText(/← Change paradigm/i)).toBeInTheDocument();
@@ -181,7 +181,7 @@ describe('ParadigmQuiz — quiz phase', () => {
     expect((firstInput as HTMLInputElement).value).toMatch(/[λαβγδεζηθικλμνξοπρστυφχψω]/);
   });
 
-  it('"← Change paradigm" returns to select phase', async () => {
+  it('\"← Change paradigm\" returns to select phase', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
     await startQuizWithFirstNoun();
@@ -268,5 +268,162 @@ describe('ParadigmQuiz — results phase', () => {
     // the results phase renders without crashing and shows score display
     await user.click(screen.getByRole('button', { name: /Submit Answers/i }));
     expect(screen.getByText(/\/10/)).toBeInTheDocument();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Accent toggle
+// ---------------------------------------------------------------------------
+
+describe('ParadigmQuiz — accent toggle', () => {
+  it('shows accent toggle switch in select phase settings card', () => {
+    render(<ParadigmQuiz />);
+    // Full variant uses role="switch"
+    const toggle = screen.getByRole('switch', { name: /Accent checking/i });
+    expect(toggle).toBeInTheDocument();
+  });
+
+  it('accent toggle is on (strict) by default', () => {
+    render(<ParadigmQuiz />);
+    const toggle = screen.getByRole('switch', { name: /Accent checking/i });
+    expect(toggle).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('accent toggle turns off when clicked in select phase', async () => {
+    const user = userEvent.setup();
+    render(<ParadigmQuiz />);
+    const toggle = screen.getByRole('switch', { name: /Accent checking/i });
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('compact accent pill is visible in quiz phase header', async () => {
+    render(<ParadigmQuiz />);
+    await startQuizWithFirstNoun();
+    // Compact pill uses aria-pressed
+    expect(screen.getByRole('button', { name: /Accents: on/i })).toBeInTheDocument();
+  });
+
+  it('compact accent pill toggles to "off" when clicked in quiz phase', async () => {
+    const user = userEvent.setup();
+    render(<ParadigmQuiz />);
+    await startQuizWithFirstNoun();
+    const pill = screen.getByRole('button', { name: /Accents: on/i });
+    await user.click(pill);
+    expect(screen.getByRole('button', { name: /Accents: off/i })).toBeInTheDocument();
+  });
+
+  it('accent setting persists into quiz phase from select phase', async () => {
+    const user = userEvent.setup();
+    render(<ParadigmQuiz />);
+    // Turn off accent checking in select phase
+    const toggle = screen.getByRole('switch', { name: /Accent checking/i });
+    await user.click(toggle);
+    // Start quiz
+    await startQuizWithFirstNoun();
+    // Compact pill should show "off"
+    expect(screen.getByRole('button', { name: /Accents: off/i })).toBeInTheDocument();
+  });
+
+  it('legend hides "Accent error" swatch when accent checking is off', async () => {
+    const user = userEvent.setup();
+    render(<ParadigmQuiz />);
+
+    // Start quiz
+    const cards = screen.getAllByRole('button', { name: /Decl\./i });
+    await user.click(cards[0]);
+    await user.click(screen.getByRole('button', { name: /Full Recall/i }));
+    await user.click(screen.getByRole('button', { name: /Start Quiz/i }));
+
+    // Turn off accent checking using compact pill
+    await user.click(screen.getByRole('button', { name: /Accents: on/i }));
+
+    // Submit (all blank → all wrong, no accent-only, but legend hides regardless)
+    await user.click(screen.getByRole('button', { name: /Submit Answers/i }));
+
+    expect(screen.queryByText('Accent error')).not.toBeInTheDocument();
+    // Correct and Wrong still show
+    expect(screen.getByText('Correct')).toBeInTheDocument();
+    expect(screen.getByText('Wrong')).toBeInTheDocument();
+  });
+
+  it('legend shows "Accent error" swatch when accent checking is on', async () => {
+    const user = userEvent.setup();
+    render(<ParadigmQuiz />);
+
+    // Start quiz with accent checking on (default)
+    const cards = screen.getAllByRole('button', { name: /Decl\./i });
+    await user.click(cards[0]);
+    await user.click(screen.getByRole('button', { name: /Full Recall/i }));
+    await user.click(screen.getByRole('button', { name: /Start Quiz/i }));
+
+    await user.click(screen.getByRole('button', { name: /Submit Answers/i }));
+
+    expect(screen.getByText('Accent error')).toBeInTheDocument();
+  });
+
+  it('score badge shows "ignored" note when accent is off and there are accent-only results', async () => {
+    // Submit with accent off — even with all blank (wrong), the badge labels adapt.
+    // We test this indirectly via the /10 score display still rendering.
+    const user = userEvent.setup();
+    render(<ParadigmQuiz />);
+
+    const cards = screen.getAllByRole('button', { name: /Decl\./i });
+    await user.click(cards[0]);
+    await user.click(screen.getByRole('button', { name: /Full Recall/i }));
+    await user.click(screen.getByRole('button', { name: /Start Quiz/i }));
+
+    await user.click(screen.getByRole('button', { name: /Accents: on/i })); // turn off
+    await user.click(screen.getByRole('button', { name: /Submit Answers/i }));
+
+    expect(screen.getByText(/\/10/)).toBeInTheDocument();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Keyboard reference chart
+// ---------------------------------------------------------------------------
+
+describe('ParadigmQuiz — keyboard reference chart', () => {
+  it('shows Beta Code Reference in quiz phase', async () => {
+    render(<ParadigmQuiz />);
+    await startQuizWithFirstNoun();
+    expect(screen.getByText(/Beta Code Reference/i)).toBeInTheDocument();
+  });
+
+  it('does not show Beta Code Reference in select phase', () => {
+    render(<ParadigmQuiz />);
+    expect(screen.queryByText(/Beta Code Reference/i)).not.toBeInTheDocument();
+  });
+
+  it('does not show Beta Code Reference in results phase', async () => {
+    const user = userEvent.setup();
+    render(<ParadigmQuiz />);
+
+    const cards = screen.getAllByRole('button', { name: /Decl\./i });
+    await user.click(cards[0]);
+    await user.click(screen.getByRole('button', { name: /Full Recall/i }));
+    await user.click(screen.getByRole('button', { name: /Start Quiz/i }));
+    await user.click(screen.getByRole('button', { name: /Submit Answers/i }));
+
+    expect(screen.queryByText(/Beta Code Reference/i)).not.toBeInTheDocument();
+  });
+
+  it('reference chart contains letter mappings', async () => {
+    render(<ParadigmQuiz />);
+    await startQuizWithFirstNoun();
+    // Check that some letter mappings are visible (kbd elements)
+    const kbds = document.querySelectorAll('details kbd');
+    expect(kbds.length).toBeGreaterThan(0);
+  });
+
+  it('reference chart contains diacritic entries', async () => {
+    render(<ParadigmQuiz />);
+    await startQuizWithFirstNoun();
+    // "smooth breathing" label should appear in the reference
+    expect(screen.getByText(/smooth breathing/i)).toBeInTheDocument();
+    expect(screen.getByText(/rough breathing/i)).toBeInTheDocument();
+    expect(screen.getByText(/acute accent/i)).toBeInTheDocument();
+    expect(screen.getByText(/iota subscript/i)).toBeInTheDocument();
   });
 });

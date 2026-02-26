@@ -19,4 +19,6 @@
   # To remove 'unsafe-inline', generate per-build hashes and inject them here — not worth the
   # complexity for a static site with no user-generated content.
   # style-src includes 'unsafe-inline' because React uses inline style attributes (e.g. style={{ color: ... }}).
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';
+  # Clerk + Stripe domains added for auth and subscription billing.
+  # Anthropic API is called server-side (Worker → Anthropic) — NOT in connect-src.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.clerk.accounts.dev https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://img.clerk.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.clerk.accounts.dev https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com https://*.clerk.accounts.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com; object-src 'none';

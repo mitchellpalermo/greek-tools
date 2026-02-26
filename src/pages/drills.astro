@@ -1,0 +1,88 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ParsingDrills from '../components/ParsingDrills';
+import UpgradeGate from '../components/UpgradeGate';
+import { hasActiveSubscription } from '../lib/subscription';
+import { SignInButton } from '@clerk/astro/components';
+
+export const prerender = false;
+
+const auth = Astro.locals.auth();
+const userId = auth.userId;
+
+// Determine what to render
+let subscriptionActive = false;
+if (userId) {
+  const db = Astro.locals.runtime.env.DB;
+  subscriptionActive = await hasActiveSubscription(db, userId);
+}
+
+// Handle checkout redirect messages
+const checkoutStatus = Astro.url.searchParams.get('checkout');
+---
+
+<Layout title="Parsing Drills" description="Practice Greek New Testament morphological parsing with AI-powered challenges.">
+
+  {checkoutStatus === 'success' && (
+    <div
+      class="max-w-xl mx-auto mt-6 rounded-xl px-5 py-4 text-sm font-medium"
+      style="background: #F0FDF4; color: #059669; border-left: 4px solid #059669;"
+    >
+      Subscription activated — welcome! Your first drill is loading below.
+    </div>
+  )}
+
+  {checkoutStatus === 'cancel' && (
+    <div
+      class="max-w-xl mx-auto mt-6 rounded-xl px-5 py-4 text-sm font-medium"
+      style="background: #FFF1F2; color: #F43F5E; border-left: 4px solid #F43F5E;"
+    >
+      Checkout cancelled. No charge was made.
+    </div>
+  )}
+
+  {!userId ? (
+    <!-- ── Not signed in ──────────────────────────────────────────────────── -->
+    <div class="max-w-lg mx-auto text-center py-16 px-4">
+      <div
+        class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6"
+        style="background: #F5F3FF; color: #7C3AED;"
+      >
+        α
+      </div>
+      <h1 class="text-3xl font-extrabold mb-3" style="color: var(--color-primary);">
+        Parsing Drills
+      </h1>
+      <p class="text-text-muted mb-8 leading-relaxed">
+        Practice morphological parsing with real Greek New Testament words.
+        AI-powered challenges with instant feedback and detailed explanations.
+        Create a free account to get started.
+      </p>
+      <SignInButton mode="modal" redirectUrl="/drills">
+        <button
+          class="px-8 py-3 rounded-xl font-bold text-white text-base"
+          style="background: var(--color-primary);"
+        >
+          Sign in to continue
+        </button>
+      </SignInButton>
+    </div>
+  ) : !subscriptionActive ? (
+    <!-- ── Signed in, no subscription ───────────────────────────────────── -->
+    <UpgradeGate client:load />
+  ) : (
+    <!-- ── Active subscription ──────────────────────────────────────────── -->
+    <div>
+      <div class="text-center pt-8 pb-4">
+        <h1 class="text-3xl font-extrabold mb-2" style="color: var(--color-primary);">
+          Parsing Drills
+        </h1>
+        <p class="text-text-muted text-sm">
+          Parse the Greek word using the buttons below, then check your answer.
+        </p>
+      </div>
+      <ParsingDrills client:load />
+    </div>
+  )}
+
+</Layout>

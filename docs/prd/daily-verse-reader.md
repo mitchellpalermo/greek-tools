@@ -14,6 +14,12 @@ A daily reading feature that surfaces one GNT verse per day in Greek, tracks a r
 
 ---
 
+## Status
+
+**Complete.** All four features implemented: `/daily` route with `DailyVerse` component, 62-verse curated list in `src/data/dailyVerses.ts`, localStorage streak tracking, vocabulary crossover from Flashcards SRS data, and homepage card + nav link. Word-popup help reuses shared `GreekText.tsx` components. Open questions resolved: verse sequence is hard-coded in the codebase; started with a curated 62-verse list (expandable).
+
+---
+
 ## Priority
 
 Low

@@ -14,6 +14,12 @@ An interactive tool for memorizing GNT verses in Greek. Uses progressive word bl
 
 ---
 
+## Status
+
+**Not started.**
+
+---
+
 ## Priority
 
 Low

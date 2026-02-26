@@ -6,6 +6,14 @@ Small, self-contained tools that round out the site. These are lower priority th
 
 ---
 
+## Status
+
+**Transliteration Tool — Complete.** Implemented in `src/lib/transliteration.ts` and `src/components/Transliteration.tsx`, live at `/transliteration`. Handles SBL scheme bidirectionally including breathing marks, accents, and iota subscripts.
+
+**Sentence Diagramming Tool — Not started.**
+
+---
+
 ## Features
 
 ### 1. Transliteration Tool

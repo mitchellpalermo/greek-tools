@@ -6,6 +6,18 @@ Extend the existing flashcard tool with smarter study modes, filtering, and prog
 
 ---
 
+## Status
+
+**Partially complete.** Four of six features shipped:
+- ✅ Feature 1 — Spaced Repetition (SRS)
+- ✅ Feature 2 — Frequency & Part-of-Speech Filters
+- ❌ Feature 3 — Textbook Chapter Sets (not started)
+- ✅ Feature 4 — Answer Modes (flip + type)
+- ✅ Feature 5 — Progress Tracking & Streaks
+- ❌ Feature 6 — Custom Deck Builder (not started)
+
+---
+
 ## Goals
 
 - Make vocabulary review more effective than random cycling

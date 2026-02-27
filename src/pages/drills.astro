@@ -1,0 +1,90 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ParsingDrills from '../components/ParsingDrills';
+import { isDrillsEnabled } from '../lib/features';
+import { SignInButton } from '@clerk/astro/components';
+
+export const prerender = false;
+
+// Feature flag — return 404 when drills are not yet enabled.
+// In astro dev (no CF runtime), fall back to the PUBLIC_DRILLS_ENABLED Vite env var.
+const runtime = Astro.locals.runtime;
+const featureEnabled =
+  isDrillsEnabled(runtime?.env) ||
+  import.meta.env.PUBLIC_DRILLS_ENABLED === 'true';
+
+if (!featureEnabled) {
+  return Astro.rewrite('/404');
+}
+
+// ── Auth ────────────────────────────────────────────────────────────────────
+// In local dev (no CF runtime), `?demo=active` simulates a signed-in user so
+// the drill UI is previewable without real Clerk keys.
+const isDev = import.meta.env.DEV;
+const demoState = isDev ? Astro.url.searchParams.get('demo') : null;
+
+let userId: string | null = null;
+
+if (demoState === 'active') {
+  userId = 'demo-user';
+} else if (!isDev) {
+  // Production — real Clerk auth
+  const auth = Astro.locals.auth();
+  userId = auth.userId;
+}
+---
+
+<Layout title="Parsing Drills" description="Practice Greek New Testament morphological parsing with AI-powered challenges.">
+
+  {!userId ? (
+    <!-- ── Not signed in ──────────────────────────────────────────────────── -->
+    <div class="max-w-lg mx-auto text-center py-16 px-4">
+      <div
+        class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6"
+        style="background: #F5F3FF; color: #7C3AED;"
+      >
+        α
+      </div>
+      <h1 class="text-3xl font-extrabold mb-3" style="color: var(--color-primary);">
+        Parsing Drills
+      </h1>
+      <p class="text-text-muted mb-8 leading-relaxed">
+        Practice morphological parsing with real Greek New Testament words.
+        Instant feedback on every attempt. Sign in to get started — it's free.
+      </p>
+      {isDev ? (
+        <!-- Dev placeholder — no real Clerk key configured -->
+        <button
+          class="px-8 py-3 rounded-xl font-bold text-white text-base opacity-60 cursor-default"
+          style="background: var(--color-primary);"
+          title="Clerk not configured in dev — use ?demo=active"
+        >
+          Sign in to continue (dev stub)
+        </button>
+      ) : (
+        <SignInButton mode="modal" redirectUrl="/drills">
+          <button
+            class="px-8 py-3 rounded-xl font-bold text-white text-base"
+            style="background: var(--color-primary);"
+          >
+            Sign in to continue
+          </button>
+        </SignInButton>
+      )}
+    </div>
+  ) : (
+    <!-- ── Signed in — show drills directly ──────────────────────────────── -->
+    <div>
+      <div class="text-center pt-8 pb-4">
+        <h1 class="text-3xl font-extrabold mb-2" style="color: var(--color-primary);">
+          Parsing Drills
+        </h1>
+        <p class="text-text-muted text-sm">
+          Parse the Greek word using the buttons below, then check your answer.
+        </p>
+      </div>
+      <ParsingDrills client:load />
+    </div>
+  )}
+
+</Layout>

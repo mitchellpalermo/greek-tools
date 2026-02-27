@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { isDrillsEnabled } from '../lib/features';
 
 interface Props {
   title: string;
@@ -8,14 +9,22 @@ interface Props {
 
 const { title, description = "Free tools for Koine Greek students — keyboard, flashcards, and more." } = Astro.props;
 
+// Astro.locals.runtime is only available on SSR pages; use optional chaining
+// so this layout renders correctly on statically pre-rendered pages too.
+// PUBLIC_DRILLS_ENABLED is a Vite env fallback so `astro dev` can show the nav entry.
+const drillsOn =
+  isDrillsEnabled(Astro.locals.runtime?.env) ||
+  import.meta.env.PUBLIC_DRILLS_ENABLED === 'true';
+
 const navLinks = [
-  { href: '/keyboard',        label: 'Keyboard',   tabLabel: 'Keys'      },
-  { href: '/flashcards',      label: 'Flashcards', tabLabel: 'Cards'     },
-  { href: '/daily',           label: 'Daily',      tabLabel: 'Daily'     },
-  { href: '/reader',          label: 'Reader',     tabLabel: 'Reader'    },
-  { href: '/transliteration', label: 'Transliteration', tabLabel: 'Translit' },
-  { href: '/grammar',         label: 'Grammar',    tabLabel: 'Grammar'   },
-  { href: '/paradigms',       label: 'Quiz',       tabLabel: 'Quiz'      },
+  { href: '/keyboard',        label: 'Keyboard',        tabLabel: 'Keys'      },
+  { href: '/flashcards',      label: 'Flashcards',      tabLabel: 'Cards'     },
+  { href: '/daily',           label: 'Daily',           tabLabel: 'Daily'     },
+  { href: '/reader',          label: 'Reader',          tabLabel: 'Reader'    },
+  { href: '/transliteration', label: 'Transliteration', tabLabel: 'Translit'  },
+  { href: '/grammar',         label: 'Grammar',         tabLabel: 'Grammar'   },
+  { href: '/paradigms',       label: 'Quiz',            tabLabel: 'Quiz'      },
+  ...(drillsOn ? [{ href: '/drills', label: 'Drills', tabLabel: 'Drills' }] : []),
 ];
 
 const currentPath = Astro.url.pathname;
@@ -265,6 +274,24 @@ function isActive(href: string) {
             <span class="tab-label">Quiz</span>
           </span>
         </a>
+
+        {/* Drills tab — only rendered when feature flag is on */}
+        {drillsOn && (
+          <a
+            href="/drills"
+            class:list={["tab-item", isActive('/drills') ? "tab-active" : "tab-inactive"]}
+            aria-label="Parsing Drills"
+            aria-current={isActive('/drills') ? 'page' : undefined}
+          >
+            <span class:list={["tab-pill", { "tab-pill-active": isActive('/drills') }]}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              <span class="tab-label">Drills</span>
+            </span>
+          </a>
+        )}
 
       </div>
     </nav>

@@ -25,8 +25,11 @@ export default defineConfig({
         'src/components/GNTReader.tsx',
         'src/components/GreekText.tsx',
         'src/components/Transliteration.tsx',
+        'src/components/ParsingDrills.tsx',
+        'src/components/UpgradeGate.tsx',
         'src/data/morphgnt.ts',
         'src/lib/transliteration.ts',
+        'src/middleware.ts',
       ],
       thresholds: {
         lines: 90,

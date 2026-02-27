@@ -1,5 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { isDrillsEnabled } from '../lib/features';
+
+const drillsOn =
+  isDrillsEnabled(Astro.locals.runtime?.env) ||
+  import.meta.env.PUBLIC_DRILLS_ENABLED === 'true';
 
 const tools = [
   {
@@ -51,6 +56,17 @@ const tools = [
     bgColor: '#FFF1F2',
   },
 ] as const;
+
+const drillCard = {
+  href: '/drills',
+  icon: 'α',
+  title: 'Parsing Drills',
+  description: 'Drill morphological parsing with real Greek New Testament words. Covers nouns, adjectives, verbs, infinitives, and participles.',
+  accentColor: '#7C3AED',   // grape violet
+  bgColor: '#F5F3FF',
+} as const;
+
+const visibleTools = drillsOn ? [...tools, drillCard] : tools;
 ---
 
 <Layout title="Home">
@@ -82,7 +98,7 @@ const tools = [
 
   <!-- ── Tool cards ────────────────────────────────────────────────────── -->
   <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto pb-16">
-    {tools.map(({ href, icon, title, description, accentColor, bgColor }) => (
+    {visibleTools.map(({ href, icon, title, description, accentColor, bgColor }) => (
       <a
         href={href}
         class="group block bg-bg-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-white hover:-translate-y-0.5"

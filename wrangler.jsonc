@@ -12,5 +12,20 @@
 	},
 	"observability": {
     "enabled": true
+  },
+  // D1 binding — uncomment and fill in database_id when ready to enable Parsing Drills:
+  //   1. wrangler login
+  //   2. wrangler d1 create greek-tools-db   ← copy the id it prints
+  //   3. wrangler d1 execute greek-tools-db --file=migrations/0001_auth_and_subscriptions.sql
+  //   4. Paste the id below and set DRILLS_ENABLED to "true"
+  //
+  // "d1_databases": [
+  //   { "binding": "DB", "database_name": "greek-tools-db", "database_id": "<paste-id-here>" }
+  // ],
+
+  "vars": {
+    // Feature flags — set to "true" to enable, anything else (or absent) = disabled.
+    // Override per-environment with: wrangler secret put DRILLS_ENABLED
+    "DRILLS_ENABLED": "false"
   }
 }

@@ -2,86 +2,141 @@
 
 ## Overview
 
-Interactive parsing practice and principal parts drills to help students build the pattern recognition they need for reading Greek fluently. Complements the Grammar Reference (lookup) and Flashcards (vocabulary) tools.
+AI-powered morphological parsing practice for Koine Greek students. Claude generates challenges drawn from real Greek New Testament words, students identify the parse via button selections, and Claude explains wrong answers in plain English. Requires an active subscription.
 
 ---
 
 ## Status
 
-**Not started.**
+**In progress.** Architecture designed and approved. Implementation in progress.
+
+## LOE
+
+**Large (~2 weeks total, including auth and billing infrastructure)**
 
 ---
 
 ## Goals
 
 - Give students a place to practice parsing without needing a workbook
-- Cover the two core drill types used in most Koine Greek courses: morphological parsing and principal parts
-- Provide immediate, informative feedback
+- Use Claude to generate high-quality, varied challenges from verified GNT text — no hand-curated dataset required
+- Provide immediate, readable explanations when a student gets something wrong
+- Sustain API costs through a subscription model
+
+---
+
+## Dependencies
+
+- User Authentication (see auth.md) — required before accessing drills
+- Subscriptions (see subscriptions.md) — paid-only feature
+- MorphGNT dataset (`public/data/morphgnt/`) — source of all challenge words
 
 ---
 
 ## Features
 
-### 1. Morphological Parsing Drill
+### 1. AI-Generated Parsing Challenge
 
-Present a Greek word form and ask the student to identify its grammatical parse.
+Each challenge presents one Greek word from the GNT and asks the student to identify its full morphological parse.
 
-**For nouns, adjectives, pronouns:**
-- Student selects: Case, Number, Gender
-- Input method: dropdowns or button groups (no typing required)
+**How challenges are generated:**
+- The server pre-builds a pool of ~500 parse-worthy MorphGNT words (nouns, adjectives, finite verbs; no particles, conjunctions, or prepositions) in `src/data/morphgnt-drill-pool.ts`
+- On each request, 20 words are sampled randomly and sent to Claude as context
+- Claude selects the best challenge candidate and provides a concise English gloss
+- This grounds all challenges in verified GNT data — Claude selects and glosses, it never invents Greek forms
 
-**For verbs:**
-- Student selects: Tense, Voice, Mood, Person, Number (or Tense, Voice, Case, Number, Gender for participles)
-- Infinitives: Tense + Voice only
+**What the student sees:**
+- The Greek word displayed prominently in the Greek font
+- The lemma (lexical form) for context
+- A short English gloss
+
+**Parse selection — no typing required.** The student selects parse categories via button groups. The categories shown depend on the word's part of speech:
+
+| Word type | Categories shown |
+|---|---|
+| Noun / pronoun / article / adjective | Case, Number, Gender |
+| Finite verb | Person, Tense, Voice, Mood, Number |
+| Infinitive | Tense, Voice |
+| Participle | Tense, Voice, Case, Number, Gender |
+
+**After submission:**
+- Correct → green feedback card with the full parse label
+- Wrong → red feedback card with the correct parse + an "Explain this" button
+
+### 2. Claude-Powered Explanations
+
+When a student gets a challenge wrong and clicks "Explain this," Claude streams a 3–5 sentence explanation.
+
+**Explanation covers:**
+- What morphological features (ending, augment, reduplication, stem) identify the correct parse
+- What the student likely mistook and why
+- Written in encouraging, plain English — no markdown formatting
+
+**Delivered as a Server-Sent Events (SSE) stream** so the text appears word by word.
+
+### 3. Session Tracking
+
+The drill session tracks performance across challenges in the current browser session.
 
 **Behavior:**
-- Source word list: drawn from high-frequency GNT vocabulary, inflected forms
-- After submission, show: correct answer, a brief explanation if wrong (e.g., "The -σαμεν ending marks 1st plural aorist active indicative")
-- Track accuracy per session
-- Option to filter drill by: word category (nouns only, verbs only, all), difficulty (common forms only vs. including 3rd declension / perfect / participles)
+- Correct/wrong counts shown in a session bar
+- Accuracy percentage shown on session end
+- Drill attempts logged to the database for future analytics (no spaced repetition in v1 — each session is fresh)
 
-**Data source:**
-- MorphGNT is now fully integrated and available at `public/data/morphgnt/`. It provides inflected forms with correct morphological tags for every word in the GNT — this is the preferred data source. Filter to high-frequency lemmas for a starter drill set.
-- A curated hand-built set of ~200–400 common forms is also viable as a lighter alternative.
+### 4. Part-of-Speech Filter
 
-### 2. Principal Parts Drill
+Student can narrow challenges to a specific category before starting.
 
-Present a verb's first principal part (lexical form) and ask the student to produce one or more of the remaining five.
-
-**The six principal parts:**
-1. Present active indicative (1sg) — λύω
-2. Future active indicative (1sg) — λύσω
-3. Aorist active indicative (1sg) — ἔλυσα
-4. Perfect active indicative (1sg) — λέλυκα
-5. Perfect middle/passive indicative (1sg) — λέλυμαι
-6. Aorist passive indicative (1sg) — ἐλύθην
-
-**Behavior:**
-- Show the lexical form; student types the requested principal part using the Greek keyboard (or a transliteration fallback)
-- Checking: exact match or whitelist of acceptable variants
-- Student can also drill in reverse: shown a principal part form, identify which number it is and the lexical form
-- Word list: the ~50 most common irregular verbs in the GNT
-
-### 3. Article + Noun Agreement Practice
-
-A targeted drill for beginners on matching the definite article to a noun in case/number/gender.
-
-**Behavior:**
-- Given a noun form (e.g., λόγου), student selects the correct article form (τοῦ)
-- Or given the article + noun stem, select the correct combined form
-- Short drill sets (10–15 items), randomized
-- Useful companion to the Grammar Reference declension tables
+**Options:** All · Nouns & Adjectives · Verbs only
 
 ---
 
-## Out of Scope
+## Technical Design
 
-- Full sentence parsing or syntax analysis
-- Generating novel inflected forms programmatically at runtime (start with a dataset)
-- Timed/competitive modes
+### Challenge Flow
+
+```
+Student loads /drills
+  → Server checks auth + subscription (D1 query)
+  → ParsingDrills component loads
+  → POST /api/drills/challenge
+      → Sample 20 words from morphgnt-drill-pool.ts
+      → Claude selects best challenge candidate
+      → Return { word, lemma, gloss, pos, parsing }
+  → Student selects parse via button groups
+  → Client-side checkAnswer() against 8-char MorphGNT parse code
+  → POST /api/drills/submit (fire-and-forget, records to D1)
+  → Show feedback
+  → (if wrong) POST /api/drills/explain → SSE stream → explanation panel
+```
+
+### API Routes
+
+| Route | Method | Purpose |
+|---|---|---|
+| `/api/drills/challenge` | POST | Auth + subscription check → Claude challenge |
+| `/api/drills/explain` | POST | Auth + subscription check → Claude SSE explanation |
+| `/api/drills/submit` | POST | Auth check → record attempt to D1 |
+
+### Key Library Files
+
+- `src/lib/claude.ts` — `buildChallengePrompt()`, `buildExplanationPrompt()`, `parseChallengeResponse()`, `checkAnswer()`
+- `src/data/morphgnt-drill-pool.ts` — static array of ~500 `MorphWord` objects for challenge sampling
 
 ---
 
-## Open Questions
+## Out of Scope (v1)
 
-- Should parsing drill and principal parts live on one `/drills` page with tabs, or separate routes?
+- Spaced repetition for drills (covered by Flashcards; may be added in v2)
+- Principal parts drill (planned; requires separate data and input type)
+- Article + noun agreement drill (planned; lower priority)
+- Timed or competitive modes
+- Full sentence parsing
+
+---
+
+## Decisions
+
+- **Route:** Single `/drills` page with part-of-speech filter. Principal parts and agreement drills added later as tabs on the same page.
+- **Data strategy:** Pre-built drill pool rather than fetching all MorphGNT books at challenge time. Faster, simpler, and avoids large runtime fetches.
+- **Answer input:** Button groups only (no typing for parsing). Typing is reserved for principal parts drill in a future iteration.

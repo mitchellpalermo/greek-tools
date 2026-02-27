@@ -8,7 +8,7 @@ Display the definite article alongside each form in noun paradigm tables — the
 
 ## Status
 
-**Not started.**
+**Complete.** Implemented in PR #18. Article data and helper live in `src/data/grammar.ts`; noun table display updated in `src/components/GrammarReference.tsx`; article quiz paradigm added to `src/lib/paradigm-quiz.ts`.
 
 ## LOE
 

@@ -23,6 +23,8 @@ import {
   personalPronouns12,
   genderedPronouns,
   articleForms,
+  contractVerbParadigms,
+  liquidFutureComparison,
 } from '../data/grammar';
 
 // ---------------------------------------------------------------------------
@@ -76,6 +78,8 @@ export function buildTableModels(): TableModel[] {
     ...buildNounTables(),
     ...buildAdjTables(),
     ...buildVerbTables(),
+    ...buildContractVerbTables(),
+    ...buildLiquidVerbTables(),
     ...buildPronounTables(),
     buildArticleTable(),
   ];
@@ -187,6 +191,46 @@ function buildPronounTables(): TableModel[] {
   }));
 
   return [...personal, ...gendered];
+}
+
+/**
+ * Contract verb paradigms: one table per paradigm, rows = persons, col = contracted form.
+ * Labelled with the contract type so students know which pattern they're drilling.
+ */
+export function buildContractVerbTables(): TableModel[] {
+  const typeLabel: Record<string, string> = {
+    alpha:   'α-contract (ἀγαπάω)',
+    epsilon: 'ε-contract (ποιέω)',
+    omicron: 'ο-contract (πληρόω)',
+  };
+  return contractVerbParadigms.map(p => ({
+    id: `contract-${p.id}`,
+    label: `${p.label} — ${typeLabel[p.contractType]}`,
+    category: 'verb' as const,
+    cols: ['Form'],
+    rows: PERSONS.map(pn => ({
+      label: PERSON_LABELS[pn],
+      answers: [p.forms[pn] ?? null],
+    })),
+  }));
+}
+
+/**
+ * Liquid verb table: the future active of βαλῶ as a single quiz-able paradigm.
+ */
+export function buildLiquidVerbTables(): TableModel[] {
+  return [
+    {
+      id: 'liquid-future-ballo',
+      label: 'Liquid Future Active — βαλῶ (βάλλω)',
+      category: 'verb' as const,
+      cols: ['Form'],
+      rows: liquidFutureComparison.map(row => ({
+        label: PERSON_LABELS[row.person],
+        answers: [row.liquid],
+      })),
+    },
+  ];
 }
 
 // ---------------------------------------------------------------------------

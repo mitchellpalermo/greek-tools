@@ -32,6 +32,11 @@ import {
   prepositions,
   accentSections,
   getArticle,
+  contractionRules,
+  contractVerbParadigms,
+  commonContractVerbs,
+  liquidFutureComparison,
+  liquidPrincipalParts,
   type NounParadigm,
   type AdjParadigm,
   type VerbParadigm,
@@ -41,6 +46,8 @@ import {
   type NumKey,
   type GenderKey,
   type PersonNum,
+  type ContractType,
+  type ContractVerbParadigm,
 } from '../data/grammar';
 
 // ---------------------------------------------------------------------------
@@ -48,12 +55,14 @@ import {
 // ---------------------------------------------------------------------------
 
 const NAV_SECTIONS = [
-  { id: 'nouns',       label: 'Nouns'        },
-  { id: 'adjectives',  label: 'Adjectives'   },
-  { id: 'verbs',       label: 'Verbs'        },
-  { id: 'pronouns',    label: 'Pronouns'     },
-  { id: 'prepositions', label: 'Prepositions' },
-  { id: 'accents',     label: 'Accents'      },
+  { id: 'nouns',          label: 'Nouns'          },
+  { id: 'adjectives',     label: 'Adjectives'     },
+  { id: 'verbs',          label: 'Verbs'          },
+  { id: 'contract-verbs', label: 'Contract Verbs' },
+  { id: 'liquid-verbs',   label: 'Liquid Verbs'   },
+  { id: 'pronouns',       label: 'Pronouns'       },
+  { id: 'prepositions',   label: 'Prepositions'   },
+  { id: 'accents',        label: 'Accents'        },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -692,6 +701,400 @@ function PrepCard({ entry }: { entry: (typeof prepositions)[number] }) {
 }
 
 // ---------------------------------------------------------------------------
+// Contract verbs section
+// ---------------------------------------------------------------------------
+
+const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
+  alpha:   'α-contract — ἀγαπάω',
+  epsilon: 'ε-contract — ποιέω',
+  omicron: 'ο-contract — πληρόω',
+};
+
+const CONTRACT_TYPE_SHORT: Record<ContractType, string> = {
+  alpha:   'α (ἀγαπάω)',
+  epsilon: 'ε (ποιέω)',
+  omicron: 'ο (πληρόω)',
+};
+
+function ContractionRulesCard() {
+  return (
+    <div className="rounded-xl overflow-hidden shadow-sm mb-8" style={{ border: '1px solid #e5e7eb' }}>
+      <div className="px-4 py-2.5" style={{ background: 'var(--color-primary)' }}>
+        <span className="text-sm font-semibold text-white">Contraction Rules</span>
+      </div>
+      <div className="overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
+              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', width: '5rem' }}>
+                Following
+              </th>
+              {(['α-stem', 'ε-stem', 'ο-stem'] as const).map(col => (
+                <th key={col} className="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {contractionRules.map((rule, i) => (
+              <tr key={rule.following} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
+                <td className="px-3 py-2 text-xs font-mono font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                  {rule.following}
+                </td>
+                <td className="px-4 py-2 text-center font-serif text-base" style={{ color: 'var(--color-greek)' }}>{rule.alpha}</td>
+                <td className="px-4 py-2 text-center font-serif text-base" style={{ color: 'var(--color-greek)' }}>{rule.epsilon}</td>
+                <td className="px-4 py-2 text-center font-serif text-base" style={{ color: 'var(--color-greek)' }}>{rule.omicron}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function ContractParadigmTable({ paradigm }: { paradigm: ContractVerbParadigm }) {
+  const [description, setDescription] = useState<string | null>(null);
+
+  return (
+    <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
+      <div className="px-4 py-2.5" style={{ background: 'var(--color-primary)' }}>
+        <span className="text-sm font-semibold text-white">{paradigm.label}</span>
+      </div>
+      <div style={{ background: 'var(--color-bg-card)' }}>
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', width: '5rem' }}>Person</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>Contracted</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>Uncontracted</th>
+            </tr>
+          </thead>
+          <tbody>
+            {PERSONS.map((p, i) => {
+              const contracted = paradigm.forms[p];
+              const raw = paradigm.uncontracted[p];
+              if (!contracted) return null;
+              return (
+                <tr key={p} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
+                  <td className="px-4 py-2 text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                    {PERSON_LABELS[p]}
+                  </td>
+                  <td
+                    className="px-4 py-2 font-serif text-lg cursor-default"
+                    style={{ color: 'var(--color-greek)' }}
+                    onMouseEnter={() => setDescription(`${paradigm.label} — ${PERSON_FULL_LABELS[p]}`)}
+                    onMouseLeave={() => setDescription(null)}
+                    onClick={() => setDescription(`${paradigm.label} — ${PERSON_FULL_LABELS[p]}`)}
+                  >
+                    {contracted}
+                  </td>
+                  <td className="px-4 py-2 font-serif text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                    {raw ?? ''}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="px-3 pb-3 pt-1" style={{ background: 'var(--color-bg-card)' }}>
+        <DescriptionBar text={description} />
+      </div>
+    </div>
+  );
+}
+
+function ContractVerbsSection() {
+  const types: ContractType[] = ['alpha', 'epsilon', 'omicron'];
+  const [activeType, setActiveType] = useState<ContractType>('alpha');
+
+  const byType = types.reduce(
+    (acc, t) => ({ ...acc, [t]: contractVerbParadigms.filter(p => p.contractType === t) }),
+    {} as Record<ContractType, ContractVerbParadigm[]>
+  );
+
+  const [activeId, setActiveId] = useState(byType['alpha'][0].id);
+
+  const handleTypeChange = (t: ContractType) => {
+    setActiveType(t);
+    setActiveId(byType[t][0].id);
+  };
+
+  const activeParadigm = contractVerbParadigms.find(p => p.id === activeId) ?? byType[activeType][0];
+
+  const contractColors: Record<ContractType, string> = {
+    alpha:   'var(--color-primary)',
+    epsilon: '#7c3d12',
+    omicron: '#166534',
+  };
+
+  return (
+    <section id="contract-verbs" className="mb-16">
+      <SectionHeading id="contract-verbs">Contract Verbs</SectionHeading>
+      <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
+        Contract verbs have stems ending in α, ε, or ο. When these stem vowels meet the following ending vowel they
+        merge according to fixed rules, producing forms that look nothing like the standard λύω paradigm.
+        The contracted form is shown alongside the uncontracted form for comparison.
+      </p>
+
+      <ContractionRulesCard />
+
+      {/* Contract type tabs */}
+      <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(30,58,95,0.07)' }}>
+        {types.map(t => (
+          <button
+            key={t}
+            onClick={() => handleTypeChange(t)}
+            className="flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
+            style={
+              activeType === t
+                ? { background: contractColors[t], color: '#fff' }
+                : { background: 'transparent', color: 'var(--color-text-muted)' }
+            }
+          >
+            {CONTRACT_TYPE_SHORT[t]}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4 mb-10">
+        {/* Paradigm selector */}
+        <nav className="flex md:flex-col gap-1 overflow-x-auto pb-1 md:pb-0 md:shrink-0 md:w-52">
+          {byType[activeType].map(p => (
+            <button
+              key={p.id}
+              onClick={() => setActiveId(p.id)}
+              className="shrink-0 md:shrink md:w-full text-left px-3 py-2 rounded-lg text-sm transition-colors whitespace-nowrap"
+              style={
+                activeId === p.id
+                  ? { background: contractColors[activeType], color: '#fff' }
+                  : { background: 'rgba(30,58,95,0.07)', color: 'var(--color-text)' }
+              }
+            >
+              {p.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="flex-1 min-w-0">
+          <ContractParadigmTable paradigm={activeParadigm} />
+        </div>
+      </div>
+
+      {/* Common GNT contract verbs */}
+      <div>
+        <ParadigmHeading>Common GNT Contract Verbs</ParadigmHeading>
+        <div className="space-y-3">
+          {types.map(t => {
+            const verbs = commonContractVerbs.filter(v => v.type === t);
+            return (
+              <div key={t} className="flex flex-wrap items-center gap-2">
+                <span
+                  className="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded shrink-0"
+                  style={{ background: contractColors[t], color: '#fff', minWidth: '1.5rem', textAlign: 'center' }}
+                >
+                  {t === 'alpha' ? 'α' : t === 'epsilon' ? 'ε' : 'ο'}
+                </span>
+                {verbs.map(v => (
+                  <span
+                    key={v.greek}
+                    className="text-sm px-2.5 py-1 rounded-lg"
+                    style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb', color: 'var(--color-greek)', fontFamily: 'serif' }}
+                    title={v.gloss}
+                  >
+                    {v.greek}
+                    <span className="ml-1.5 text-xs font-sans" style={{ color: 'var(--color-text-muted)' }}>{v.gloss}</span>
+                  </span>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Liquid verbs section
+// ---------------------------------------------------------------------------
+
+const LIQUID_AORIST_PATTERNS = [
+  {
+    title: 'Sigmatic Aorist with Stem Change',
+    description: 'The σ drops but the stem vowel lengthens to compensate.',
+    examples: [
+      { verb: 'μένω', aorist: 'ἔμεινα', note: 'stem εν → ειν (compensatory lengthening)' },
+      { verb: 'κρίνω', aorist: 'ἔκρινα', note: 'stem κριν-, augment + regular sigma-drop' },
+      { verb: 'ἀποστέλλω', aorist: 'ἀπέστειλα', note: 'stem στελ → στειλ (lengthening)' },
+    ],
+  },
+  {
+    title: 'Asigmatic (2nd) Aorist',
+    description: 'No sigma at all — uses a distinct stem with secondary active endings.',
+    examples: [
+      { verb: 'βάλλω', aorist: 'ἔβαλον', note: 'stem βαλ-, 2nd aorist endings (-ον, -ες, -ε…)' },
+      { verb: 'ἀγγέλλω', aorist: 'ἤγγειλα', note: 'stem ἀγγελ → ἀγγειλ (1st aorist with lengthening)' },
+    ],
+  },
+  {
+    title: 'Stem + Augment Irregularity',
+    description: 'Augment interacts with the stem, often with additional vowel changes.',
+    examples: [
+      { verb: 'αἴρω', aorist: 'ἦρα', note: 'stem ἀρ-, temporal augment α→η, no sigma' },
+      { verb: 'ἐγείρω', aorist: 'ἤγειρα', note: 'temporal augment ε→η; stem ἐγερ-' },
+    ],
+  },
+];
+
+function LiquidVerbsSection() {
+  return (
+    <section id="liquid-verbs" className="mb-16">
+      <SectionHeading id="liquid-verbs">Liquid Verbs</SectionHeading>
+      <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
+        Liquid verbs have stems ending in λ, μ, ν, or ρ. They are irregular in the future and often in the
+        aorist because the future-tense sigma (σ) is unstable between a liquid consonant and a vowel and drops out.
+      </p>
+
+      {/* Explainer callout */}
+      <div
+        className="rounded-xl p-4 mb-8 flex gap-3"
+        style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)' }}
+      >
+        <div className="shrink-0 mt-0.5">
+          <span className="font-mono font-bold text-sm" style={{ color: 'var(--color-accent)' }}>σ-drop</span>
+        </div>
+        <div className="text-sm space-y-1" style={{ color: 'var(--color-text)' }}>
+          <p>
+            <strong>Why liquids are irregular:</strong> When σ is added to a liquid stem (e.g., βαλ + σ + ω),
+            the σ is phonologically unstable between the liquid and the following vowel and drops out.
+          </p>
+          <p>
+            <strong>The result:</strong> The future uses ε-contract endings instead of the standard -σω pattern
+            (βαλ + ε → βαλέω type → contracts → βαλῶ, βαλεῖς, βαλεῖ…).
+          </p>
+        </div>
+      </div>
+
+      {/* Future comparison table */}
+      <div className="mb-10">
+        <ParadigmHeading>Future: Standard vs. Liquid</ParadigmHeading>
+        <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
+          <div className="px-4 py-2.5" style={{ background: 'var(--color-primary)' }}>
+            <span className="text-sm font-semibold text-white">Future Active Indicative</span>
+          </div>
+          <div className="overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', width: '5rem' }}>Person</th>
+                  <th className="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+                    Standard — λύσω
+                  </th>
+                  <th className="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-accent)' }}>
+                    Liquid — βαλῶ
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {liquidFutureComparison.map((row, i) => (
+                  <tr key={row.person} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
+                    <td className="px-4 py-2 text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                      {PERSON_LABELS[row.person]}
+                    </td>
+                    <td className="px-4 py-2 text-center font-serif text-base" style={{ color: 'var(--color-text-muted)' }}>
+                      {row.standard}
+                    </td>
+                    <td className="px-4 py-2 text-center font-serif text-lg font-medium" style={{ color: 'var(--color-greek)' }}>
+                      {row.liquid}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Aorist patterns */}
+      <div className="mb-10">
+        <ParadigmHeading>Aorist Patterns</ParadigmHeading>
+        <div className="space-y-4">
+          {LIQUID_AORIST_PATTERNS.map((pattern, pi) => (
+            <div
+              key={pattern.title}
+              className="rounded-xl p-4 shadow-sm"
+              style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}
+            >
+              <div className="flex items-start gap-2 mb-2">
+                <span
+                  className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white mt-0.5"
+                  style={{ background: 'var(--color-accent)' }}
+                >
+                  {pi + 1}
+                </span>
+                <div>
+                  <h4 className="text-sm font-semibold" style={{ color: 'var(--color-primary)' }}>{pattern.title}</h4>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{pattern.description}</p>
+                </div>
+              </div>
+              <div className="space-y-1 ml-7">
+                {pattern.examples.map(ex => (
+                  <div key={ex.verb} className="flex flex-wrap items-baseline gap-x-2 text-sm">
+                    <span className="font-serif" style={{ color: 'var(--color-greek)' }}>{ex.verb}</span>
+                    <span style={{ color: 'var(--color-text-muted)' }}>→</span>
+                    <span className="font-serif font-medium" style={{ color: 'var(--color-greek)' }}>{ex.aorist}</span>
+                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>({ex.note})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Principal parts table */}
+      <div>
+        <ParadigmHeading>Common GNT Liquid Verbs — Principal Parts</ParadigmHeading>
+        <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
+          <div className="px-4 py-2.5" style={{ background: 'var(--color-primary)' }}>
+            <span className="text-sm font-semibold text-white">Principal Parts</span>
+          </div>
+          <div className="overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
+                  {['Verb', 'Gloss', 'Future', 'Aorist Act.', 'Perf. Act.', 'Perf. M/P', 'Aor. Pass.'].map(h => (
+                    <th key={h} className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {liquidPrincipalParts.map((verb, i) => (
+                  <tr key={verb.id} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
+                    <td className="px-3 py-2 font-serif text-base whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.lexical}</td>
+                    <td className="px-3 py-2 text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{verb.gloss}</td>
+                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.future}</td>
+                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.aoristAct}</td>
+                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.perfectAct}</td>
+                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.perfectMidPass}</td>
+                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.aoristPass}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -774,6 +1177,12 @@ export default function GrammarReference() {
 
         {/* Verbs */}
         <VerbSection />
+
+        {/* Contract Verbs */}
+        <ContractVerbsSection />
+
+        {/* Liquid Verbs */}
+        <LiquidVerbsSection />
 
         {/* Pronouns */}
         <section id="pronouns" className="mb-16">

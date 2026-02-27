@@ -158,6 +158,63 @@ export interface PrepEntry {
 }
 
 // ---------------------------------------------------------------------------
+// Contract verb types
+// ---------------------------------------------------------------------------
+
+export type ContractType = 'alpha' | 'epsilon' | 'omicron';
+
+/** One row in the contraction rules reference table. */
+export interface ContractionRule {
+  /** The vowel or diphthong following the stem vowel, e.g. "+ ε" */
+  following: string;
+  /** Contraction result for α-stems */
+  alpha: string;
+  /** Contraction result for ε-stems */
+  epsilon: string;
+  /** Contraction result for ο-stems */
+  omicron: string;
+}
+
+export interface ContractVerbParadigm {
+  id: string;
+  label: string;
+  contractType: ContractType;
+  group: 'indicative' | 'subjunctive' | 'imperative';
+  /** Contracted forms — what students see in GNT texts */
+  forms: Partial<Record<PersonNum, string>>;
+  /** Uncontracted forms — shown as muted reference */
+  uncontracted: Partial<Record<PersonNum, string>>;
+}
+
+export interface CommonContractVerb {
+  greek: string;
+  type: ContractType;
+  gloss: string;
+}
+
+// ---------------------------------------------------------------------------
+// Liquid verb types
+// ---------------------------------------------------------------------------
+
+/** One row in the standard-vs-liquid future comparison table. */
+export interface LiquidFutureRow {
+  person: PersonNum;
+  standard: string;
+  liquid: string;
+}
+
+export interface LiquidPrincipalParts {
+  id: string;
+  lexical: string;
+  gloss: string;
+  future: string;
+  aoristAct: string;
+  perfectAct: string;
+  perfectMidPass: string;
+  aoristPass: string;
+}
+
+// ---------------------------------------------------------------------------
 // Accent rule types
 // ---------------------------------------------------------------------------
 
@@ -652,6 +709,257 @@ export function getArticle(
   };
   return articleForms[caseKey][numKey][gMap[gender]];
 }
+
+// ---------------------------------------------------------------------------
+// Accent rules
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Contract verbs
+// ---------------------------------------------------------------------------
+
+export const contractionRules: ContractionRule[] = [
+  { following: '+ ε',  alpha: 'ᾱ (α)', epsilon: 'ει', omicron: 'ου' },
+  { following: '+ ει', alpha: 'ᾳ',     epsilon: 'ει', omicron: 'οι' },
+  { following: '+ η',  alpha: 'ᾱ (α)', epsilon: 'η',  omicron: 'ω'  },
+  { following: '+ ο',  alpha: 'ω',     epsilon: 'ου', omicron: 'ου' },
+  { following: '+ οι', alpha: 'ῳ',     epsilon: 'οι', omicron: 'οι' },
+  { following: '+ ου', alpha: 'ω',     epsilon: 'ου', omicron: 'ου' },
+  { following: '+ ω',  alpha: 'ω',     epsilon: 'ω',  omicron: 'ω'  },
+];
+
+export const contractVerbParadigms: ContractVerbParadigm[] = [
+  // -------------------------------------------------------------------------
+  // α-contract — ἀγαπάω (I love)
+  // -------------------------------------------------------------------------
+  {
+    id: 'alpha-pres-act-ind',
+    label: 'Present Active Indicative',
+    contractType: 'alpha',
+    group: 'indicative',
+    forms:       { '1sg': 'ἀγαπῶ',      '2sg': 'ἀγαπᾷς',     '3sg': 'ἀγαπᾷ',     '1pl': 'ἀγαπῶμεν',  '2pl': 'ἀγαπᾶτε',   '3pl': 'ἀγαπῶσι(ν)' },
+    uncontracted:{ '1sg': 'ἀγαπάω',     '2sg': 'ἀγαπάεις',   '3sg': 'ἀγαπάει',   '1pl': 'ἀγαπάομεν', '2pl': 'ἀγαπάετε',  '3pl': 'ἀγαπάουσι(ν)' },
+  },
+  {
+    id: 'alpha-pres-mid-ind',
+    label: 'Present Middle/Passive Indicative',
+    contractType: 'alpha',
+    group: 'indicative',
+    forms:       { '1sg': 'ἀγαπῶμαι',   '2sg': 'ἀγαπᾷ',      '3sg': 'ἀγαπᾶται',  '1pl': 'ἀγαπώμεθα', '2pl': 'ἀγαπᾶσθε',  '3pl': 'ἀγαπῶνται' },
+    uncontracted:{ '1sg': 'ἀγαπάομαι',  '2sg': 'ἀγαπάεσαι',  '3sg': 'ἀγαπάεται', '1pl': 'ἀγαπαόμεθα','2pl': 'ἀγαπάεσθε', '3pl': 'ἀγαπάονται' },
+  },
+  {
+    id: 'alpha-impf-act-ind',
+    label: 'Imperfect Active Indicative',
+    contractType: 'alpha',
+    group: 'indicative',
+    forms:       { '1sg': 'ἠγάπων',     '2sg': 'ἠγάπας',     '3sg': 'ἠγάπα',     '1pl': 'ἠγαπῶμεν',  '2pl': 'ἠγαπᾶτε',   '3pl': 'ἠγάπων' },
+    uncontracted:{ '1sg': 'ἠγάπαον',    '2sg': 'ἠγάπαες',    '3sg': 'ἠγάπαε',    '1pl': 'ἠγαπάομεν', '2pl': 'ἠγαπάετε',  '3pl': 'ἠγάπαον' },
+  },
+  {
+    id: 'alpha-impf-mid-ind',
+    label: 'Imperfect Middle/Passive Indicative',
+    contractType: 'alpha',
+    group: 'indicative',
+    forms:       { '1sg': 'ἠγαπώμην',   '2sg': 'ἠγαπῶ',      '3sg': 'ἠγαπᾶτο',   '1pl': 'ἠγαπώμεθα', '2pl': 'ἠγαπᾶσθε',  '3pl': 'ἠγαπῶντο' },
+    uncontracted:{ '1sg': 'ἠγαπαόμην',  '2sg': 'ἠγαπάου',    '3sg': 'ἠγαπάετο',  '1pl': 'ἠγαπαόμεθα','2pl': 'ἠγαπάεσθε', '3pl': 'ἠγαπάοντο' },
+  },
+
+  // -------------------------------------------------------------------------
+  // ε-contract — ποιέω (I do, make)
+  // -------------------------------------------------------------------------
+  {
+    id: 'epsilon-pres-act-ind',
+    label: 'Present Active Indicative',
+    contractType: 'epsilon',
+    group: 'indicative',
+    forms:       { '1sg': 'ποιῶ',       '2sg': 'ποιεῖς',     '3sg': 'ποιεῖ',      '1pl': 'ποιοῦμεν',   '2pl': 'ποιεῖτε',    '3pl': 'ποιοῦσι(ν)' },
+    uncontracted:{ '1sg': 'ποιέω',      '2sg': 'ποιέεις',    '3sg': 'ποιέει',     '1pl': 'ποιέομεν',   '2pl': 'ποιέετε',    '3pl': 'ποιέουσι(ν)' },
+  },
+  {
+    id: 'epsilon-pres-mid-ind',
+    label: 'Present Middle/Passive Indicative',
+    contractType: 'epsilon',
+    group: 'indicative',
+    forms:       { '1sg': 'ποιοῦμαι',   '2sg': 'ποιῇ',       '3sg': 'ποιεῖται',   '1pl': 'ποιούμεθα',  '2pl': 'ποιεῖσθε',   '3pl': 'ποιοῦνται' },
+    uncontracted:{ '1sg': 'ποιέομαι',   '2sg': 'ποιέεσαι',   '3sg': 'ποιέεται',   '1pl': 'ποιεόμεθα',  '2pl': 'ποιέεσθε',   '3pl': 'ποιέονται' },
+  },
+  {
+    id: 'epsilon-impf-act-ind',
+    label: 'Imperfect Active Indicative',
+    contractType: 'epsilon',
+    group: 'indicative',
+    forms:       { '1sg': 'ἐποίουν',    '2sg': 'ἐποίεις',    '3sg': 'ἐποίει',     '1pl': 'ἐποιοῦμεν',  '2pl': 'ἐποιεῖτε',   '3pl': 'ἐποίουν' },
+    uncontracted:{ '1sg': 'ἐποίεον',    '2sg': 'ἐποίεες',    '3sg': 'ἐποίεε',     '1pl': 'ἐποιέομεν',  '2pl': 'ἐποιέετε',   '3pl': 'ἐποίεον' },
+  },
+  {
+    id: 'epsilon-impf-mid-ind',
+    label: 'Imperfect Middle/Passive Indicative',
+    contractType: 'epsilon',
+    group: 'indicative',
+    forms:       { '1sg': 'ἐποιούμην',  '2sg': 'ἐποιοῦ',     '3sg': 'ἐποιεῖτο',   '1pl': 'ἐποιούμεθα', '2pl': 'ἐποιεῖσθε',  '3pl': 'ἐποιοῦντο' },
+    uncontracted:{ '1sg': 'ἐποιεόμην',  '2sg': 'ἐποιέου',    '3sg': 'ἐποιέετο',   '1pl': 'ἐποιεόμεθα', '2pl': 'ἐποιέεσθε',  '3pl': 'ἐποιέοντο' },
+  },
+
+  // -------------------------------------------------------------------------
+  // ο-contract — πληρόω (I fill, fulfill)
+  // -------------------------------------------------------------------------
+  {
+    id: 'omicron-pres-act-ind',
+    label: 'Present Active Indicative',
+    contractType: 'omicron',
+    group: 'indicative',
+    forms:       { '1sg': 'πληρῶ',      '2sg': 'πληροῖς',    '3sg': 'πληροῖ',     '1pl': 'πληροῦμεν',  '2pl': 'πληροῦτε',   '3pl': 'πληροῦσι(ν)' },
+    uncontracted:{ '1sg': 'πληρόω',     '2sg': 'πληρόεις',   '3sg': 'πληρόει',    '1pl': 'πληρόομεν',  '2pl': 'πληρόετε',   '3pl': 'πληρόουσι(ν)' },
+  },
+  {
+    id: 'omicron-pres-mid-ind',
+    label: 'Present Middle/Passive Indicative',
+    contractType: 'omicron',
+    group: 'indicative',
+    forms:       { '1sg': 'πληροῦμαι',  '2sg': 'πληροῖ',     '3sg': 'πληροῦται',  '1pl': 'πληρούμεθα', '2pl': 'πληροῦσθε',  '3pl': 'πληροῦνται' },
+    uncontracted:{ '1sg': 'πληρόομαι',  '2sg': 'πληρόεσαι',  '3sg': 'πληρόεται',  '1pl': 'πληροόμεθα', '2pl': 'πληρόεσθε',  '3pl': 'πληρόονται' },
+  },
+  {
+    id: 'omicron-impf-act-ind',
+    label: 'Imperfect Active Indicative',
+    contractType: 'omicron',
+    group: 'indicative',
+    forms:       { '1sg': 'ἐπλήρουν',   '2sg': 'ἐπλήρους',   '3sg': 'ἐπλήρου',    '1pl': 'ἐπληροῦμεν', '2pl': 'ἐπληροῦτε',  '3pl': 'ἐπλήρουν' },
+    uncontracted:{ '1sg': 'ἐπλήρόον',   '2sg': 'ἐπλήρόες',   '3sg': 'ἐπλήρόε',    '1pl': 'ἐπληρόομεν', '2pl': 'ἐπληρόετε',  '3pl': 'ἐπλήρόον' },
+  },
+  {
+    id: 'omicron-impf-mid-ind',
+    label: 'Imperfect Middle/Passive Indicative',
+    contractType: 'omicron',
+    group: 'indicative',
+    forms:       { '1sg': 'ἐπληρούμην', '2sg': 'ἐπληροῦ',    '3sg': 'ἐπληροῦτο',  '1pl': 'ἐπληρούμεθα','2pl': 'ἐπληροῦσθε', '3pl': 'ἐπληροῦντο' },
+    uncontracted:{ '1sg': 'ἐπληροόμην', '2sg': 'ἐπληρόου',   '3sg': 'ἐπληρόετο',  '1pl': 'ἐπληροόμεθα','2pl': 'ἐπληρόεσθε', '3pl': 'ἐπληρόοντο' },
+  },
+];
+
+export const commonContractVerbs: CommonContractVerb[] = [
+  // α-contracts
+  { greek: 'ἀγαπάω',   type: 'alpha',   gloss: 'I love'              },
+  { greek: 'ὁράω',     type: 'alpha',   gloss: 'I see'               },
+  { greek: 'ἐρωτάω',   type: 'alpha',   gloss: 'I ask'               },
+  { greek: 'νικάω',    type: 'alpha',   gloss: 'I conquer'           },
+  { greek: 'τιμάω',    type: 'alpha',   gloss: 'I honor'             },
+  { greek: 'γεννάω',   type: 'alpha',   gloss: 'I beget, give birth' },
+  { greek: 'πλανάω',   type: 'alpha',   gloss: 'I lead astray'       },
+  // ε-contracts
+  { greek: 'ποιέω',    type: 'epsilon', gloss: 'I do, make'          },
+  { greek: 'λαλέω',    type: 'epsilon', gloss: 'I speak'             },
+  { greek: 'καλέω',    type: 'epsilon', gloss: 'I call'              },
+  { greek: 'ζητέω',    type: 'epsilon', gloss: 'I seek'              },
+  { greek: 'θεωρέω',   type: 'epsilon', gloss: 'I see, observe'      },
+  { greek: 'τηρέω',    type: 'epsilon', gloss: 'I keep, guard'       },
+  { greek: 'μαρτυρέω', type: 'epsilon', gloss: 'I bear witness'      },
+  { greek: 'ἀκολουθέω',type: 'epsilon', gloss: 'I follow'            },
+  { greek: 'προσκυνέω',type: 'epsilon', gloss: 'I worship'           },
+  // ο-contracts
+  { greek: 'πληρόω',   type: 'omicron', gloss: 'I fill, fulfill'     },
+  { greek: 'δικαιόω',  type: 'omicron', gloss: 'I justify'           },
+  { greek: 'σταυρόω',  type: 'omicron', gloss: 'I crucify'           },
+  { greek: 'φανερόω',  type: 'omicron', gloss: 'I reveal, manifest'  },
+  { greek: 'ἐλευθερόω',type: 'omicron', gloss: 'I set free'          },
+];
+
+// ---------------------------------------------------------------------------
+// Liquid verbs
+// ---------------------------------------------------------------------------
+
+export const liquidFutureComparison: LiquidFutureRow[] = [
+  { person: '1sg', standard: 'λύσω',        liquid: 'βαλῶ'        },
+  { person: '2sg', standard: 'λύσεις',      liquid: 'βαλεῖς'      },
+  { person: '3sg', standard: 'λύσει',       liquid: 'βαλεῖ'       },
+  { person: '1pl', standard: 'λύσομεν',     liquid: 'βαλοῦμεν'    },
+  { person: '2pl', standard: 'λύσετε',      liquid: 'βαλεῖτε'     },
+  { person: '3pl', standard: 'λύσουσι(ν)', liquid: 'βαλοῦσι(ν)' },
+];
+
+export const liquidPrincipalParts: LiquidPrincipalParts[] = [
+  {
+    id: 'ballo',
+    lexical: 'βάλλω',
+    gloss: 'I throw, put',
+    future: 'βαλῶ',
+    aoristAct: 'ἔβαλον',
+    perfectAct: 'βέβληκα',
+    perfectMidPass: 'βέβλημαι',
+    aoristPass: 'ἐβλήθην',
+  },
+  {
+    id: 'airo',
+    lexical: 'αἴρω',
+    gloss: 'I lift, take away',
+    future: 'ἀρῶ',
+    aoristAct: 'ἦρα',
+    perfectAct: 'ἦρκα',
+    perfectMidPass: 'ἦρμαι',
+    aoristPass: 'ἤρθην',
+  },
+  {
+    id: 'apostello',
+    lexical: 'ἀποστέλλω',
+    gloss: 'I send (out)',
+    future: 'ἀποστελῶ',
+    aoristAct: 'ἀπέστειλα',
+    perfectAct: 'ἀπέσταλκα',
+    perfectMidPass: 'ἀπέσταλμαι',
+    aoristPass: 'ἀπεστάλην',
+  },
+  {
+    id: 'krino',
+    lexical: 'κρίνω',
+    gloss: 'I judge',
+    future: 'κρινῶ',
+    aoristAct: 'ἔκρινα',
+    perfectAct: 'κέκρικα',
+    perfectMidPass: 'κέκριμαι',
+    aoristPass: 'ἐκρίθην',
+  },
+  {
+    id: 'meno',
+    lexical: 'μένω',
+    gloss: 'I remain, stay',
+    future: 'μενῶ',
+    aoristAct: 'ἔμεινα',
+    perfectAct: 'μεμένηκα',
+    perfectMidPass: '—',
+    aoristPass: '—',
+  },
+  {
+    id: 'egeiro',
+    lexical: 'ἐγείρω',
+    gloss: 'I raise up, wake',
+    future: 'ἐγερῶ',
+    aoristAct: 'ἤγειρα',
+    perfectAct: 'ἐγήγερκα',
+    perfectMidPass: 'ἐγήγερμαι',
+    aoristPass: 'ἠγέρθην',
+  },
+  {
+    id: 'aggello',
+    lexical: 'ἀγγέλλω',
+    gloss: 'I announce, report',
+    future: 'ἀγγελῶ',
+    aoristAct: 'ἤγγειλα',
+    perfectAct: 'ἤγγελκα',
+    perfectMidPass: 'ἤγγελμαι',
+    aoristPass: 'ἠγγέλην',
+  },
+  {
+    id: 'phaino',
+    lexical: 'φαίνω',
+    gloss: 'I shine; appear (mid.)',
+    future: 'φανῶ',
+    aoristAct: 'ἔφηνα',
+    perfectAct: 'πέφηνα',
+    perfectMidPass: '—',
+    aoristPass: 'ἐφάνην',
+  },
+];
 
 // ---------------------------------------------------------------------------
 // Accent rules

@@ -31,6 +31,7 @@ import {
   genderedPronouns,
   prepositions,
   accentSections,
+  getArticle,
   type NounParadigm,
   type AdjParadigm,
   type VerbParadigm,
@@ -180,18 +181,32 @@ function NounParadigmCard({ paradigm }: { paradigm: NounParadigm }) {
                   >
                     {CASE_LABELS[c]}
                   </td>
-                  {([['sg', sgForm], ['pl', plForm]] as [NumKey, typeof sgForm][]).map(([numKey, form]) => (
-                    <td
-                      key={numKey}
-                      className="px-4 py-2 text-center font-serif text-base cursor-default rounded transition-colors"
-                      style={{ color: 'var(--color-greek)' }}
-                      onMouseEnter={() => handleCell(c, numKey)}
-                      onMouseLeave={() => setDescription(null)}
-                      onClick={() => handleCell(c, numKey)}
-                    >
-                      {showEndings ? form.ending : form.full}
-                    </td>
-                  ))}
+                  {([['sg', sgForm], ['pl', plForm]] as [NumKey, typeof sgForm][]).map(([numKey, form]) => {
+                    const article = !showEndings ? getArticle(c, numKey, paradigm.gender) : null;
+                    return (
+                      <td
+                        key={numKey}
+                        className="px-4 py-2 text-center font-serif text-base cursor-default rounded transition-colors"
+                        style={{ color: 'var(--color-greek)' }}
+                        onMouseEnter={() => handleCell(c, numKey)}
+                        onMouseLeave={() => setDescription(null)}
+                        onClick={() => handleCell(c, numKey)}
+                      >
+                        {showEndings ? (
+                          form.ending
+                        ) : (
+                          <>
+                            {article && (
+                              <span style={{ color: 'var(--color-text-muted)', marginRight: '0.2em' }}>
+                                {article}
+                              </span>
+                            )}
+                            {form.full}
+                          </>
+                        )}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}

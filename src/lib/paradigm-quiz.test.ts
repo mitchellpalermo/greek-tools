@@ -21,13 +21,14 @@ import {
 // ---------------------------------------------------------------------------
 
 describe('buildTableModels', () => {
-  it('returns models for all four categories', () => {
+  it('returns models for all five categories', () => {
     const tables = buildTableModels();
     const categories = new Set(tables.map(t => t.category));
     expect(categories).toContain('noun');
     expect(categories).toContain('adjective');
     expect(categories).toContain('verb');
     expect(categories).toContain('pronoun');
+    expect(categories).toContain('article');
   });
 
   it('all models have required fields', () => {
@@ -179,6 +180,49 @@ describe('buildTableModels', () => {
     const autos = tables.find(t => t.id === 'pronoun-autos')!;
     expect(autos.cols).toHaveLength(6);
     expect(autos.colGroups).toHaveLength(2);
+  });
+
+  // ── Definite Article ─────────────────────────────────────────────────────
+
+  it('includes exactly one article table', () => {
+    const tables = buildTableModels();
+    const articles = tables.filter(t => t.category === 'article');
+    expect(articles).toHaveLength(1);
+    expect(articles[0].id).toBe('article');
+  });
+
+  it('article table has 6 columns (3 genders × 2 numbers)', () => {
+    const tables = buildTableModels();
+    const article = tables.find(t => t.id === 'article')!;
+    expect(article.cols).toHaveLength(6);
+    expect(article.colGroups).toHaveLength(2);
+  });
+
+  it('article table has 4 rows (Nom, Gen, Dat, Acc — no Voc)', () => {
+    const tables = buildTableModels();
+    const article = tables.find(t => t.id === 'article')!;
+    expect(article.rows).toHaveLength(4);
+    const rowLabels = article.rows.map(r => r.label);
+    expect(rowLabels).toContain('Nom');
+    expect(rowLabels).toContain('Gen');
+    expect(rowLabels).toContain('Dat');
+    expect(rowLabels).toContain('Acc');
+    expect(rowLabels).not.toContain('Voc');
+  });
+
+  it('article table nom sg masc is ὁ (first answer of first row)', () => {
+    const tables = buildTableModels();
+    const article = tables.find(t => t.id === 'article')!;
+    // First row = Nom, first answer = sg masc
+    expect(article.rows[0].answers[0]).toBe('ὁ');
+  });
+
+  it('article table has no null answers (all 24 cells populated)', () => {
+    const tables = buildTableModels();
+    const article = tables.find(t => t.id === 'article')!;
+    const allAnswers = article.rows.flatMap(r => r.answers);
+    expect(allAnswers).toHaveLength(24);
+    expect(allAnswers.every(a => a !== null)).toBe(true);
   });
 });
 
@@ -332,12 +376,13 @@ describe('applyDensity', () => {
 // ---------------------------------------------------------------------------
 
 describe('ALL_CATEGORIES', () => {
-  it('contains all four categories', () => {
+  it('contains all five categories', () => {
     expect(ALL_CATEGORIES).toContain('noun');
     expect(ALL_CATEGORIES).toContain('adjective');
     expect(ALL_CATEGORIES).toContain('verb');
     expect(ALL_CATEGORIES).toContain('pronoun');
-    expect(ALL_CATEGORIES).toHaveLength(4);
+    expect(ALL_CATEGORIES).toContain('article');
+    expect(ALL_CATEGORIES).toHaveLength(5);
   });
 });
 

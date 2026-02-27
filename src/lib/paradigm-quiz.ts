@@ -22,6 +22,7 @@ import {
   participleRows,
   personalPronouns12,
   genderedPronouns,
+  articleForms,
 } from '../data/grammar';
 
 // ---------------------------------------------------------------------------
@@ -32,7 +33,7 @@ import {
 export interface TableModel {
   id: string;
   label: string;
-  category: 'noun' | 'adjective' | 'verb' | 'pronoun';
+  category: 'noun' | 'adjective' | 'verb' | 'pronoun' | 'article';
   /** Optional top-level grouping header spanning multiple leaf columns. */
   colGroups?: string[];
   /** Leaf-level column headers. */
@@ -76,6 +77,7 @@ export function buildTableModels(): TableModel[] {
     ...buildAdjTables(),
     ...buildVerbTables(),
     ...buildPronounTables(),
+    buildArticleTable(),
   ];
 }
 
@@ -242,17 +244,38 @@ export function applyDensity(cells: QuizCell[], density: Density): QuizCell[] {
   return cells.map(c => ({ ...c, isBlank: blankSet.has(c.index) }));
 }
 
+/**
+ * Definite article paradigm:
+ * rows = cases (Nom, Gen, Dat, Acc — no Vocative),
+ * col groups = Singular | Plural, leaf cols = Masc. | Fem. | Neut.
+ */
+function buildArticleTable(): TableModel {
+  const articleCases = CASES.filter(c => c !== 'voc');
+  return {
+    id: 'article',
+    label: 'Definite Article — ὁ, ἡ, τό',
+    category: 'article',
+    colGroups: NUMBERS.map(n => NUM_LABELS[n]),
+    cols: NUMBERS.flatMap(() => GENDERS.map(g => GENDER_LABELS[g])),
+    rows: articleCases.map(c => ({
+      label: CASE_LABELS[c],
+      answers: NUMBERS.flatMap(n => GENDERS.map(g => articleForms[c][n][g])),
+    })),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Category helpers
 // ---------------------------------------------------------------------------
 
-export type Category = 'noun' | 'adjective' | 'verb' | 'pronoun';
+export type Category = 'noun' | 'adjective' | 'verb' | 'pronoun' | 'article';
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   noun: 'Nouns',
   adjective: 'Adjectives',
   verb: 'Verbs',
   pronoun: 'Pronouns',
+  article: 'Definite Article',
 };
 
-export const ALL_CATEGORIES: Category[] = ['noun', 'adjective', 'verb', 'pronoun'];
+export const ALL_CATEGORIES: Category[] = ['noun', 'adjective', 'verb', 'pronoun', 'article'];

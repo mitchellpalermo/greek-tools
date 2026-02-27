@@ -12,6 +12,8 @@ import {
   genderedPronouns,
   prepositions,
   accentSections,
+  articleForms,
+  getArticle,
 } from './grammar';
 
 // ─── grammatical constants ─────────────────────────────────────────────────
@@ -237,6 +239,74 @@ describe('prepositions', () => {
         expect(prep.glosses[c]).toBeTruthy();
       });
     });
+  });
+});
+
+// ─── definite article ──────────────────────────────────────────────────────
+
+describe('articleForms', () => {
+  it('has entries for all cases and numbers', () => {
+    CASES.forEach((c) => {
+      NUMBERS.forEach((n) => {
+        expect(articleForms[c][n]).toBeDefined();
+      });
+    });
+  });
+
+  it('has non-null forms for nom, gen, dat, acc', () => {
+    (['nom', 'gen', 'dat', 'acc'] as const).forEach((c) => {
+      NUMBERS.forEach((n) => {
+        GENDERS.forEach((g) => {
+          expect(articleForms[c][n][g]).toBeTruthy();
+        });
+      });
+    });
+  });
+
+  it('has null forms for all vocative slots', () => {
+    NUMBERS.forEach((n) => {
+      GENDERS.forEach((g) => {
+        expect(articleForms['voc'][n][g]).toBeNull();
+      });
+    });
+  });
+
+  it('nom sg masculine is ὁ', () => {
+    expect(articleForms['nom']['sg']['m']).toBe('ὁ');
+  });
+
+  it('gen pl all genders are τῶν', () => {
+    GENDERS.forEach((g) => {
+      expect(articleForms['gen']['pl'][g]).toBe('τῶν');
+    });
+  });
+});
+
+describe('getArticle', () => {
+  it('returns the correct article for nom sg masculine', () => {
+    expect(getArticle('nom', 'sg', 'masculine')).toBe('ὁ');
+  });
+
+  it('returns the correct article for nom sg feminine', () => {
+    expect(getArticle('nom', 'sg', 'feminine')).toBe('ἡ');
+  });
+
+  it('returns the correct article for nom sg neuter', () => {
+    expect(getArticle('nom', 'sg', 'neuter')).toBe('τό');
+  });
+
+  it('returns null for voc sg masculine', () => {
+    expect(getArticle('voc', 'sg', 'masculine')).toBeNull();
+  });
+
+  it('returns null for voc pl neuter', () => {
+    expect(getArticle('voc', 'pl', 'neuter')).toBeNull();
+  });
+
+  it('returns τῶν for gen pl of any gender', () => {
+    expect(getArticle('gen', 'pl', 'masculine')).toBe('τῶν');
+    expect(getArticle('gen', 'pl', 'feminine')).toBe('τῶν');
+    expect(getArticle('gen', 'pl', 'neuter')).toBe('τῶν');
   });
 });
 

@@ -606,6 +606,54 @@ export const prepositions: PrepEntry[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Definite article
+// ---------------------------------------------------------------------------
+
+/**
+ * All forms of the Greek definite article, keyed by case → number → gender.
+ * Null indicates that no article form exists for that slot (vocative has no article).
+ */
+export const articleForms: Record<CaseKey, Record<NumKey, Record<GenderKey, string | null>>> = {
+  nom: {
+    sg: { m: 'ὁ',    f: 'ἡ',    n: 'τό'   },
+    pl: { m: 'οἱ',   f: 'αἱ',   n: 'τά'   },
+  },
+  gen: {
+    sg: { m: 'τοῦ',  f: 'τῆς',  n: 'τοῦ'  },
+    pl: { m: 'τῶν',  f: 'τῶν',  n: 'τῶν'  },
+  },
+  dat: {
+    sg: { m: 'τῷ',   f: 'τῇ',   n: 'τῷ'   },
+    pl: { m: 'τοῖς', f: 'ταῖς', n: 'τοῖς' },
+  },
+  acc: {
+    sg: { m: 'τόν',  f: 'τήν',  n: 'τό'   },
+    pl: { m: 'τούς', f: 'τάς',  n: 'τά'   },
+  },
+  voc: {
+    sg: { m: null,   f: null,   n: null   },
+    pl: { m: null,   f: null,   n: null   },
+  },
+};
+
+/**
+ * Return the definite article for a given case, number, and noun gender.
+ * Returns null for the vocative (no article form exists).
+ */
+export function getArticle(
+  caseKey: CaseKey,
+  numKey: NumKey,
+  gender: 'masculine' | 'feminine' | 'neuter',
+): string | null {
+  const gMap: Record<'masculine' | 'feminine' | 'neuter', GenderKey> = {
+    masculine: 'm',
+    feminine: 'f',
+    neuter: 'n',
+  };
+  return articleForms[caseKey][numKey][gMap[gender]];
+}
+
+// ---------------------------------------------------------------------------
 // Accent rules
 // ---------------------------------------------------------------------------
 

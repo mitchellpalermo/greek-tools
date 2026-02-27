@@ -8,6 +8,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildTableModels,
+  buildContractVerbTables,
+  buildLiquidVerbTables,
   getQuizCells,
   applyDensity,
   ALL_CATEGORIES,
@@ -391,5 +393,136 @@ describe('CATEGORY_LABELS', () => {
     for (const cat of ALL_CATEGORIES) {
       expect(CATEGORY_LABELS[cat]).toBeTruthy();
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildContractVerbTables
+// ---------------------------------------------------------------------------
+
+describe('buildContractVerbTables', () => {
+  it('returns 12 tables (4 paradigms × 3 contract types)', () => {
+    const tables = buildContractVerbTables();
+    expect(tables).toHaveLength(12);
+  });
+
+  it('all tables have category "verb"', () => {
+    const tables = buildContractVerbTables();
+    expect(tables.every(t => t.category === 'verb')).toBe(true);
+  });
+
+  it('all tables have ids prefixed with "contract-"', () => {
+    const tables = buildContractVerbTables();
+    expect(tables.every(t => t.id.startsWith('contract-'))).toBe(true);
+  });
+
+  it('all tables have 1 column (Form)', () => {
+    const tables = buildContractVerbTables();
+    for (const t of tables) {
+      expect(t.cols).toHaveLength(1);
+      expect(t.cols[0]).toBe('Form');
+    }
+  });
+
+  it('all tables have 6 rows (one per person-number)', () => {
+    const tables = buildContractVerbTables();
+    for (const t of tables) {
+      expect(t.rows).toHaveLength(6);
+    }
+  });
+
+  it('α-contract pres act ind 1sg is ἀγαπῶ', () => {
+    const tables = buildContractVerbTables();
+    const table = tables.find(t => t.id === 'contract-alpha-pres-act-ind')!;
+    expect(table).toBeDefined();
+    expect(table.rows[0].answers[0]).toBe('ἀγαπῶ');
+  });
+
+  it('ε-contract pres act ind 2pl is ποιεῖτε', () => {
+    const tables = buildContractVerbTables();
+    const table = tables.find(t => t.id === 'contract-epsilon-pres-act-ind')!;
+    expect(table).toBeDefined();
+    // 2pl is index 4 in PERSONS order: 1sg, 2sg, 3sg, 1pl, 2pl, 3pl
+    expect(table.rows[4].answers[0]).toBe('ποιεῖτε');
+  });
+
+  it('ο-contract impf act ind 3sg is ἐπλήρου', () => {
+    const tables = buildContractVerbTables();
+    const table = tables.find(t => t.id === 'contract-omicron-impf-act-ind')!;
+    expect(table).toBeDefined();
+    // 3sg is index 2
+    expect(table.rows[2].answers[0]).toBe('ἐπλήρου');
+  });
+
+  it('labels include the contract type identifier', () => {
+    const tables = buildContractVerbTables();
+    const alphaTable = tables.find(t => t.id.startsWith('contract-alpha'))!;
+    expect(alphaTable.label).toContain('ἀγαπάω');
+    const epsilonTable = tables.find(t => t.id.startsWith('contract-epsilon'))!;
+    expect(epsilonTable.label).toContain('ποιέω');
+    const omicronTable = tables.find(t => t.id.startsWith('contract-omicron'))!;
+    expect(omicronTable.label).toContain('πληρόω');
+  });
+
+  it('each row has answers matching the cols count', () => {
+    const tables = buildContractVerbTables();
+    for (const t of tables) {
+      for (const row of t.rows) {
+        expect(row.answers).toHaveLength(t.cols.length);
+      }
+    }
+  });
+
+  it('contract verb tables are included in buildTableModels', () => {
+    const all = buildTableModels();
+    const contractIds = all.filter(t => t.id.startsWith('contract-')).map(t => t.id);
+    expect(contractIds.length).toBe(12);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildLiquidVerbTables
+// ---------------------------------------------------------------------------
+
+describe('buildLiquidVerbTables', () => {
+  it('returns 1 table (liquid future for βαλῶ)', () => {
+    const tables = buildLiquidVerbTables();
+    expect(tables).toHaveLength(1);
+  });
+
+  it('table has id "liquid-future-ballo"', () => {
+    const tables = buildLiquidVerbTables();
+    expect(tables[0].id).toBe('liquid-future-ballo');
+  });
+
+  it('table has category "verb"', () => {
+    const tables = buildLiquidVerbTables();
+    expect(tables[0].category).toBe('verb');
+  });
+
+  it('table has 6 rows (one per person-number)', () => {
+    const tables = buildLiquidVerbTables();
+    expect(tables[0].rows).toHaveLength(6);
+  });
+
+  it('1sg form is βαλῶ', () => {
+    const tables = buildLiquidVerbTables();
+    expect(tables[0].rows[0].answers[0]).toBe('βαλῶ');
+  });
+
+  it('2sg form is βαλεῖς', () => {
+    const tables = buildLiquidVerbTables();
+    expect(tables[0].rows[1].answers[0]).toBe('βαλεῖς');
+  });
+
+  it('3pl form is βαλοῦσι(ν)', () => {
+    const tables = buildLiquidVerbTables();
+    expect(tables[0].rows[5].answers[0]).toBe('βαλοῦσι(ν)');
+  });
+
+  it('liquid verb table is included in buildTableModels', () => {
+    const all = buildTableModels();
+    const liquid = all.find(t => t.id === 'liquid-future-ballo');
+    expect(liquid).toBeDefined();
   });
 });

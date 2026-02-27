@@ -62,7 +62,8 @@ describe('ParadigmQuiz — select phase', () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
     await user.click(screen.getByRole('button', { name: 'Verbs' }));
-    expect(screen.getByRole('button', { name: /Present Active Indicative/i })).toBeInTheDocument();
+    // Multiple paradigms share "Present Active Indicative" (λύω + contract verbs) so use getAllByRole
+    expect(screen.getAllByRole('button', { name: /Present Active Indicative/i }).length).toBeGreaterThan(0);
   });
 
   it('switching to Pronouns shows pronoun paradigms', async () => {

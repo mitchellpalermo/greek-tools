@@ -66,9 +66,9 @@ const NAV_SECTIONS = [
   { id: 'verbs',          label: 'Verbs',          shortLabel: 'Verbs' },
   { id: 'contract-verbs', label: 'Contract Verbs', shortLabel: 'Cont'  },
   { id: 'liquid-verbs',   label: 'Liquid Verbs',   shortLabel: 'Liq'   },
-  { id: 'pronouns',       label: 'Pronouns',       shortLabel: 'Pron'  },
-  { id: 'prepositions',   label: 'Prepositions',   shortLabel: 'Prep'  },
-  { id: 'accents',        label: 'Accents',        shortLabel: 'Acc'   },
+  { id: 'pronouns',       label: 'Pronouns',       shortLabel: 'Pronouns'     },
+  { id: 'prepositions',   label: 'Prepositions',   shortLabel: 'Prepositions' },
+  { id: 'accents',        label: 'Accents',        shortLabel: 'Accents'      },
 ] as const;
 
 const PARADIGM_NAV = NAV_SECTIONS.filter(s =>

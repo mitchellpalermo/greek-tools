@@ -6,15 +6,14 @@
  * Features:
  * - Sticky sidebar navigation (desktop) / horizontal scroll nav (mobile)
  * - Full-form / endings-only toggle on noun and adjective tables
- * - Verb paradigm tab selector by tense/voice/mood
+ * - Verb paradigm tense × voice grid selector
+ * - Sg/Pl toggle on wide tables (adjectives, gendered pronouns) for mobile
  * - Hover/tap tooltip showing grammatical description for each cell
  */
 
 import { useState, useCallback } from 'react';
 import {
   CASES,
-  NUMBERS,
-  GENDERS,
   PERSONS,
   CASE_LABELS,
   CASE_DESCRIPTIONS,
@@ -38,10 +37,7 @@ import {
   liquidFutureComparison,
   liquidPrincipalParts,
   type NounParadigm,
-  type AdjParadigm,
-  type VerbParadigm,
   type PersonalPronoun12,
-  type GenderedPronoun,
   type CaseKey,
   type NumKey,
   type GenderKey,
@@ -49,6 +45,16 @@ import {
   type ContractType,
   type ContractVerbParadigm,
 } from '../data/grammar';
+import {
+  SectionHeading,
+  ParadigmHeading,
+  EndingsToggle,
+  DescriptionBar,
+  AdjParadigmCard,
+  GenderedPronounCard,
+  VerbParadigmGrid,
+} from './grammar';
+import type { Mood } from './grammar/VerbParadigmGrid';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -66,79 +72,7 @@ const NAV_SECTIONS = [
 ] as const;
 
 // ---------------------------------------------------------------------------
-// Shared sub-components
-// ---------------------------------------------------------------------------
-
-/** Section heading with an anchor ID for sidebar links. */
-function SectionHeading({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <h2
-      id={id}
-      className="text-2xl font-bold mb-6 pb-2 border-b-2 scroll-mt-6"
-      style={{ color: 'var(--color-primary)', borderColor: 'var(--color-accent)' }}
-    >
-      {children}
-    </h2>
-  );
-}
-
-/** Smaller heading within a section (e.g. for individual paradigm names). */
-function ParadigmHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h3
-      className="text-sm font-semibold uppercase tracking-wider mb-3"
-      style={{ color: 'var(--color-text-muted)' }}
-    >
-      {children}
-    </h3>
-  );
-}
-
-/** Toggle button for switching between full forms and endings only. */
-function EndingsToggle({
-  showEndings,
-  onToggle,
-}: {
-  showEndings: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <button
-      onClick={onToggle}
-      className="text-xs px-2.5 py-1 rounded-full border font-medium transition-colors"
-      style={
-        showEndings
-          ? { background: 'var(--color-primary)', color: '#fff', borderColor: 'var(--color-primary)' }
-          : { background: 'transparent', color: 'var(--color-text-muted)', borderColor: 'var(--color-text-muted)' }
-      }
-    >
-      {showEndings ? 'Endings only' : 'Full forms'}
-    </button>
-  );
-}
-
-/**
- * Description bar displayed below paradigm tables.
- * Shows the active cell's grammatical description on hover/tap.
- */
-function DescriptionBar({ text }: { text: string | null }) {
-  return (
-    <div
-      className="mt-2 px-3 py-1.5 rounded text-xs min-h-[28px] transition-opacity"
-      style={{
-        background: 'var(--color-bg)',
-        color: 'var(--color-text-muted)',
-        border: '1px solid #e5e7eb',
-        opacity: text ? 1 : 0.4,
-      }}
-    >
-      {text ?? 'Hover over a cell to see its grammatical description'}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Noun paradigm table
+// Noun paradigm table (kept inline — simple, not reused)
 // ---------------------------------------------------------------------------
 
 function NounParadigmCard({ paradigm }: { paradigm: NounParadigm }) {
@@ -154,7 +88,6 @@ function NounParadigmCard({ paradigm }: { paradigm: NounParadigm }) {
       className="rounded-xl overflow-hidden shadow-sm"
       style={{ border: '1px solid #e5e7eb' }}
     >
-      {/* Card header */}
       <div
         className="px-4 py-2.5 flex items-center justify-between"
         style={{ background: 'var(--color-primary)' }}
@@ -163,7 +96,6 @@ function NounParadigmCard({ paradigm }: { paradigm: NounParadigm }) {
         <EndingsToggle showEndings={showEndings} onToggle={() => setShowEndings(v => !v)} />
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
         <table className="w-full text-sm">
           <thead>
@@ -230,128 +162,20 @@ function NounParadigmCard({ paradigm }: { paradigm: NounParadigm }) {
 }
 
 // ---------------------------------------------------------------------------
-// Adjective paradigm table
-// ---------------------------------------------------------------------------
-
-function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm }) {
-  const [showEndings, setShowEndings] = useState(false);
-  const [description, setDescription] = useState<string | null>(null);
-
-  // For 2-1-2 adjectives the endings follow the noun patterns; for display we just show full forms.
-  // The endings-only toggle is less meaningful for adjectives so we omit it here.
-
-  const handleCell = useCallback((caseKey: CaseKey, numKey: NumKey, genderKey: GenderKey) => {
-    setDescription(
-      `${CASE_DESCRIPTIONS[caseKey].split(' — ')[0]} ${NUM_LABELS[numKey]} ${GENDER_LABELS[genderKey]} — ${CASE_DESCRIPTIONS[caseKey].split(' — ')[1]}`
-    );
-  }, []);
-
-  return (
-    <div
-      className="rounded-xl overflow-hidden shadow-sm"
-      style={{ border: '1px solid #e5e7eb' }}
-    >
-      <div
-        className="px-4 py-2.5 flex items-center justify-between"
-        style={{ background: 'var(--color-primary)' }}
-      >
-        <span className="text-sm font-semibold text-white">{paradigm.name}</span>
-        <EndingsToggle showEndings={showEndings} onToggle={() => setShowEndings(v => !v)} />
-      </div>
-
-      <div className="overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
-        <table className="w-full text-sm">
-          <thead>
-            <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
-              <th className="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', width: '4rem' }} />
-              {NUMBERS.map(num => (
-                <th
-                  key={num}
-                  colSpan={3}
-                  className="px-2 py-2 text-center font-semibold text-xs uppercase tracking-wider border-l"
-                  style={{ color: 'var(--color-text-muted)', borderColor: '#e5e7eb' }}
-                >
-                  {NUM_LABELS[num]}
-                </th>
-              ))}
-            </tr>
-            <tr style={{ background: 'rgba(30,58,95,0.03)' }}>
-              <th />
-              {NUMBERS.map(num =>
-                GENDERS.map(g => (
-                  <th
-                    key={`${num}-${g}`}
-                    className="px-3 py-1.5 text-center text-xs font-medium"
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
-                    {GENDER_LABELS[g]}
-                  </th>
-                ))
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {CASES.map((c, i) => (
-              <tr
-                key={c}
-                style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}
-              >
-                <td
-                  className="px-3 py-2 font-semibold text-xs uppercase tracking-wider cursor-default"
-                  style={{ color: 'var(--color-text-muted)' }}
-                  onMouseEnter={() => setDescription(CASE_DESCRIPTIONS[c])}
-                  onMouseLeave={() => setDescription(null)}
-                >
-                  {CASE_LABELS[c]}
-                </td>
-                {NUMBERS.map(num =>
-                  GENDERS.map(g => (
-                    <td
-                      key={`${num}-${g}`}
-                      className="px-3 py-2 text-center font-serif text-sm cursor-default"
-                      style={{ color: 'var(--color-greek)' }}
-                      onMouseEnter={() => handleCell(c, num, g)}
-                      onMouseLeave={() => setDescription(null)}
-                      onClick={() => handleCell(c, num, g)}
-                    >
-                      {paradigm.forms[c][num][g]}
-                    </td>
-                  ))
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="px-3 pb-3 pt-1" style={{ background: 'var(--color-bg-card)' }}>
-        <DescriptionBar text={description} />
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Verb paradigm tab + table
+// Verb section (uses extracted VerbParadigmGrid)
 // ---------------------------------------------------------------------------
 
 function VerbSection() {
-  const groups = ['indicative', 'subjunctive', 'imperative'] as const;
-  const [activeGroup, setActiveGroup] = useState<(typeof groups)[number]>('indicative');
+  const [activeGroup, setActiveGroup] = useState<Mood>('indicative');
   const [activeId, setActiveId] = useState('pres-act-ind');
   const [description, setDescription] = useState<string | null>(null);
 
-  const grouped = groups.reduce(
+  const grouped = (['indicative', 'subjunctive', 'imperative'] as Mood[]).reduce(
     (acc, g) => ({ ...acc, [g]: verbParadigms.filter(p => p.group === g) }),
-    {} as Record<(typeof groups)[number], VerbParadigm[]>
+    {} as Record<Mood, typeof verbParadigms>
   );
 
   const activeParsed = verbParadigms.find(p => p.id === activeId) ?? verbParadigms[0];
-
-  const groupLabel: Record<(typeof groups)[number], string> = {
-    indicative: 'Indicative',
-    subjunctive: 'Subjunctive',
-    imperative: 'Imperative',
-  };
 
   return (
     <section id="verbs" className="mb-16">
@@ -360,45 +184,25 @@ function VerbSection() {
         All paradigms use λύω (I loose, release) as the model verb. Hover over any form to see its full parse.
       </p>
 
-      {/* Mood group tabs */}
-      <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(30,58,95,0.07)' }}>
-        {groups.map(g => (
-          <button
-            key={g}
-            onClick={() => {
-              setActiveGroup(g);
-              setActiveId(grouped[g][0].id);
-            }}
-            className="flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
-            style={
-              activeGroup === g
-                ? { background: 'var(--color-primary)', color: '#fff' }
-                : { background: 'transparent', color: 'var(--color-text-muted)' }
-            }
-          >
-            {groupLabel[g]}
-          </button>
-        ))}
-      </div>
-
       <div className="flex flex-col md:flex-row gap-4">
-        {/* Paradigm selector list — horizontal scroll on mobile, vertical on desktop */}
-        <nav className="flex md:flex-col gap-1 overflow-x-auto pb-1 md:pb-0 md:shrink-0 md:w-52 md:space-y-0.5">
-          {grouped[activeGroup].map(p => (
-            <button
-              key={p.id}
-              onClick={() => setActiveId(p.id)}
-              className="shrink-0 md:shrink md:w-full text-left px-3 py-2 rounded-lg text-sm transition-colors whitespace-nowrap"
-              style={
-                activeId === p.id
-                  ? { background: 'var(--color-primary)', color: '#fff' }
-                  : { background: 'rgba(30,58,95,0.07)', color: 'var(--color-text)' }
-              }
-            >
-              {p.label}
-            </button>
-          ))}
-        </nav>
+        {/* Paradigm grid selector */}
+        <div className="md:shrink-0">
+          <VerbParadigmGrid
+            paradigms={verbParadigms}
+            selectedId={activeId}
+            onSelect={(id) => {
+              setActiveId(id);
+              const paradigm = verbParadigms.find(p => p.id === id);
+              if (paradigm) setActiveGroup(paradigm.group as Mood);
+            }}
+            activeMood={activeGroup}
+            onMoodChange={(mood) => {
+              setActiveGroup(mood);
+              setActiveId(grouped[mood][0].id);
+            }}
+            showFormPreview
+          />
+        </div>
 
         {/* Paradigm table */}
         <div className="flex-1 min-w-0">
@@ -448,7 +252,7 @@ function VerbSection() {
         </div>
       </div>
 
-      {/* Infinitives */}
+      {/* Infinitives & Participles */}
       <div className="mt-8 grid md:grid-cols-2 gap-6">
         <div>
           <ParadigmHeading>Infinitives</ParadigmHeading>
@@ -469,7 +273,6 @@ function VerbSection() {
           </div>
         </div>
 
-        {/* Participles */}
         <div>
           <ParadigmHeading>Participles (Nominative Singular)</ParadigmHeading>
           <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
@@ -508,7 +311,7 @@ function VerbSection() {
 }
 
 // ---------------------------------------------------------------------------
-// Pronoun tables
+// Pronoun tables (1st/2nd person — kept inline, simple 2-column layout)
 // ---------------------------------------------------------------------------
 
 function PronounCard12({ pronoun }: { pronoun: PersonalPronoun12 }) {
@@ -564,92 +367,8 @@ function PronounCard12({ pronoun }: { pronoun: PersonalPronoun12 }) {
   );
 }
 
-function GenderedPronounCard({ pronoun }: { pronoun: GenderedPronoun }) {
-  const [description, setDescription] = useState<string | null>(null);
-  const cases = (['nom', 'gen', 'dat', 'acc'] as CaseKey[]).filter(c => pronoun.forms[c]);
-
-  return (
-    <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
-      <div className="px-4 py-2.5" style={{ background: 'var(--color-primary)' }}>
-        <span className="text-sm font-semibold text-white">{pronoun.name}</span>
-      </div>
-      <div className="overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
-        <table className="w-full text-sm">
-          <thead>
-            <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
-              <th className="px-3 py-2" style={{ width: '4rem' }} />
-              {(['sg', 'pl'] as NumKey[]).map(num => (
-                <th
-                  key={num}
-                  colSpan={3}
-                  className="px-2 py-2 text-center text-xs font-semibold uppercase tracking-wider border-l"
-                  style={{ color: 'var(--color-text-muted)', borderColor: '#e5e7eb' }}
-                >
-                  {NUM_LABELS[num]}
-                </th>
-              ))}
-            </tr>
-            <tr style={{ background: 'rgba(30,58,95,0.03)' }}>
-              <th />
-              {(['sg', 'pl'] as NumKey[]).map(num =>
-                (['m', 'f', 'n'] as GenderKey[]).map(g => (
-                  <th key={`${num}-${g}`} className="px-3 py-1 text-center text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
-                    {GENDER_LABELS[g]}
-                  </th>
-                ))
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {cases.map((c, i) => (
-              <tr key={c} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
-                <td
-                  className="px-3 py-2 text-xs font-semibold uppercase tracking-wider cursor-default"
-                  style={{ color: 'var(--color-text-muted)' }}
-                  onMouseEnter={() => setDescription(CASE_DESCRIPTIONS[c])}
-                  onMouseLeave={() => setDescription(null)}
-                >
-                  {CASE_LABELS[c]}
-                </td>
-                {(['sg', 'pl'] as NumKey[]).map(num =>
-                  (['m', 'f', 'n'] as GenderKey[]).map(g => {
-                    const form = pronoun.forms[c]?.[num]?.[g];
-                    return (
-                      <td
-                        key={`${num}-${g}`}
-                        className="px-3 py-2 text-center font-serif text-sm cursor-default"
-                        style={{ color: 'var(--color-greek)' }}
-                        onMouseEnter={() =>
-                          setDescription(
-                            `${CASE_DESCRIPTIONS[c].split(' — ')[0]} ${NUM_LABELS[num]} ${GENDER_LABELS[g]} — ${CASE_DESCRIPTIONS[c].split(' — ')[1]}`
-                          )
-                        }
-                        onMouseLeave={() => setDescription(null)}
-                        onClick={() =>
-                          setDescription(
-                            `${CASE_DESCRIPTIONS[c].split(' — ')[0]} ${NUM_LABELS[num]} ${GENDER_LABELS[g]}`
-                          )
-                        }
-                      >
-                        {form ?? '—'}
-                      </td>
-                    );
-                  })
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="px-3 pb-3 pt-1" style={{ background: 'var(--color-bg-card)' }}>
-        <DescriptionBar text={description} />
-      </div>
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------------------
-// Prepositions
+// Prepositions (kept inline — simple card layout)
 // ---------------------------------------------------------------------------
 
 const PREP_CASE_LABELS: Record<string, string> = {

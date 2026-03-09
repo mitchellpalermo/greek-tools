@@ -8,7 +8,7 @@ Fix the Grammar Reference page for mobile screens. The 6-column adjective and ge
 
 ## Status
 
-**Not started.**
+**Complete.** Implemented in PR #19. Extracted 8 sub-components into `src/components/grammar/`, added Sg/Pl toggle for adjective and gendered pronoun tables on mobile, replaced verb pill-button nav with tense x voice grid (`VerbParadigmGrid`), and added scroll-fade CSS utility. Open questions resolved: Sg/Pl toggle defaults to Singular (no localStorage persistence); verb grid cells show 1sg form previews on the reference page.
 
 ---
 

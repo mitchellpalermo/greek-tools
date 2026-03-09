@@ -75,7 +75,7 @@ A simple difficulty picker that scopes the drill set.
 On screens < 768px, the entire setup flow (paradigm pick + settings + start button) should fit within a single viewport height.
 
 **Behavior:**
-- Paradigm selector uses a dropdown or horizontal scroll (not a vertical list) on mobile
+- Paradigm selector uses the reusable `VerbParadigmGrid` component (built in PR #19, `src/components/grammar/VerbParadigmGrid.tsx`) — a compact tense x voice grid, not a vertical list
 - Settings are 1–2 rows of compact toggles
 - "Start Drill" button is always visible at the bottom of the setup area, not after the paradigm content
 

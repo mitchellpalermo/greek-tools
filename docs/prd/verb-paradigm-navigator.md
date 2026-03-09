@@ -8,7 +8,7 @@ Replace the flat paradigm list with a compact tense-by-voice grid for selecting 
 
 ## Status
 
-**Not started.**
+**Partially complete.** The reusable `VerbParadigmGrid` component was built as part of the Grammar Reference Mobile PRD (PR #19) and lives at `src/components/grammar/VerbParadigmGrid.tsx`. It implements the tense x voice grid, mood tabs, M/P combined cells with colSpan, and is a controlled component with clean props (`paradigms`, `selectedId`, `onSelect`, `activeMood`, `onMoodChange`, `showFormPreview`). Remaining work: integrate VerbParadigmGrid into the drill/quiz paradigm picker page with quiz settings panel and Start button.
 
 ---
 

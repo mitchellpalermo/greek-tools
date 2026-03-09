@@ -27,6 +27,7 @@ export default defineConfig({
         'src/components/Transliteration.tsx',
         'src/data/morphgnt.ts',
         'src/lib/transliteration.ts',
+        'src/components/grammar/index.ts',
       ],
       thresholds: {
         lines: 90,

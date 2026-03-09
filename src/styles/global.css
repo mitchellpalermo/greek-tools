@@ -51,3 +51,24 @@
     border-radius: 2px;
   }
 }
+
+/* ─── Scroll fade indicator ────────────────────────────────────────────────
+   Apply to overflow-x containers to hint that more content exists off-screen.
+   Uses a pseudo-element gradient so it doesn't interfere with text selection.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .scroll-fade-x {
+    position: relative;
+  }
+  .scroll-fade-x::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to right, transparent, var(--color-bg-card));
+    pointer-events: none;
+  }
+}

@@ -50,7 +50,7 @@ export default function Transliteration() {
             onChange={handleGreekChange}
             placeholder="Paste or type Greek text…"
             className={textareaClass}
-            style={{ color: 'var(--color-greek)', fontFamily: 'serif', fontSize: '1.25rem' }}
+            style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)', fontSize: '1.25rem' }}
             spellCheck={false}
             autoFocus
           />
@@ -97,7 +97,7 @@ export default function Transliteration() {
             ['ο', 'o'], ['υ', 'y'], ['ω', 'ō'],
           ].map(([grk, lat]) => (
             <div key={grk} className="flex gap-2 items-center">
-              <span className="font-serif text-lg" style={{ color: 'var(--color-greek)' }}>{grk}</span>
+              <span className="font-greek text-lg" style={{ color: 'var(--color-greek)' }}>{grk}</span>
               <span className="text-text-muted">→</span>
               <span className="font-mono">{lat}</span>
             </div>
@@ -112,7 +112,7 @@ export default function Transliteration() {
             ['τ', 't'],
           ].map(([grk, lat]) => (
             <div key={grk} className="flex gap-2 items-center">
-              <span className="font-serif text-lg" style={{ color: 'var(--color-greek)' }}>{grk}</span>
+              <span className="font-greek text-lg" style={{ color: 'var(--color-greek)' }}>{grk}</span>
               <span className="text-text-muted">→</span>
               <span className="font-mono">{lat}</span>
             </div>
@@ -126,7 +126,7 @@ export default function Transliteration() {
               ['rough breathing', 'h (prefixed)'],
             ].map(([grk, lat]) => (
               <div key={grk} className="flex gap-2 items-center">
-                <span className="font-serif" style={{ color: 'var(--color-greek)' }}>{grk}</span>
+                <span className="font-greek" style={{ color: 'var(--color-greek)' }}>{grk}</span>
                 <span className="text-text-muted">→</span>
                 <span className="font-mono">{lat}</span>
               </div>

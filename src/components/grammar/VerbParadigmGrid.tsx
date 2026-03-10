@@ -246,7 +246,7 @@ export default function VerbParadigmGrid({
                       title={cell.paradigm.label}
                     >
                       {showFormPreview ? (
-                        <span className="font-serif text-sm">{preview}</span>
+                        <span className="font-greek text-sm">{preview}</span>
                       ) : labelParts ? (
                         <span>{labelParts}</span>
                       ) : (

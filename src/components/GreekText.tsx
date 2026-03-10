@@ -60,7 +60,7 @@ export function WordPopup({ active, onClose }: { active: ActiveWord; onClose: ()
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <span
-          className="font-serif text-2xl leading-tight"
+          className="font-greek text-2xl leading-tight"
           style={{ color: 'var(--color-greek)' }}
         >
           {word.lemma}
@@ -131,7 +131,7 @@ export function WordToken({
         <span
           ref={spanRef}
           onClick={handleClick}
-          className={`font-serif cursor-pointer rounded px-0.5 hover:bg-accent/10 transition-colors ${
+          className={`font-greek cursor-pointer rounded px-0.5 hover:bg-accent/10 transition-colors ${
             studied ? 'underline decoration-accent/60 decoration-dotted underline-offset-2' : ''
           }`}
           style={{

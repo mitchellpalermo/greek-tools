@@ -84,7 +84,7 @@ export default function GenderedPronounCard({ pronoun }: { pronoun: GenderedPron
                     return (
                       <td
                         key={`${num}-${g}`}
-                        className="px-3 py-2 text-center font-serif text-sm cursor-default"
+                        className="px-3 py-2 text-center font-greek text-sm cursor-default"
                         style={{ color: 'var(--color-greek)' }}
                         onMouseEnter={() =>
                           handleCell(c, num, g)
@@ -137,7 +137,7 @@ export default function GenderedPronounCard({ pronoun }: { pronoun: GenderedPron
                   return (
                     <td
                       key={g}
-                      className="px-3 py-2 text-center font-serif text-sm cursor-default"
+                      className="px-3 py-2 text-center font-greek text-sm cursor-default"
                       style={{ color: 'var(--color-greek)' }}
                       onClick={() => handleCell(c, activeNumber, g)}
                     >

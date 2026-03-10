@@ -149,7 +149,7 @@ function BetaCodeReference() {
                 </kbd>
                 <span style={{ color: 'var(--color-text-muted)' }}>{name}</span>
                 <span
-                  className="ml-auto font-serif"
+                  className="ml-auto font-greek"
                   style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}
                 >
                   {example}
@@ -488,7 +488,7 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results, ac
                   return (
                     <td
                       key={colIndex}
-                      className="px-3 py-2 text-center font-serif text-base"
+                      className="px-3 py-2 text-center font-greek text-base"
                       style={{ color: 'var(--color-greek)' }}
                     >
                       {answer}
@@ -508,7 +508,7 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results, ac
                   return (
                     <td key={colIndex} className="px-2 py-1.5 text-center">
                       <div
-                        className="rounded px-1.5 py-1 text-sm font-serif"
+                        className="rounded px-1.5 py-1 text-sm font-greek"
                         style={{ background: style.bg, border: `1px solid ${style.border}`, color: style.text }}
                       >
                         {displayResult === 'correct' ? (

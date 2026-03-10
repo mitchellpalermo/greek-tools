@@ -61,15 +61,22 @@ import type { Mood } from './grammar/VerbParadigmGrid';
 // ---------------------------------------------------------------------------
 
 const NAV_SECTIONS = [
-  { id: 'nouns',          label: 'Nouns'          },
-  { id: 'adjectives',     label: 'Adjectives'     },
-  { id: 'verbs',          label: 'Verbs'          },
-  { id: 'contract-verbs', label: 'Contract Verbs' },
-  { id: 'liquid-verbs',   label: 'Liquid Verbs'   },
-  { id: 'pronouns',       label: 'Pronouns'       },
-  { id: 'prepositions',   label: 'Prepositions'   },
-  { id: 'accents',        label: 'Accents'        },
+  { id: 'nouns',          label: 'Nouns',          shortLabel: 'Nouns'  },
+  { id: 'adjectives',     label: 'Adjectives',     shortLabel: 'Adj'   },
+  { id: 'verbs',          label: 'Verbs',          shortLabel: 'Verbs' },
+  { id: 'contract-verbs', label: 'Contract Verbs', shortLabel: 'Contract' },
+  { id: 'liquid-verbs',   label: 'Liquid Verbs',   shortLabel: 'Liquid'   },
+  { id: 'pronouns',       label: 'Pronouns',       shortLabel: 'Pronouns'     },
+  { id: 'prepositions',   label: 'Prepositions',   shortLabel: 'Prepositions' },
+  { id: 'accents',        label: 'Accents',        shortLabel: 'Accents'      },
 ] as const;
+
+const PARADIGM_NAV = NAV_SECTIONS.filter(s =>
+  ['nouns', 'adjectives', 'verbs', 'contract-verbs', 'liquid-verbs'].includes(s.id)
+);
+const REFERENCE_NAV = NAV_SECTIONS.filter(s =>
+  ['pronouns', 'prepositions', 'accents'].includes(s.id)
+);
 
 // ---------------------------------------------------------------------------
 // Noun paradigm table (kept inline — simple, not reused)
@@ -127,7 +134,7 @@ function NounParadigmCard({ paradigm }: { paradigm: NounParadigm }) {
                     return (
                       <td
                         key={numKey}
-                        className="px-4 py-2 text-center font-serif text-base cursor-default rounded transition-colors"
+                        className="px-4 py-2 text-center font-greek text-base cursor-default rounded transition-colors"
                         style={{ color: 'var(--color-greek)' }}
                         onMouseEnter={() => handleCell(c, numKey)}
                         onMouseLeave={() => setDescription(null)}
@@ -231,7 +238,7 @@ function VerbSection() {
                           {PERSON_LABELS[p]}
                         </td>
                         <td
-                          className="px-4 py-2 font-serif text-lg cursor-default"
+                          className="px-4 py-2 font-greek text-lg cursor-default"
                           style={{ color: 'var(--color-greek)' }}
                           onMouseEnter={() => setDescription(`${activeParsed.label} — ${PERSON_FULL_LABELS[p]}`)}
                           onMouseLeave={() => setDescription(null)}
@@ -265,7 +272,7 @@ function VerbSection() {
                 {infinitiveForms.map(({ label, form }, i) => (
                   <tr key={label} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
                     <td className="px-4 py-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{label}</td>
-                    <td className="px-4 py-2 font-serif text-base" style={{ color: 'var(--color-greek)' }}>{form}</td>
+                    <td className="px-4 py-2 font-greek text-base" style={{ color: 'var(--color-greek)' }}>{form}</td>
                   </tr>
                 ))}
               </tbody>
@@ -295,7 +302,7 @@ function VerbSection() {
                   <tr key={row.label} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
                     <td className="px-3 py-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{row.label}</td>
                     {(['m', 'f', 'n'] as GenderKey[]).map(g => (
-                      <td key={g} className="px-3 py-2 text-center font-serif text-sm" style={{ color: 'var(--color-greek)' }}>
+                      <td key={g} className="px-3 py-2 text-center font-greek text-sm" style={{ color: 'var(--color-greek)' }}>
                         {row[g]}
                       </td>
                     ))}
@@ -346,7 +353,7 @@ function PronounCard12({ pronoun }: { pronoun: PersonalPronoun12 }) {
                 {(['sg', 'pl'] as NumKey[]).map(num => (
                   <td
                     key={num}
-                    className="px-4 py-2 text-center font-serif text-base cursor-default"
+                    className="px-4 py-2 text-center font-greek text-base cursor-default"
                     style={{ color: 'var(--color-greek)' }}
                     onMouseEnter={() => setDescription(`${CASE_DESCRIPTIONS[c].split(' — ')[0]} ${NUM_LABELS[num]} — ${CASE_DESCRIPTIONS[c].split(' — ')[1]}`)}
                     onMouseLeave={() => setDescription(null)}
@@ -390,7 +397,7 @@ function PrepCard({ entry }: { entry: (typeof prepositions)[number] }) {
       style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}
     >
       <div className="flex items-center gap-3">
-        <span className="font-serif text-2xl" style={{ color: 'var(--color-greek)' }}>{entry.greek}</span>
+        <span className="font-greek text-2xl" style={{ color: 'var(--color-greek)' }}>{entry.greek}</span>
         <div className="flex gap-1 flex-wrap">
           {entry.cases.map(c => (
             <span
@@ -461,9 +468,9 @@ function ContractionRulesCard() {
                 <td className="px-3 py-2 text-xs font-mono font-medium" style={{ color: 'var(--color-text-muted)' }}>
                   {rule.following}
                 </td>
-                <td className="px-4 py-2 text-center font-serif text-base" style={{ color: 'var(--color-greek)' }}>{rule.alpha}</td>
-                <td className="px-4 py-2 text-center font-serif text-base" style={{ color: 'var(--color-greek)' }}>{rule.epsilon}</td>
-                <td className="px-4 py-2 text-center font-serif text-base" style={{ color: 'var(--color-greek)' }}>{rule.omicron}</td>
+                <td className="px-4 py-2 text-center font-greek text-base" style={{ color: 'var(--color-greek)' }}>{rule.alpha}</td>
+                <td className="px-4 py-2 text-center font-greek text-base" style={{ color: 'var(--color-greek)' }}>{rule.epsilon}</td>
+                <td className="px-4 py-2 text-center font-greek text-base" style={{ color: 'var(--color-greek)' }}>{rule.omicron}</td>
               </tr>
             ))}
           </tbody>
@@ -501,7 +508,7 @@ function ContractParadigmTable({ paradigm }: { paradigm: ContractVerbParadigm })
                     {PERSON_LABELS[p]}
                   </td>
                   <td
-                    className="px-4 py-2 font-serif text-lg cursor-default"
+                    className="px-4 py-2 font-greek text-lg cursor-default"
                     style={{ color: 'var(--color-greek)' }}
                     onMouseEnter={() => setDescription(`${paradigm.label} — ${PERSON_FULL_LABELS[p]}`)}
                     onMouseLeave={() => setDescription(null)}
@@ -509,7 +516,7 @@ function ContractParadigmTable({ paradigm }: { paradigm: ContractVerbParadigm })
                   >
                     {contracted}
                   </td>
-                  <td className="px-4 py-2 font-serif text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                  <td className="px-4 py-2 font-greek text-sm" style={{ color: 'var(--color-text-muted)' }}>
                     {raw ?? ''}
                   </td>
                 </tr>
@@ -620,7 +627,7 @@ function ContractVerbsSection() {
                   <span
                     key={v.greek}
                     className="text-sm px-2.5 py-1 rounded-lg"
-                    style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb', color: 'var(--color-greek)', fontFamily: 'serif' }}
+                    style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb', color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}
                     title={v.gloss}
                   >
                     {v.greek}
@@ -723,10 +730,10 @@ function LiquidVerbsSection() {
                     <td className="px-4 py-2 text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
                       {PERSON_LABELS[row.person]}
                     </td>
-                    <td className="px-4 py-2 text-center font-serif text-base" style={{ color: 'var(--color-text-muted)' }}>
+                    <td className="px-4 py-2 text-center font-greek text-base" style={{ color: 'var(--color-text-muted)' }}>
                       {row.standard}
                     </td>
-                    <td className="px-4 py-2 text-center font-serif text-lg font-medium" style={{ color: 'var(--color-greek)' }}>
+                    <td className="px-4 py-2 text-center font-greek text-lg font-medium" style={{ color: 'var(--color-greek)' }}>
                       {row.liquid}
                     </td>
                   </tr>
@@ -762,9 +769,9 @@ function LiquidVerbsSection() {
               <div className="space-y-1 ml-7">
                 {pattern.examples.map(ex => (
                   <div key={ex.verb} className="flex flex-wrap items-baseline gap-x-2 text-sm">
-                    <span className="font-serif" style={{ color: 'var(--color-greek)' }}>{ex.verb}</span>
+                    <span className="font-greek" style={{ color: 'var(--color-greek)' }}>{ex.verb}</span>
                     <span style={{ color: 'var(--color-text-muted)' }}>→</span>
-                    <span className="font-serif font-medium" style={{ color: 'var(--color-greek)' }}>{ex.aorist}</span>
+                    <span className="font-greek font-medium" style={{ color: 'var(--color-greek)' }}>{ex.aorist}</span>
                     <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>({ex.note})</span>
                   </div>
                 ))}
@@ -795,13 +802,13 @@ function LiquidVerbsSection() {
               <tbody>
                 {liquidPrincipalParts.map((verb, i) => (
                   <tr key={verb.id} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
-                    <td className="px-3 py-2 font-serif text-base whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.lexical}</td>
+                    <td className="px-3 py-2 font-greek text-base whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.lexical}</td>
                     <td className="px-3 py-2 text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{verb.gloss}</td>
-                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.future}</td>
-                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.aoristAct}</td>
-                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.perfectAct}</td>
-                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.perfectMidPass}</td>
-                    <td className="px-3 py-2 font-serif text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.aoristPass}</td>
+                    <td className="px-3 py-2 font-greek text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.future}</td>
+                    <td className="px-3 py-2 font-greek text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.aoristAct}</td>
+                    <td className="px-3 py-2 font-greek text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.perfectAct}</td>
+                    <td className="px-3 py-2 font-greek text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.perfectMidPass}</td>
+                    <td className="px-3 py-2 font-greek text-sm whitespace-nowrap" style={{ color: 'var(--color-greek)' }}>{verb.aoristPass}</td>
                   </tr>
                 ))}
               </tbody>
@@ -849,28 +856,37 @@ export default function GrammarReference() {
         </nav>
       </aside>
 
-      {/* Mobile nav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-10 flex gap-1 overflow-x-auto px-4 py-2 shadow-lg"
-        style={{ background: 'var(--color-bg-card)', borderTop: '1px solid #e5e7eb' }}>
-        {NAV_SECTIONS.map(s => (
-          <a
-            key={s.id}
-            href={`#${s.id}`}
-            onClick={e => { e.preventDefault(); handleNavClick(s.id); }}
-            className="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap"
-            style={
-              activeSection === s.id
-                ? { background: 'var(--color-primary)', color: '#fff' }
-                : { background: 'rgba(30,58,95,0.07)', color: 'var(--color-text-muted)' }
-            }
-          >
-            {s.label}
-          </a>
-        ))}
-      </div>
-
       {/* Content */}
-      <div className="flex-1 min-w-0 pb-16 lg:pb-0">
+      <div className="flex-1 min-w-0 pb-20 lg:pb-0">
+
+        {/* Mobile sticky section nav — segmented rows */}
+        <div className="lg:hidden sticky top-0 z-20 -mx-4 px-4 py-2"
+          style={{ background: 'var(--color-bg)', borderBottom: '1px solid #e5e7eb' }}>
+          {([['Paradigms', PARADIGM_NAV], ['Reference', REFERENCE_NAV]] as const).map(([group, items]) => (
+            <div key={group} className="mb-1 last:mb-0">
+              <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+                {group}
+              </span>
+              <div className="flex gap-1 mt-0.5">
+                {items.map(s => (
+                  <a
+                    key={s.id}
+                    href={`#${s.id}`}
+                    onClick={e => { e.preventDefault(); handleNavClick(s.id); }}
+                    className="px-2.5 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap"
+                    style={
+                      activeSection === s.id
+                        ? { background: 'var(--color-primary)', color: '#fff' }
+                        : { background: 'rgba(30,58,95,0.07)', color: 'var(--color-text-muted)' }
+                    }
+                  >
+                    {s.shortLabel}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Nouns */}
         <section id="nouns" className="mb-16">

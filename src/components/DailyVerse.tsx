@@ -4,14 +4,16 @@ import {
   getTodayVerse,
   markReadToday,
   loadStreakData,
+  type DailyVerseRef,
   type DailyStreakData,
 } from '../data/dailyVerses';
+import { fetchDailyDoseVerse } from '../data/dailyDose';
 import { getStudiedLemmas } from '../data/srs';
 import { type ActiveWord, WordPopup, WordToken } from './GreekText';
 
 export default function DailyVerse() {
-  const verseRef = getTodayVerse();
-
+  const [verseRef, setVerseRef] = useState<DailyVerseRef | null>(null);
+  const [dailyDoseLink, setDailyDoseLink] = useState<string | null>(null);
   const [verse, setVerse] = useState<MorphVerse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,22 +24,38 @@ export default function DailyVerse() {
     try { return getStudiedLemmas(); } catch { return new Set(); }
   });
 
-  // Fetch verse + mark as read on mount
+  // Resolve verse (Daily Dose → fallback to curated list) then fetch MorphGNT data
   useEffect(() => {
-    fetchBook(verseRef.book)
-      .then(data => {
-        const words = data[String(verseRef.chapter)]?.[String(verseRef.verse)] ?? [];
+    let cancelled = false;
+
+    async function loadVerse() {
+      // Try Daily Dose first, fall back to curated list
+      const dailyDose = await fetchDailyDoseVerse();
+      const ref = dailyDose?.verse ?? getTodayVerse();
+
+      if (cancelled) return;
+      setVerseRef(ref);
+      setDailyDoseLink(dailyDose?.link ?? null);
+
+      try {
+        const data = await fetchBook(ref.book);
+        if (cancelled) return;
+        const words = data[String(ref.chapter)]?.[String(ref.verse)] ?? [];
         setVerse(words);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError((err as Error).message);
-        setLoading(false);
-      });
+      } catch (err) {
+        if (!cancelled) setError((err as Error).message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadVerse();
 
     // Marking as read is the only requirement for streak — just opening the page counts
     const updated = markReadToday();
     setStreakData(updated);
+
+    return () => { cancelled = true; };
   }, []);
 
   // On mount, also load existing streak to show immediately before markReadToday resolves
@@ -83,7 +101,7 @@ export default function DailyVerse() {
           </div>
         )}
 
-        {!loading && !error && verse && (
+        {!loading && !error && verse && verseRef && (
           <>
             {/* Greek text */}
             <div
@@ -111,7 +129,7 @@ export default function DailyVerse() {
                 — {verseRef.displayRef}
               </p>
 
-              <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+              <div className="flex gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
                 <button
                   onClick={() => setShowGlosses(g => !g)}
                   className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
@@ -128,6 +146,16 @@ export default function DailyVerse() {
                 >
                   Open chapter →
                 </a>
+                {dailyDoseLink && (
+                  <a
+                    href={dailyDoseLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 rounded-lg text-sm border border-accent/30 text-accent hover:border-accent hover:bg-accent/5 transition-colors"
+                  >
+                    Watch the analysis ↗
+                  </a>
+                )}
               </div>
             </div>
 

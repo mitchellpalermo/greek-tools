@@ -16,7 +16,7 @@ Integrate the [Daily Dose of Greek](https://dailydoseofgreek.com) verse-of-the-d
 
 ## Status
 
-**Not started.**
+**Complete.** All features implemented: `fetchDailyDoseVerse()` in `src/data/dailyDose.ts` with reference parsing, sessionStorage caching, and 5s timeout; `DailyVerse.tsx` updated to resolve Daily Dose verse first with curated-list fallback; "Watch the analysis" link shown when Daily Dose is active. 19 tests in `dailyDose.test.ts`.
 
 ---
 

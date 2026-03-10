@@ -151,9 +151,10 @@ export default function DailyVerse() {
                     href={dailyDoseLink}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="Watch analysis from Daily Dose of Greek"
                     className="px-3 py-1.5 rounded-lg text-sm border border-accent/30 text-accent hover:border-accent hover:bg-accent/5 transition-colors"
                   >
-                    Watch the analysis ↗
+                    Watch an analysis ↗
                   </a>
                 )}
               </div>

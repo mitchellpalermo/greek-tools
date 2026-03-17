@@ -11,10 +11,10 @@ Extend the existing flashcard tool with smarter study modes, filtering, and prog
 **Partially complete.** Six of eight features shipped:
 - ✅ Feature 1 — Spaced Repetition (SRS)
 - ✅ Feature 2 — Frequency & Part-of-Speech Filters
-- ❌ Feature 3 — Textbook Chapter Sets (not started)
+- ❌ Feature 3 — Frequency-Based Presets (not started) — see `flashcard-frequency-presets.md`
 - ✅ Feature 4 — Answer Modes (flip + type)
 - ✅ Feature 5 — Progress Tracking & Streaks
-- ❌ Feature 6 — Custom Deck Builder (not started)
+- ❌ Feature 6 — Custom Deck Builder (not started) — see `flashcard-custom-deck-builder.md`
 - ✅ Feature 7 — Direction Toggle (Greek → English / English → Greek)
 - ✅ Feature 8 — Keyboard Shortcuts
 
@@ -50,18 +50,20 @@ Let students narrow the deck before starting a session.
 - Active filter count shown on the Filters button
 - Filters reset on page load
 
-### 3. Textbook Chapter Sets
+### 3. Frequency-Based Presets
 
-Pre-built vocabulary lists mapped to common Koine Greek textbooks.
+Pre-built vocabulary sets based on GNT word frequency. All data derived from public domain frequency counts — no textbook licensing required.
 
-**Initial textbooks to support:**
-- Mounce, *Basics of Biblical Greek* (31 chapters)
-- Decker, *Reading Koine Greek* (if chapter word lists are available)
+**Preset ranges:**
+- Top 100 (500+ occurrences)
+- 101–300 (100–499 occurrences)
+- 301–500 (50–99 occurrences)
+- 500+ (<50 occurrences)
 
 **Behavior:**
-- Student selects a textbook and chapter range
-- Deck is scoped to that word list
-- Can be combined with SRS progress tracking
+- Student selects one or more preset ranges from a menu
+- Deck is scoped to words in those frequency bands
+- Can be combined with SRS progress tracking and part-of-speech filters
 
 ### 4. Answer Modes
 
@@ -126,4 +128,3 @@ Desktop keyboard navigation for faster review in Flip mode.
 ## Decisions
 
 - **Fuzzy matching threshold:** Levenshtein distance ≤ 1 for words longer than 3 characters, plus prefix matching (answer is prefix of correct gloss). Handles minor typos without being too lenient.
-- **Textbook chapter data:** Will be bundled in the codebase as a static JSON file.

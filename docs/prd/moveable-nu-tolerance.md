@@ -8,7 +8,7 @@ Treat the moveable nu (ν) as an accent-level detail in answer validation. Stude
 
 ## Status
 
-**Not started.**
+**Complete.**
 
 ---
 

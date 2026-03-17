@@ -66,6 +66,39 @@ export function stripDiacritics(s: string): string {
 export type AnswerResult = 'correct' | 'accent-only' | 'wrong';
 
 /**
+ * Generate all acceptable normalized forms for a correct answer,
+ * handling moveable nu (ν) notation.
+ *
+ * For "λύουσι(ν)" → ["λύουσι", "λύουσιν"]
+ * For "λύω" (no moveable nu) → ["λύω"]
+ */
+export function getAcceptableVariants(correctAnswer: string): string[] {
+  const withoutNu = correctAnswer.replace(/\(ν\)/g, '').trim().normalize('NFC');
+  const variants = [withoutNu];
+  if (correctAnswer.includes('(ν)')) {
+    const withNu = correctAnswer.replace(/\(ν\)/g, 'ν').trim().normalize('NFC');
+    variants.push(withNu);
+  }
+  return variants;
+}
+
+/**
+ * Normalize user input for comparison:
+ * - Treat typed `(ν)` as `ν`
+ * - Strip stray parentheses
+ * - Apply final sigma conversion
+ * - Trim and NFC normalize
+ */
+export function normalizeUserInput(userInput: string): string {
+  return applyFinalSigma(
+    userInput
+      .replace(/\(ν\)/g, 'ν')
+      .replace(/[()]/g, '')
+      .trim()
+  ).normalize('NFC');
+}
+
+/**
  * Grade a user's input against the correct answer for a paradigm cell.
  *
  * - 'correct'      — exact match (after normalizing movable nu and NFC)
@@ -73,16 +106,18 @@ export type AnswerResult = 'correct' | 'accent-only' | 'wrong';
  * - 'wrong'        — substantively different form
  *
  * Final sigma is applied to the user input before comparison.
- * Forms with `(ν)` accept both the short form and the ν-included form.
+ * Moveable nu is always tolerated: forms with `(ν)` accept both the
+ * short form and the ν-included form at every comparison level.
  */
 export function checkAnswer(userInput: string, correctAnswer: string): AnswerResult {
-  const user = normalizeAnswer(applyFinalSigma(userInput.trim()));
-  const correct = normalizeAnswer(correctAnswer);
-  // Also accept the ν-present variant, e.g. "λύουσιν" for "λύουσι(ν)"
-  const correctWithNu = correctAnswer.replace(/\(ν\)/g, 'ν').trim().normalize('NFC');
+  const user = normalizeUserInput(userInput);
+  const variants = getAcceptableVariants(correctAnswer);
 
-  if (user === correct || user === correctWithNu) return 'correct';
-  if (stripDiacritics(user) === stripDiacritics(correct)) return 'accent-only';
+  if (variants.some(v => user === v)) return 'correct';
+
+  const userStripped = stripDiacritics(user);
+  if (variants.some(v => userStripped === stripDiacritics(v))) return 'accent-only';
+
   return 'wrong';
 }
 

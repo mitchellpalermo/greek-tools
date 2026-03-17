@@ -62,12 +62,12 @@ describe('ParadigmQuiz — select phase', () => {
     expect(screen.getByRole('button', { name: /πᾶς/i })).toBeInTheDocument();
   });
 
-  it('switching to Verbs shows verb paradigms', async () => {
+  it('switching to Verbs shows verb paradigm grid with form previews', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
     await user.click(screen.getByRole('button', { name: 'Verbs' }));
-    // Multiple paradigms share "Present Active Indicative" (λύω + contract verbs) so use getAllByRole
-    expect(screen.getAllByRole('button', { name: /Present Active Indicative/i }).length).toBeGreaterThan(0);
+    // VerbParadigmGrid shows 1sg form previews (e.g., λύω) as selectable buttons
+    expect(screen.getAllByRole('button', { name: /λύω/i }).length).toBeGreaterThan(0);
   });
 
   it('switching to Pronouns shows pronoun paradigms', async () => {

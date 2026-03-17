@@ -78,8 +78,9 @@ export function buildTableModels(): TableModel[] {
     ...buildNounTables(),
     ...buildAdjTables(),
     ...buildVerbTables(),
-    ...buildContractVerbTables(),
-    ...buildLiquidVerbTables(),
+    // Contract verb and liquid verb tables excluded for now
+    // ...buildContractVerbTables(),
+    // ...buildLiquidVerbTables(),
     ...buildPronounTables(),
     buildArticleTable(),
   ];

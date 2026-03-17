@@ -473,10 +473,10 @@ describe('buildContractVerbTables', () => {
     }
   });
 
-  it('contract verb tables are included in buildTableModels', () => {
+  it('contract verb tables are excluded from buildTableModels', () => {
     const all = buildTableModels();
-    const contractIds = all.filter(t => t.id.startsWith('contract-')).map(t => t.id);
-    expect(contractIds.length).toBe(12);
+    const contractIds = all.filter(t => t.id.startsWith('contract-'));
+    expect(contractIds.length).toBe(0);
   });
 });
 
@@ -520,9 +520,9 @@ describe('buildLiquidVerbTables', () => {
     expect(tables[0].rows[5].answers[0]).toBe('βαλοῦσι(ν)');
   });
 
-  it('liquid verb table is included in buildTableModels', () => {
+  it('liquid verb table is excluded from buildTableModels', () => {
     const all = buildTableModels();
     const liquid = all.find(t => t.id === 'liquid-future-ballo');
-    expect(liquid).toBeDefined();
+    expect(liquid).toBeUndefined();
   });
 });

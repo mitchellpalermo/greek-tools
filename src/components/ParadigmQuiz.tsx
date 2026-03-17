@@ -412,6 +412,7 @@ function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChan
               setActiveMood(mood);
               setSelectedId(null);
             }}
+            showFormPreview
           />
           {/* Supplemental verb tables (infinitives, participles, contract, liquid) */}
           {supplementalVerbs.length > 0 && (

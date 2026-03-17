@@ -5,10 +5,14 @@
  * and scoring feedback.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ParadigmQuiz from './ParadigmQuiz';
+
+beforeEach(() => {
+  localStorage.clear();
+});
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -58,12 +62,12 @@ describe('ParadigmQuiz — select phase', () => {
     expect(screen.getByRole('button', { name: /πᾶς/i })).toBeInTheDocument();
   });
 
-  it('switching to Verbs shows verb paradigms', async () => {
+  it('switching to Verbs shows verb paradigm grid with form previews', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
     await user.click(screen.getByRole('button', { name: 'Verbs' }));
-    // Multiple paradigms share "Present Active Indicative" (λύω + contract verbs) so use getAllByRole
-    expect(screen.getAllByRole('button', { name: /Present Active Indicative/i }).length).toBeGreaterThan(0);
+    // VerbParadigmGrid shows 1sg form previews (e.g., λύω) as selectable buttons
+    expect(screen.getAllByRole('button', { name: /λύω/i }).length).toBeGreaterThan(0);
   });
 
   it('switching to Pronouns shows pronoun paradigms', async () => {
@@ -245,7 +249,8 @@ describe('ParadigmQuiz — results phase', () => {
   it('shows legend with color key', async () => {
     await submitWithInputs();
     expect(screen.getByText('Correct')).toBeInTheDocument();
-    expect(screen.getByText('Accent error')).toBeInTheDocument();
+    // Accent error swatch is hidden when accent checking is off (default)
+    expect(screen.queryByText('Accent error')).not.toBeInTheDocument();
     expect(screen.getByText('Wrong')).toBeInTheDocument();
   });
 
@@ -284,60 +289,57 @@ describe('ParadigmQuiz — accent toggle', () => {
     expect(toggle).toBeInTheDocument();
   });
 
-  it('accent toggle is on (strict) by default', () => {
+  it('accent toggle is off (relaxed) by default', () => {
     render(<ParadigmQuiz />);
     const toggle = screen.getByRole('switch', { name: /Accent checking/i });
-    expect(toggle).toHaveAttribute('aria-checked', 'true');
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('accent toggle turns off when clicked in select phase', async () => {
+  it('accent toggle turns on when clicked in select phase', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
     const toggle = screen.getByRole('switch', { name: /Accent checking/i });
     await user.click(toggle);
-    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    expect(toggle).toHaveAttribute('aria-checked', 'true');
   });
 
   it('compact accent pill is visible in quiz phase header', async () => {
     render(<ParadigmQuiz />);
     await startQuizWithFirstNoun();
-    // Compact pill uses aria-pressed
-    expect(screen.getByRole('button', { name: /Accents: on/i })).toBeInTheDocument();
+    // Compact pill uses aria-pressed — default is OFF
+    expect(screen.getByRole('button', { name: /Accents: off/i })).toBeInTheDocument();
   });
 
-  it('compact accent pill toggles to "off" when clicked in quiz phase', async () => {
+  it('compact accent pill toggles to "on" when clicked in quiz phase', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
     await startQuizWithFirstNoun();
-    const pill = screen.getByRole('button', { name: /Accents: on/i });
+    const pill = screen.getByRole('button', { name: /Accents: off/i });
     await user.click(pill);
-    expect(screen.getByRole('button', { name: /Accents: off/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Accents: on/i })).toBeInTheDocument();
   });
 
   it('accent setting persists into quiz phase from select phase', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
-    // Turn off accent checking in select phase
+    // Turn on accent checking in select phase (default is off)
     const toggle = screen.getByRole('switch', { name: /Accent checking/i });
     await user.click(toggle);
     // Start quiz
     await startQuizWithFirstNoun();
-    // Compact pill should show "off"
-    expect(screen.getByRole('button', { name: /Accents: off/i })).toBeInTheDocument();
+    // Compact pill should show "on"
+    expect(screen.getByRole('button', { name: /Accents: on/i })).toBeInTheDocument();
   });
 
   it('legend hides "Accent error" swatch when accent checking is off', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
 
-    // Start quiz
+    // Start quiz — accent checking is off by default
     const cards = screen.getAllByRole('button', { name: /Decl\./i });
     await user.click(cards[0]);
     await user.click(screen.getByRole('button', { name: /Full Recall/i }));
     await user.click(screen.getByRole('button', { name: /Start Quiz/i }));
-
-    // Turn off accent checking using compact pill
-    await user.click(screen.getByRole('button', { name: /Accents: on/i }));
 
     // Submit (all blank → all wrong, no accent-only, but legend hides regardless)
     await user.click(screen.getByRole('button', { name: /Submit Answers/i }));
@@ -352,7 +354,11 @@ describe('ParadigmQuiz — accent toggle', () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
 
-    // Start quiz with accent checking on (default)
+    // Turn on accent checking (default is off)
+    const toggle = screen.getByRole('switch', { name: /Accent checking/i });
+    await user.click(toggle);
+
+    // Start quiz with accent checking on
     const cards = screen.getAllByRole('button', { name: /Decl\./i });
     await user.click(cards[0]);
     await user.click(screen.getByRole('button', { name: /Full Recall/i }));
@@ -363,18 +369,45 @@ describe('ParadigmQuiz — accent toggle', () => {
     expect(screen.getByText('Accent error')).toBeInTheDocument();
   });
 
-  it('score badge shows "ignored" note when accent is off and there are accent-only results', async () => {
-    // Submit with accent off — even with all blank (wrong), the badge labels adapt.
-    // We test this indirectly via the /10 score display still rendering.
+  it('settings persist to localStorage', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
 
+    // Turn on accent checking
+    const toggle = screen.getByRole('switch', { name: /Accent checking/i });
+    await user.click(toggle);
+
+    // Change density to Easy
+    await user.click(screen.getByRole('button', { name: /Easy/i }));
+
+    // Check localStorage
+    const raw = localStorage.getItem('greek-tools-quiz-settings-v1');
+    expect(raw).not.toBeNull();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.accentStrict).toBe(true);
+    expect(parsed.density).toBe('easy');
+  });
+
+  it('loads saved settings from localStorage', () => {
+    localStorage.setItem(
+      'greek-tools-quiz-settings-v1',
+      JSON.stringify({ accentStrict: true, density: 'hard' }),
+    );
+    render(<ParadigmQuiz />);
+    const toggle = screen.getByRole('switch', { name: /Accent checking/i });
+    expect(toggle).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('score badge renders correctly when accent is off', async () => {
+    const user = userEvent.setup();
+    render(<ParadigmQuiz />);
+
+    // Accent is off by default
     const cards = screen.getAllByRole('button', { name: /Decl\./i });
     await user.click(cards[0]);
     await user.click(screen.getByRole('button', { name: /Full Recall/i }));
     await user.click(screen.getByRole('button', { name: /Start Quiz/i }));
 
-    await user.click(screen.getByRole('button', { name: /Accents: on/i })); // turn off
     await user.click(screen.getByRole('button', { name: /Submit Answers/i }));
 
     expect(screen.getByText(/\/10/)).toBeInTheDocument();

@@ -7,11 +7,11 @@
  *   3. Results — see score, per-cell color coding, and retry options
  *
  * Grading options:
- *   - accentStrict: when true (default) accent errors are marked wrong (yellow);
- *     when false, any cell with the right consonants/vowels counts as correct.
+ *   - accentStrict: when false (default) accent errors are treated as correct;
+ *     when true, accent errors are marked wrong (yellow).
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   buildTableModels,
   applyDensity,
@@ -25,6 +25,10 @@ import {
   type CellResult,
 } from '../lib/paradigm-quiz';
 import { applyFinalSigma, checkAnswer, processGreekKey } from '../lib/greek-input';
+import { loadQuizSettings, saveQuizSettings } from '../lib/quiz-settings';
+import { verbParadigms } from '../data/grammar';
+import VerbParadigmGrid from './grammar/VerbParadigmGrid';
+import type { Mood } from './grammar/VerbParadigmGrid';
 
 // ---------------------------------------------------------------------------
 // BetaCodeReference — data tables
@@ -283,22 +287,97 @@ function AccentToggle({ accentStrict, onChange, compact }: AccentToggleProps) {
 interface ParadigmSelectorProps {
   accentStrict: boolean;
   onToggleAccent: (value: boolean) => void;
+  density: Density;
+  onDensityChange: (d: Density) => void;
   onStart: (table: TableModel, density: Density) => void;
 }
 
-function ParadigmSelector({ accentStrict, onToggleAccent, onStart }: ParadigmSelectorProps) {
+function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChange, onStart }: ParadigmSelectorProps) {
   const tables = useMemo(() => buildTableModels(), []);
   const [activeCategory, setActiveCategory] = useState<Category>('noun');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [density, setDensity] = useState<Density>('medium');
+  const [activeMood, setActiveMood] = useState<Mood>('indicative');
 
   const filtered = tables.filter(t => t.category === activeCategory);
   const selected = filtered.find(t => t.id === selectedId) ?? null;
+
+  // Split verb tables into grid-eligible (standard λύω conjugations) and supplemental
+  const verbGridIds = useMemo(
+    () => new Set(verbParadigms.map(p => `verb-${p.id}`)),
+    [],
+  );
+  const supplementalVerbs = filtered.filter(t => !verbGridIds.has(t.id));
 
   const handleStart = () => {
     if (!selected) return;
     onStart(selected, density);
   };
+
+  // Settings card (shared between both layout columns)
+  const settingsCard = (
+    <div className="rounded-xl p-4 space-y-4" style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}>
+      {/* Difficulty */}
+      <div className="space-y-2">
+        <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+          Difficulty
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {(['easy', 'medium', 'hard'] as Density[]).map(d => (
+            <button
+              key={d}
+              onClick={() => onDensityChange(d)}
+              className="rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left"
+              style={
+                density === d
+                  ? { background: 'var(--color-primary)', color: '#fff' }
+                  : { background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid #e5e7eb' }
+              }
+            >
+              <div className="font-semibold">{DENSITY_LABELS[d].split(' (')[0]}</div>
+              <div className="text-xs opacity-70 mt-0.5">{DENSITY_DESCS[d].split('.')[0]}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ borderTop: '1px solid #e5e7eb' }} />
+
+      {/* Accent toggle */}
+      <AccentToggle accentStrict={accentStrict} onChange={onToggleAccent} />
+    </div>
+  );
+
+  // Paradigm card list (non-verb categories, or supplemental verb tables)
+  const paradigmCards = (tablesToShow: typeof filtered) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {tablesToShow.map(table => {
+        const isSelected = table.id === selectedId;
+        const totalCells = table.rows.reduce(
+          (sum, row) => sum + row.answers.filter(a => a !== null).length,
+          0,
+        );
+        return (
+          <button
+            key={table.id}
+            onClick={() => setSelectedId(isSelected ? null : table.id)}
+            className="text-left rounded-xl p-4 transition-all shadow-sm"
+            style={{
+              border: `2px solid ${isSelected ? 'var(--color-accent)' : '#e5e7eb'}`,
+              background: isSelected ? 'rgba(245,158,11,0.08)' : 'var(--color-bg-card)',
+            }}
+          >
+            <div className="font-semibold text-sm mb-0.5" style={{ color: isSelected ? 'var(--color-accent)' : 'var(--color-primary)' }}>
+              {table.label}
+            </div>
+            <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+              {totalCells} cells
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -320,86 +399,58 @@ function ParadigmSelector({ accentStrict, onToggleAccent, onStart }: ParadigmSel
         ))}
       </div>
 
-      {/* Paradigm grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {filtered.map(table => {
-          const isSelected = table.id === selectedId;
-          const totalCells = table.rows.reduce(
-            (sum, row) => sum + row.answers.filter(a => a !== null).length,
-            0,
-          );
-          return (
-            <button
-              key={table.id}
-              onClick={() => setSelectedId(isSelected ? null : table.id)}
-              className="text-left rounded-xl p-4 transition-all shadow-sm"
-              style={{
-                border: `2px solid ${isSelected ? 'var(--color-accent)' : '#e5e7eb'}`,
-                background: isSelected ? 'rgba(245,158,11,0.08)' : 'var(--color-bg-card)',
-              }}
-            >
-              <div className="font-semibold text-sm mb-0.5" style={{ color: isSelected ? 'var(--color-accent)' : 'var(--color-primary)' }}>
-                {table.label}
+      {/* Paradigm selection */}
+      {activeCategory === 'verb' ? (
+        <>
+          {/* VerbParadigmGrid for standard λύω conjugations */}
+          <VerbParadigmGrid
+            paradigms={verbParadigms}
+            selectedId={selectedId ? selectedId.replace(/^verb-/, '') : ''}
+            onSelect={(id) => setSelectedId(`verb-${id}`)}
+            activeMood={activeMood}
+            onMoodChange={(mood) => {
+              setActiveMood(mood);
+              setSelectedId(null);
+            }}
+            showFormPreview
+          />
+          {/* Supplemental verb tables (infinitives, participles, contract, liquid) */}
+          {supplementalVerbs.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+                Other Verb Paradigms
               </div>
-              <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                {totalCells} cells
-              </div>
-            </button>
-          );
-        })}
+              {paradigmCards(supplementalVerbs)}
+            </div>
+          )}
+        </>
+      ) : (
+        paradigmCards(filtered)
+      )}
+
+      {/* Settings + start button */}
+      <div className="space-y-4">
+        {settingsCard}
+
+        {/* Keyboard hint */}
+        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+          Inputs use Beta Code — type English letters to produce Greek (e.g., <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">l</kbd> → λ, <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">/</kbd> → acute accent).
+        </p>
+
+        {/* Start button */}
+        <button
+          onClick={handleStart}
+          disabled={!selected}
+          className="w-full py-3 rounded-xl font-bold text-base transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          style={
+            selected
+              ? { background: 'var(--color-coral)', color: '#fff' }
+              : { background: '#e5e7eb', color: '#9ca3af' }
+          }
+        >
+          {selected ? `Start Quiz — ${selected.label}` : 'Select a paradigm to begin'}
+        </button>
       </div>
-
-      {/* Settings card: difficulty + accent toggle */}
-      <div className="rounded-xl p-4 space-y-4" style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}>
-        {/* Difficulty */}
-        <div className="space-y-2">
-          <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
-            Difficulty
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {(['easy', 'medium', 'hard'] as Density[]).map(d => (
-              <button
-                key={d}
-                onClick={() => setDensity(d)}
-                className="rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left"
-                style={
-                  density === d
-                    ? { background: 'var(--color-primary)', color: '#fff' }
-                    : { background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid #e5e7eb' }
-                }
-              >
-                <div className="font-semibold">{DENSITY_LABELS[d].split(' (')[0]}</div>
-                <div className="text-xs opacity-70 mt-0.5">{DENSITY_DESCS[d].split('.')[0]}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div style={{ borderTop: '1px solid #e5e7eb' }} />
-
-        {/* Accent toggle */}
-        <AccentToggle accentStrict={accentStrict} onChange={onToggleAccent} />
-      </div>
-
-      {/* Keyboard hint */}
-      <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-        Inputs use Beta Code — type English letters to produce Greek (e.g., <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">l</kbd> → λ, <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">/</kbd> → acute accent).
-      </p>
-
-      {/* Start button */}
-      <button
-        onClick={handleStart}
-        disabled={!selected}
-        className="w-full py-3 rounded-xl font-bold text-base transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        style={
-          selected
-            ? { background: 'var(--color-coral)', color: '#fff' }
-            : { background: '#e5e7eb', color: '#9ca3af' }
-        }
-      >
-        {selected ? `Start Quiz — ${selected.label}` : 'Select a paradigm to begin'}
-      </button>
     </div>
   );
 }
@@ -599,8 +650,13 @@ export default function ParadigmQuiz() {
   const [phase, setPhase] = useState<Phase>({ name: 'select' });
   const [inputs, setInputs] = useState<InputMap>({});
   const [results, setResults] = useState<Record<number, CellResult>>({});
-  // Accent checking persists across retries and new paradigms
-  const [accentStrict, setAccentStrict] = useState(true);
+  // Settings persist to localStorage across sessions
+  const [accentStrict, setAccentStrict] = useState(() => loadQuizSettings().accentStrict);
+  const [density, setDensity] = useState<Density>(() => loadQuizSettings().density);
+
+  useEffect(() => {
+    saveQuizSettings({ accentStrict, density });
+  }, [accentStrict, density]);
 
   const submitted = phase.name === 'results';
 
@@ -658,13 +714,15 @@ export default function ParadigmQuiz() {
       <ParadigmSelector
         accentStrict={accentStrict}
         onToggleAccent={setAccentStrict}
+        density={density}
+        onDensityChange={setDensity}
         onStart={handleStart}
       />
     );
   }
 
   // ── Quiz & Results phases ─────────────────────────────────────────────────
-  const { table, cells, density } = phase;
+  const { table, cells, density: phaseDensity } = phase;
   const activeInputs = phase.name === 'results' ? phase.inputs : inputs;
   const blankCount = cells.filter(c => c.isBlank).length;
 
@@ -684,7 +742,7 @@ export default function ParadigmQuiz() {
               className="text-xs font-semibold px-2 py-0.5 rounded-full"
               style={{ background: 'rgba(30,58,95,0.1)', color: 'var(--color-primary)' }}
             >
-              {DENSITY_LABELS[density]} — {blankCount} blank{blankCount !== 1 ? 's' : ''}
+              {DENSITY_LABELS[phaseDensity]} — {blankCount} blank{blankCount !== 1 ? 's' : ''}
             </span>
             {/* Accent toggle: compact pill in quiz/results header */}
             <AccentToggle

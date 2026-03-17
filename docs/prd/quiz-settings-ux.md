@@ -8,7 +8,7 @@ Improve the quiz configuration experience so that settings like accent strictnes
 
 ## Status
 
-**Not started.**
+**Complete.**
 
 ---
 

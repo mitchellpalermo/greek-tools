@@ -11,6 +11,8 @@ import {
   normalizeAnswer,
   stripDiacritics,
   checkAnswer,
+  getAcceptableVariants,
+  normalizeUserInput,
   processGreekKey,
   GREEK_MAP,
   DIACRITIC_MAP,
@@ -142,6 +144,115 @@ describe('checkAnswer', () => {
 
   it('returns wrong for completely wrong input', () => {
     expect(checkAnswer('abc', 'λύω')).toBe('wrong');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getAcceptableVariants
+// ---------------------------------------------------------------------------
+
+describe('getAcceptableVariants', () => {
+  it('returns both nu-absent and nu-present forms for (ν) notation', () => {
+    expect(getAcceptableVariants('λύουσι(ν)')).toEqual(['λύουσι', 'λύουσιν']);
+  });
+
+  it('returns single variant for forms without (ν)', () => {
+    expect(getAcceptableVariants('λύω')).toEqual(['λύω']);
+  });
+
+  it('handles multiple (ν) in a form', () => {
+    // Unlikely but ensures robustness
+    const result = getAcceptableVariants('λελύκασι(ν)');
+    expect(result).toEqual(['λελύκασι', 'λελύκασιν']);
+  });
+
+  it('handles 3sg imperfect forms', () => {
+    expect(getAcceptableVariants('ἔλυε(ν)')).toEqual(['ἔλυε', 'ἔλυεν']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// normalizeUserInput
+// ---------------------------------------------------------------------------
+
+describe('normalizeUserInput', () => {
+  it('converts typed (ν) notation to ν', () => {
+    expect(normalizeUserInput('λύουσι(ν)')).toBe('λύουσιν');
+  });
+
+  it('leaves plain ν unchanged', () => {
+    expect(normalizeUserInput('λύουσιν')).toBe('λύουσιν');
+  });
+
+  it('trims whitespace', () => {
+    expect(normalizeUserInput('  λύω  ')).toBe('λύω');
+  });
+
+  it('applies final sigma conversion', () => {
+    expect(normalizeUserInput('λόγοσ')).toBe('λόγος');
+  });
+
+  it('strips stray parentheses', () => {
+    expect(normalizeUserInput('λύω()')).toBe('λύω');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkAnswer — moveable nu tolerance
+// ---------------------------------------------------------------------------
+
+describe('checkAnswer — moveable nu tolerance', () => {
+  it('returns correct when user omits nu from (ν) form', () => {
+    expect(checkAnswer('λύουσι', 'λύουσι(ν)')).toBe('correct');
+  });
+
+  it('returns correct when user includes nu in (ν) form', () => {
+    expect(checkAnswer('λύουσιν', 'λύουσι(ν)')).toBe('correct');
+  });
+
+  it('returns correct when user types parenthesized (ν) notation', () => {
+    expect(checkAnswer('λύουσι(ν)', 'λύουσι(ν)')).toBe('correct');
+  });
+
+  it('returns accent-only when accent wrong and nu omitted', () => {
+    expect(checkAnswer('λυουσι', 'λύουσι(ν)')).toBe('accent-only');
+  });
+
+  it('returns accent-only when accent wrong and nu included', () => {
+    // This is the primary bug fix — was returning "wrong" before
+    expect(checkAnswer('λυουσιν', 'λύουσι(ν)')).toBe('accent-only');
+  });
+
+  it('returns accent-only when accent wrong with parenthesized notation', () => {
+    expect(checkAnswer('λυουσι(ν)', 'λύουσι(ν)')).toBe('accent-only');
+  });
+
+  it('returns correct for 3sg imperfect without nu', () => {
+    expect(checkAnswer('ἔλυε', 'ἔλυε(ν)')).toBe('correct');
+  });
+
+  it('returns correct for 3sg imperfect with nu', () => {
+    expect(checkAnswer('ἔλυεν', 'ἔλυε(ν)')).toBe('correct');
+  });
+
+  it('returns accent-only for 3sg imperfect with nu and wrong accent', () => {
+    expect(checkAnswer('ελυεν', 'ἔλυε(ν)')).toBe('accent-only');
+  });
+
+  it('returns accent-only for 3sg imperfect without nu and wrong accent', () => {
+    expect(checkAnswer('ελυε', 'ἔλυε(ν)')).toBe('accent-only');
+  });
+
+  it('returns correct for adjective dative without nu', () => {
+    expect(checkAnswer('πᾶσι', 'πᾶσι(ν)')).toBe('correct');
+  });
+
+  it('returns correct for adjective dative with nu', () => {
+    expect(checkAnswer('πᾶσιν', 'πᾶσι(ν)')).toBe('correct');
+  });
+
+  it('returns wrong for a completely different form', () => {
+    expect(checkAnswer('λύεις', 'λύουσι(ν)')).toBe('wrong');
   });
 });
 

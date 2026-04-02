@@ -6,3 +6,4 @@ export { default as NumberToggle } from './NumberToggle';
 export { default as AdjParadigmCard } from './AdjParadigmCard';
 export { default as GenderedPronounCard } from './GenderedPronounCard';
 export { default as VerbParadigmGrid } from './VerbParadigmGrid';
+export { default as ParticipleParadigmCard } from './ParticipleParadigmCard';

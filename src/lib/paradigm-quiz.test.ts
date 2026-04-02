@@ -115,27 +115,38 @@ describe('buildTableModels', () => {
 
   // ── Verbs ────────────────────────────────────────────────────────────────
 
-  it('includes verb paradigms including infinitives and participles', () => {
+  it('includes verb paradigms including infinitives and participle declension tables', () => {
     const tables = buildTableModels();
     const verbs = tables.filter(t => t.category === 'verb');
     const ids = verbs.map(v => v.id);
     expect(ids).toContain('verb-infinitives');
-    expect(ids).toContain('verb-participles');
+    expect(ids).toContain('participle-pres-act-ptc');
+    expect(ids).toContain('participle-aor-pass-ptc');
+    expect(ids).toContain('participle-perf-mid-pass-ptc');
   });
 
   it('verb conjugation tables have 1 column (Form)', () => {
     const tables = buildTableModels();
-    const conj = tables.filter(t => t.category === 'verb' && !['verb-infinitives', 'verb-participles'].includes(t.id));
+    const particleIds = tables
+      .filter(t => t.id.startsWith('participle-'))
+      .map(t => t.id);
+    const conj = tables.filter(
+      t => t.category === 'verb' && t.id !== 'verb-infinitives' && !particleIds.includes(t.id)
+    );
     for (const v of conj) {
       expect(v.cols).toHaveLength(1);
       expect(v.cols[0]).toBe('Form');
     }
   });
 
-  it('participle table has 3 columns (M, F, N)', () => {
+  it('participle tables have 6 leaf columns (Sg M/F/N + Pl M/F/N)', () => {
     const tables = buildTableModels();
-    const participles = tables.find(t => t.id === 'verb-participles')!;
-    expect(participles.cols).toHaveLength(3);
+    const participles = tables.filter(t => t.id.startsWith('participle-'));
+    expect(participles).toHaveLength(10);
+    for (const p of participles) {
+      expect(p.cols).toHaveLength(6);
+      expect(p.rows).toHaveLength(5); // 5 cases
+    }
   });
 
   it('imperative paradigms have null answers for missing person-numbers', () => {

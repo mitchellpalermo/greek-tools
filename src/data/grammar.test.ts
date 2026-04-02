@@ -8,6 +8,7 @@ import {
   verbParadigms,
   infinitiveForms,
   participleRows,
+  participleParadigms,
   personalPronouns12,
   genderedPronouns,
   prepositions,
@@ -177,13 +178,48 @@ describe('infinitiveForms', () => {
 });
 
 describe('participleRows', () => {
-  it('is a non-empty array with m/f/n fields', () => {
-    expect(participleRows.length).toBeGreaterThan(0);
+  it('has 10 entries covering all tense-voice combinations', () => {
+    expect(participleRows).toHaveLength(10);
+  });
+
+  it('every row has a label and non-empty m/f/n strings', () => {
     participleRows.forEach((row) => {
       expect(row.label).toBeTruthy();
       expect(typeof row.m).toBe('string');
       expect(typeof row.f).toBe('string');
       expect(typeof row.n).toBe('string');
+    });
+  });
+});
+
+describe('participleParadigms', () => {
+  it('has 10 paradigms covering all tense-voice combinations', () => {
+    expect(participleParadigms).toHaveLength(10);
+  });
+
+  it('every paradigm has all 5 cases × 2 numbers × 3 genders', () => {
+    const cases = ['nom', 'gen', 'dat', 'acc', 'voc'] as const;
+    const numbers = ['sg', 'pl'] as const;
+    const genders = ['m', 'f', 'n'] as const;
+    participleParadigms.forEach((p) => {
+      cases.forEach((c) => {
+        numbers.forEach((n) => {
+          genders.forEach((g) => {
+            expect(typeof p.forms[c][n][g]).toBe('string');
+            expect(p.forms[c][n][g].length).toBeGreaterThan(0);
+          });
+        });
+      });
+    });
+  });
+
+  it('nom sg forms match participleRows', () => {
+    participleParadigms.forEach((paradigm) => {
+      const row = participleRows.find(r => r.label === paradigm.label);
+      expect(row).toBeDefined();
+      expect(paradigm.forms.nom.sg.m).toBe(row!.m);
+      expect(paradigm.forms.nom.sg.f).toBe(row!.f);
+      expect(paradigm.forms.nom.sg.n).toBe(row!.n);
     });
   });
 });

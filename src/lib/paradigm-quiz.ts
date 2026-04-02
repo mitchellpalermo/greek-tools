@@ -19,7 +19,7 @@ import {
   adjParadigms,
   verbParadigms,
   infinitiveForms,
-  participleRows,
+  participleParadigms,
   personalPronouns12,
   genderedPronouns,
   articleForms,
@@ -145,18 +145,28 @@ function buildVerbTables(): TableModel[] {
     })),
   };
 
-  const participleTable: TableModel = {
-    id: 'verb-participles',
-    label: 'Participles (λύω)',
-    category: 'verb',
-    cols: ['Masc.', 'Fem.', 'Neut.'],
-    rows: participleRows.map(row => ({
-      label: row.label,
-      answers: [row.m, row.f, row.n],
-    })),
-  };
+  const participleTables = buildParticipleParadigmTables();
 
-  return [...conjugationTables, infinitiveTable, participleTable];
+  return [...conjugationTables, infinitiveTable, ...participleTables];
+}
+
+/**
+ * Participle paradigms: one table per tense-voice combination, rows = cases,
+ * col groups = [Singular, Plural], leaf cols = [Masc., Fem., Neut.].
+ * Mirrors the adjective table structure.
+ */
+function buildParticipleParadigmTables(): TableModel[] {
+  return participleParadigms.map(p => ({
+    id: `participle-${p.id}`,
+    label: `${p.label} Participle (λύω)`,
+    category: 'verb' as const,
+    colGroups: NUMBERS.map(n => NUM_LABELS[n]),
+    cols: NUMBERS.flatMap(() => GENDERS.map(g => GENDER_LABELS[g])),
+    rows: CASES.map(c => ({
+      label: CASE_LABELS[c],
+      answers: NUMBERS.flatMap(n => GENDERS.map(g => p.forms[c][n][g])),
+    })),
+  }));
 }
 
 /**

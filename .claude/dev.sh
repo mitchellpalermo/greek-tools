@@ -1,0 +1,4 @@
+#!/bin/sh
+export PATH="/opt/homebrew/bin:/opt/homebrew/Cellar/node/25.3.0/bin:$PATH"
+cd /Users/mitch/code/greek-tools
+npm run dev -- --port 4330

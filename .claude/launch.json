@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "greek-tools",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "4330"],
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["/Users/mitch/code/greek-tools/.claude/dev.sh"],
       "port": 4330,
       "autoPort": true
     }

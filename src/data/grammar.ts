@@ -125,6 +125,21 @@ export interface ParticipleRow {
   n: string;
 }
 
+export type ParticipleTense = 'present' | 'future' | 'aorist' | 'perfect';
+export type ParticipleVoice = 'active' | 'middle' | 'passive' | 'mid-pass';
+
+export interface ParticipleParadigm {
+  id: string;
+  /** Display label, e.g. "Present Active" */
+  label: string;
+  tense: ParticipleTense;
+  voice: ParticipleVoice;
+  /** Short note on which declension patterns apply, shown below the table. */
+  declensionNote: string;
+  /** forms[case][number][gender] — full inflected form */
+  forms: Record<CaseKey, Record<NumKey, Record<GenderKey, string>>>;
+}
+
 // ---------------------------------------------------------------------------
 // Pronoun types
 // ---------------------------------------------------------------------------
@@ -542,12 +557,167 @@ export const infinitiveForms: InfinitivePair[] = [
 ];
 
 export const participleRows: ParticipleRow[] = [
-  { label: 'Present Active',     m: 'λύων',      f: 'λύουσα',   n: 'λῦον'    },
-  { label: 'Present Mid./Pass.', m: 'λυόμενος',  f: 'λυομένη',  n: 'λυόμενον' },
-  { label: 'Aorist Active',      m: 'λύσας',     f: 'λύσασα',   n: 'λῦσαν'   },
-  { label: 'Aorist Middle',      m: 'λυσάμενος', f: 'λυσαμένη', n: 'λυσάμενον' },
-  { label: 'Aorist Passive',     m: 'λυθείς',    f: 'λυθεῖσα',  n: 'λυθέν'   },
-  { label: 'Perfect Active',     m: 'λελυκώς',   f: 'λελυκυῖα', n: 'λελυκός' },
+  // Present
+  { label: 'Present Active',      m: 'λύων',        f: 'λύουσα',    n: 'λῦον'        },
+  { label: 'Present Mid./Pass.',  m: 'λυόμενος',    f: 'λυομένη',   n: 'λυόμενον'    },
+  // Future
+  { label: 'Future Active',       m: 'λύσων',       f: 'λύσουσα',   n: 'λῦσον'       },
+  { label: 'Future Middle',       m: 'λυσόμενος',   f: 'λυσομένη',  n: 'λυσόμενον'   },
+  { label: 'Future Passive',      m: 'λυθησόμενος', f: 'λυθησομένη', n: 'λυθησόμενον' },
+  // Aorist
+  { label: 'Aorist Active',       m: 'λύσας',       f: 'λύσασα',    n: 'λῦσαν'       },
+  { label: 'Aorist Middle',       m: 'λυσάμενος',   f: 'λυσαμένη',  n: 'λυσάμενον'   },
+  { label: 'Aorist Passive',      m: 'λυθείς',      f: 'λυθεῖσα',   n: 'λυθέν'       },
+  // Perfect
+  { label: 'Perfect Active',      m: 'λελυκώς',     f: 'λελυκυῖα',  n: 'λελυκός'     },
+  { label: 'Perfect Mid./Pass.',  m: 'λελυμένος',   f: 'λελυμένη',  n: 'λελυμένον'   },
+];
+
+export const participleParadigms: ParticipleParadigm[] = [
+  // ── Present ───────────────────────────────────────────────────────────────
+  {
+    id: 'pres-act-ptc',
+    label: 'Present Active',
+    tense: 'present',
+    voice: 'active',
+    declensionNote: 'Masc./Neut.: 3rd declension (ντ-stem); Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λύων',    f: 'λύουσα',    n: 'λῦον'      }, pl: { m: 'λύοντες',    f: 'λύουσαι',    n: 'λύοντα'      } },
+      gen: { sg: { m: 'λύοντος', f: 'λυούσης',   n: 'λύοντος'   }, pl: { m: 'λυόντων',   f: 'λυουσῶν',   n: 'λυόντων'    } },
+      dat: { sg: { m: 'λύοντι',  f: 'λυούσῃ',    n: 'λύοντι'    }, pl: { m: 'λύουσι(ν)', f: 'λυούσαις',  n: 'λύουσι(ν)'  } },
+      acc: { sg: { m: 'λύοντα',  f: 'λύουσαν',   n: 'λῦον'      }, pl: { m: 'λύοντας',   f: 'λυούσας',   n: 'λύοντα'      } },
+      voc: { sg: { m: 'λύων',    f: 'λύουσα',    n: 'λῦον'      }, pl: { m: 'λύοντες',   f: 'λύουσαι',   n: 'λύοντα'      } },
+    },
+  },
+  {
+    id: 'pres-mid-pass-ptc',
+    label: 'Present Mid./Pass.',
+    tense: 'present',
+    voice: 'mid-pass',
+    declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λυόμενος',  f: 'λυομένη',   n: 'λυόμενον'  }, pl: { m: 'λυόμενοι',  f: 'λυόμεναι',  n: 'λυόμενα'   } },
+      gen: { sg: { m: 'λυομένου',  f: 'λυομένης',  n: 'λυομένου'  }, pl: { m: 'λυομένων',  f: 'λυομένων',  n: 'λυομένων'  } },
+      dat: { sg: { m: 'λυομένῳ',   f: 'λυομένῃ',   n: 'λυομένῳ'   }, pl: { m: 'λυομένοις', f: 'λυομέναις', n: 'λυομένοις' } },
+      acc: { sg: { m: 'λυόμενον',  f: 'λυομένην',  n: 'λυόμενον'  }, pl: { m: 'λυομένους', f: 'λυομένας',  n: 'λυόμενα'   } },
+      voc: { sg: { m: 'λυόμενε',   f: 'λυομένη',   n: 'λυόμενον'  }, pl: { m: 'λυόμενοι',  f: 'λυόμεναι',  n: 'λυόμενα'   } },
+    },
+  },
+  // ── Future ────────────────────────────────────────────────────────────────
+  {
+    id: 'fut-act-ptc',
+    label: 'Future Active',
+    tense: 'future',
+    voice: 'active',
+    declensionNote: 'Masc./Neut.: 3rd declension (ντ-stem); Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λύσων',    f: 'λύσουσα',   n: 'λῦσον'     }, pl: { m: 'λύσοντες',    f: 'λύσουσαι',   n: 'λύσοντα'     } },
+      gen: { sg: { m: 'λύσοντος', f: 'λυσούσης',  n: 'λύσοντος'  }, pl: { m: 'λυσόντων',   f: 'λυσουσῶν',  n: 'λυσόντων'   } },
+      dat: { sg: { m: 'λύσοντι',  f: 'λυσούσῃ',   n: 'λύσοντι'   }, pl: { m: 'λύσουσι(ν)', f: 'λυσούσαις', n: 'λύσουσι(ν)' } },
+      acc: { sg: { m: 'λύσοντα',  f: 'λύσουσαν',  n: 'λῦσον'     }, pl: { m: 'λύσοντας',   f: 'λυσούσας',  n: 'λύσοντα'     } },
+      voc: { sg: { m: 'λύσων',    f: 'λύσουσα',   n: 'λῦσον'     }, pl: { m: 'λύσοντες',   f: 'λύσουσαι',  n: 'λύσοντα'     } },
+    },
+  },
+  {
+    id: 'fut-mid-ptc',
+    label: 'Future Middle',
+    tense: 'future',
+    voice: 'middle',
+    declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λυσόμενος',  f: 'λυσομένη',   n: 'λυσόμενον'  }, pl: { m: 'λυσόμενοι',  f: 'λυσόμεναι',  n: 'λυσόμενα'   } },
+      gen: { sg: { m: 'λυσομένου',  f: 'λυσομένης',  n: 'λυσομένου'  }, pl: { m: 'λυσομένων',  f: 'λυσομένων',  n: 'λυσομένων'  } },
+      dat: { sg: { m: 'λυσομένῳ',   f: 'λυσομένῃ',   n: 'λυσομένῳ'   }, pl: { m: 'λυσομένοις', f: 'λυσομέναις', n: 'λυσομένοις' } },
+      acc: { sg: { m: 'λυσόμενον',  f: 'λυσομένην',  n: 'λυσόμενον'  }, pl: { m: 'λυσομένους', f: 'λυσομένας',  n: 'λυσόμενα'   } },
+      voc: { sg: { m: 'λυσόμενε',   f: 'λυσομένη',   n: 'λυσόμενον'  }, pl: { m: 'λυσόμενοι',  f: 'λυσόμεναι',  n: 'λυσόμενα'   } },
+    },
+  },
+  {
+    id: 'fut-pass-ptc',
+    label: 'Future Passive',
+    tense: 'future',
+    voice: 'passive',
+    declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λυθησόμενος',  f: 'λυθησομένη',   n: 'λυθησόμενον'  }, pl: { m: 'λυθησόμενοι',  f: 'λυθησόμεναι',  n: 'λυθησόμενα'   } },
+      gen: { sg: { m: 'λυθησομένου',  f: 'λυθησομένης',  n: 'λυθησομένου'  }, pl: { m: 'λυθησομένων',  f: 'λυθησομένων',  n: 'λυθησομένων'  } },
+      dat: { sg: { m: 'λυθησομένῳ',   f: 'λυθησομένῃ',   n: 'λυθησομένῳ'   }, pl: { m: 'λυθησομένοις', f: 'λυθησομέναις', n: 'λυθησομένοις' } },
+      acc: { sg: { m: 'λυθησόμενον',  f: 'λυθησομένην',  n: 'λυθησόμενον'  }, pl: { m: 'λυθησομένους', f: 'λυθησομένας',  n: 'λυθησόμενα'   } },
+      voc: { sg: { m: 'λυθησόμενε',   f: 'λυθησομένη',   n: 'λυθησόμενον'  }, pl: { m: 'λυθησόμενοι',  f: 'λυθησόμεναι',  n: 'λυθησόμενα'   } },
+    },
+  },
+  // ── Aorist ────────────────────────────────────────────────────────────────
+  {
+    id: 'aor-act-ptc',
+    label: 'Aorist Active',
+    tense: 'aorist',
+    voice: 'active',
+    declensionNote: 'Masc./Neut.: 3rd declension (αντ-stem); Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λύσας',    f: 'λύσασα',    n: 'λῦσαν'     }, pl: { m: 'λύσαντες',    f: 'λύσασαι',    n: 'λύσαντα'     } },
+      gen: { sg: { m: 'λύσαντος', f: 'λυσάσης',   n: 'λύσαντος'  }, pl: { m: 'λυσάντων',   f: 'λυσασῶν',   n: 'λυσάντων'   } },
+      dat: { sg: { m: 'λύσαντι',  f: 'λυσάσῃ',    n: 'λύσαντι'   }, pl: { m: 'λύσασι(ν)',  f: 'λυσάσαις',  n: 'λύσασι(ν)'  } },
+      acc: { sg: { m: 'λύσαντα',  f: 'λύσασαν',   n: 'λῦσαν'     }, pl: { m: 'λύσαντας',   f: 'λυσάσας',   n: 'λύσαντα'     } },
+      voc: { sg: { m: 'λύσας',    f: 'λύσασα',    n: 'λῦσαν'     }, pl: { m: 'λύσαντες',   f: 'λύσασαι',   n: 'λύσαντα'     } },
+    },
+  },
+  {
+    id: 'aor-mid-ptc',
+    label: 'Aorist Middle',
+    tense: 'aorist',
+    voice: 'middle',
+    declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λυσάμενος',  f: 'λυσαμένη',   n: 'λυσάμενον'  }, pl: { m: 'λυσάμενοι',  f: 'λυσάμεναι',  n: 'λυσάμενα'   } },
+      gen: { sg: { m: 'λυσαμένου',  f: 'λυσαμένης',  n: 'λυσαμένου'  }, pl: { m: 'λυσαμένων',  f: 'λυσαμένων',  n: 'λυσαμένων'  } },
+      dat: { sg: { m: 'λυσαμένῳ',   f: 'λυσαμένῃ',   n: 'λυσαμένῳ'   }, pl: { m: 'λυσαμένοις', f: 'λυσαμέναις', n: 'λυσαμένοις' } },
+      acc: { sg: { m: 'λυσάμενον',  f: 'λυσαμένην',  n: 'λυσάμενον'  }, pl: { m: 'λυσαμένους', f: 'λυσαμένας',  n: 'λυσάμενα'   } },
+      voc: { sg: { m: 'λυσάμενε',   f: 'λυσαμένη',   n: 'λυσάμενον'  }, pl: { m: 'λυσάμενοι',  f: 'λυσάμεναι',  n: 'λυσάμενα'   } },
+    },
+  },
+  {
+    id: 'aor-pass-ptc',
+    label: 'Aorist Passive',
+    tense: 'aorist',
+    voice: 'passive',
+    declensionNote: 'Masc./Neut.: 3rd declension (εντ-stem); Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λυθείς',    f: 'λυθεῖσα',   n: 'λυθέν'     }, pl: { m: 'λυθέντες',    f: 'λυθεῖσαι',   n: 'λυθέντα'     } },
+      gen: { sg: { m: 'λυθέντος',  f: 'λυθείσης',  n: 'λυθέντος'  }, pl: { m: 'λυθέντων',   f: 'λυθεισῶν',  n: 'λυθέντων'   } },
+      dat: { sg: { m: 'λυθέντι',   f: 'λυθείσῃ',   n: 'λυθέντι'   }, pl: { m: 'λυθεῖσι(ν)', f: 'λυθείσαις', n: 'λυθεῖσι(ν)' } },
+      acc: { sg: { m: 'λυθέντα',   f: 'λυθεῖσαν',  n: 'λυθέν'     }, pl: { m: 'λυθέντας',   f: 'λυθείσας',  n: 'λυθέντα'     } },
+      voc: { sg: { m: 'λυθείς',    f: 'λυθεῖσα',   n: 'λυθέν'     }, pl: { m: 'λυθέντες',   f: 'λυθεῖσαι',  n: 'λυθέντα'     } },
+    },
+  },
+  // ── Perfect ───────────────────────────────────────────────────────────────
+  {
+    id: 'perf-act-ptc',
+    label: 'Perfect Active',
+    tense: 'perfect',
+    voice: 'active',
+    declensionNote: 'Masc./Neut.: 3rd declension (οτ-stem); Fem.: 1st declension (υι-stem)',
+    forms: {
+      nom: { sg: { m: 'λελυκώς',    f: 'λελυκυῖα',   n: 'λελυκός'    }, pl: { m: 'λελυκότες',    f: 'λελυκυῖαι',   n: 'λελυκότα'    } },
+      gen: { sg: { m: 'λελυκότος',  f: 'λελυκυίας',  n: 'λελυκότος'  }, pl: { m: 'λελυκότων',   f: 'λελυκυιῶν',  n: 'λελυκότων'  } },
+      dat: { sg: { m: 'λελυκότι',   f: 'λελυκυίᾳ',   n: 'λελυκότι'   }, pl: { m: 'λελυκόσι(ν)', f: 'λελυκυίαις', n: 'λελυκόσι(ν)' } },
+      acc: { sg: { m: 'λελυκότα',   f: 'λελυκυῖαν',  n: 'λελυκός'    }, pl: { m: 'λελυκότας',   f: 'λελυκυίας',  n: 'λελυκότα'    } },
+      voc: { sg: { m: 'λελυκώς',    f: 'λελυκυῖα',   n: 'λελυκός'    }, pl: { m: 'λελυκότες',   f: 'λελυκυῖαι',  n: 'λελυκότα'    } },
+    },
+  },
+  {
+    id: 'perf-mid-pass-ptc',
+    label: 'Perfect Mid./Pass.',
+    tense: 'perfect',
+    voice: 'mid-pass',
+    declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
+    forms: {
+      nom: { sg: { m: 'λελυμένος',  f: 'λελυμένη',   n: 'λελυμένον'  }, pl: { m: 'λελυμένοι',  f: 'λελυμέναι',  n: 'λελυμένα'   } },
+      gen: { sg: { m: 'λελυμένου',  f: 'λελυμένης',  n: 'λελυμένου'  }, pl: { m: 'λελυμένων',  f: 'λελυμένων',  n: 'λελυμένων'  } },
+      dat: { sg: { m: 'λελυμένῳ',   f: 'λελυμένῃ',   n: 'λελυμένῳ'   }, pl: { m: 'λελυμένοις', f: 'λελυμέναις', n: 'λελυμένοις' } },
+      acc: { sg: { m: 'λελυμένον',  f: 'λελυμένην',  n: 'λελυμένον'  }, pl: { m: 'λελυμένους', f: 'λελυμένας',  n: 'λελυμένα'   } },
+      voc: { sg: { m: 'λελυμένε',   f: 'λελυμένη',   n: 'λελυμένον'  }, pl: { m: 'λελυμένοι',  f: 'λελυμέναι',  n: 'λελυμένα'   } },
+    },
+  },
 ];
 
 // ---------------------------------------------------------------------------

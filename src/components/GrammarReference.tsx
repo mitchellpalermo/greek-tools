@@ -1,7 +1,7 @@
 /**
  * GrammarReference — interactive grammar paradigm reference for Koine Greek.
  *
- * Sections: Nouns · Adjectives · Verbs · Pronouns · Prepositions · Accent Rules
+ * Sections: Nouns · Adjectives · Verbs · Contract Verbs · Liquid Verbs · Participles · Pronouns · Prepositions · Accent Rules
  *
  * Features:
  * - Sticky sidebar navigation (desktop) / horizontal scroll nav (mobile)
@@ -25,7 +25,7 @@ import {
   adjParadigms,
   verbParadigms,
   infinitiveForms,
-  participleRows,
+  participleParadigms,
   personalPronouns12,
   genderedPronouns,
   prepositions,
@@ -44,6 +44,8 @@ import {
   type PersonNum,
   type ContractType,
   type ContractVerbParadigm,
+  type ParticipleParadigm,
+  type ParticipleTense,
 } from '../data/grammar';
 import {
   SectionHeading,
@@ -53,6 +55,7 @@ import {
   AdjParadigmCard,
   GenderedPronounCard,
   VerbParadigmGrid,
+  ParticipleParadigmCard,
 } from './grammar';
 import type { Mood } from './grammar/VerbParadigmGrid';
 
@@ -61,18 +64,19 @@ import type { Mood } from './grammar/VerbParadigmGrid';
 // ---------------------------------------------------------------------------
 
 const NAV_SECTIONS = [
-  { id: 'nouns',          label: 'Nouns',          shortLabel: 'Nouns'  },
-  { id: 'adjectives',     label: 'Adjectives',     shortLabel: 'Adj'   },
-  { id: 'verbs',          label: 'Verbs',          shortLabel: 'Verbs' },
-  { id: 'contract-verbs', label: 'Contract Verbs', shortLabel: 'Contract' },
-  { id: 'liquid-verbs',   label: 'Liquid Verbs',   shortLabel: 'Liquid'   },
-  { id: 'pronouns',       label: 'Pronouns',       shortLabel: 'Pronouns'     },
+  { id: 'nouns',          label: 'Nouns',          shortLabel: 'Nouns'        },
+  { id: 'adjectives',     label: 'Adjectives',     shortLabel: 'Adj'         },
+  { id: 'verbs',          label: 'Verbs',          shortLabel: 'Verbs'       },
+  { id: 'contract-verbs', label: 'Contract Verbs', shortLabel: 'Contract'    },
+  { id: 'liquid-verbs',   label: 'Liquid Verbs',   shortLabel: 'Liquid'      },
+  { id: 'participles',    label: 'Participles',    shortLabel: 'Participles' },
+  { id: 'pronouns',       label: 'Pronouns',       shortLabel: 'Pronouns'    },
   { id: 'prepositions',   label: 'Prepositions',   shortLabel: 'Prepositions' },
-  { id: 'accents',        label: 'Accents',        shortLabel: 'Accents'      },
+  { id: 'accents',        label: 'Accents',        shortLabel: 'Accents'     },
 ] as const;
 
 const PARADIGM_NAV = NAV_SECTIONS.filter(s =>
-  ['nouns', 'adjectives', 'verbs', 'contract-verbs', 'liquid-verbs'].includes(s.id)
+  ['nouns', 'adjectives', 'verbs', 'contract-verbs', 'liquid-verbs', 'participles'].includes(s.id)
 );
 const REFERENCE_NAV = NAV_SECTIONS.filter(s =>
   ['pronouns', 'prepositions', 'accents'].includes(s.id)
@@ -259,58 +263,23 @@ function VerbSection() {
         </div>
       </div>
 
-      {/* Infinitives & Participles */}
-      <div className="mt-8 grid md:grid-cols-2 gap-6">
-        <div>
-          <ParadigmHeading>Infinitives</ParadigmHeading>
-          <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
-            <div className="px-4 py-2.5" style={{ background: 'var(--color-primary)' }}>
-              <span className="text-sm font-semibold text-white">Infinitives</span>
-            </div>
-            <table className="w-full text-sm" style={{ background: 'var(--color-bg-card)' }}>
-              <tbody>
-                {infinitiveForms.map(({ label, form }, i) => (
-                  <tr key={label} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
-                    <td className="px-4 py-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{label}</td>
-                    <td className="px-4 py-2 font-greek text-base" style={{ color: 'var(--color-greek)' }}>{form}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Infinitives */}
+      <div className="mt-8 max-w-sm">
+        <ParadigmHeading>Infinitives</ParadigmHeading>
+        <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
+          <div className="px-4 py-2.5" style={{ background: 'var(--color-primary)' }}>
+            <span className="text-sm font-semibold text-white">Infinitives</span>
           </div>
-        </div>
-
-        <div>
-          <ParadigmHeading>Participles (Nominative Singular)</ParadigmHeading>
-          <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
-            <div className="px-4 py-2.5" style={{ background: 'var(--color-primary)' }}>
-              <span className="text-sm font-semibold text-white">Participles</span>
-            </div>
-            <table className="w-full text-sm" style={{ background: 'var(--color-bg-card)' }}>
-              <thead>
-                <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
-                  <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }} />
-                  {(['m', 'f', 'n'] as GenderKey[]).map(g => (
-                    <th key={g} className="px-3 py-2 text-center text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
-                      {GENDER_LABELS[g]}
-                    </th>
-                  ))}
+          <table className="w-full text-sm" style={{ background: 'var(--color-bg-card)' }}>
+            <tbody>
+              {infinitiveForms.map(({ label, form }, i) => (
+                <tr key={label} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
+                  <td className="px-4 py-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{label}</td>
+                  <td className="px-4 py-2 font-greek text-base" style={{ color: 'var(--color-greek)' }}>{form}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {participleRows.map((row, i) => (
-                  <tr key={row.label} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
-                    <td className="px-3 py-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{row.label}</td>
-                    {(['m', 'f', 'n'] as GenderKey[]).map(g => (
-                      <td key={g} className="px-3 py-2 text-center font-greek text-sm" style={{ color: 'var(--color-greek)' }}>
-                        {row[g]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -821,6 +790,83 @@ function LiquidVerbsSection() {
 }
 
 // ---------------------------------------------------------------------------
+// Participles section
+// ---------------------------------------------------------------------------
+
+const TENSE_LABELS: Record<ParticipleTense, string> = {
+  present: 'Present',
+  future: 'Future',
+  aorist: 'Aorist',
+  perfect: 'Perfect',
+};
+
+const TENSE_ORDER: ParticipleTense[] = ['present', 'future', 'aorist', 'perfect'];
+
+function ParticipleSection() {
+  const byTense = TENSE_ORDER.reduce(
+    (acc, t) => ({ ...acc, [t]: participleParadigms.filter(p => p.tense === t) }),
+    {} as Record<ParticipleTense, ParticipleParadigm[]>
+  );
+
+  const [activeTense, setActiveTense] = useState<ParticipleTense>('present');
+  const [activeId, setActiveId] = useState<string>(participleParadigms[0].id);
+
+  const activeParadigm = participleParadigms.find(p => p.id === activeId) ?? participleParadigms[0];
+
+  return (
+    <section id="participles" className="mb-16">
+      <SectionHeading id="participles">Participles — λύω</SectionHeading>
+      <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
+        Participles are verbal adjectives: they carry tense and voice from the verb but decline for case, number,
+        and gender like adjectives. Present and Perfect use combined Middle/Passive forms; Aorist and Future
+        distinguish Middle from Passive.
+      </p>
+
+      {/* Tense tabs */}
+      <div className="flex flex-wrap gap-2 mb-3">
+        {TENSE_ORDER.map(tense => (
+          <button
+            key={tense}
+            onClick={() => {
+              setActiveTense(tense);
+              setActiveId(byTense[tense][0].id);
+            }}
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+            style={
+              activeTense === tense
+                ? { background: 'var(--color-primary)', color: '#fff' }
+                : { background: 'rgba(30,58,95,0.08)', color: 'var(--color-primary)' }
+            }
+          >
+            {TENSE_LABELS[tense]}
+          </button>
+        ))}
+      </div>
+
+      {/* Voice buttons for active tense */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {byTense[activeTense].map(p => (
+          <button
+            key={p.id}
+            onClick={() => setActiveId(p.id)}
+            className="px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+            style={
+              activeId === p.id
+                ? { background: 'var(--color-accent)', color: '#fff' }
+                : { background: 'rgba(30,58,95,0.05)', color: 'var(--color-text-muted)', border: '1px solid #e5e7eb' }
+            }
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <ParticipleParadigmCard paradigm={activeParadigm} />
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -918,6 +964,9 @@ export default function GrammarReference() {
 
         {/* Liquid Verbs */}
         <LiquidVerbsSection />
+
+        {/* Participles */}
+        <ParticipleSection />
 
         {/* Pronouns */}
         <section id="pronouns" className="mb-16">

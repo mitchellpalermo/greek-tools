@@ -12,6 +12,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import posthog from 'posthog-js';
 import {
   CASES,
   PERSONS,
@@ -875,6 +876,7 @@ export default function GrammarReference() {
 
   const handleNavClick = (id: string) => {
     setActiveSection(id);
+    posthog.capture('grammar_section_viewed', { section: id });
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };

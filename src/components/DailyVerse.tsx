@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import posthog from 'posthog-js';
 import { type MorphWord, type MorphVerse, fetchBook } from '../data/morphgnt';
 import {
   getTodayVerse,
@@ -42,6 +43,7 @@ export default function DailyVerse() {
         if (cancelled) return;
         const words = data[String(ref.chapter)]?.[String(ref.verse)] ?? [];
         setVerse(words);
+        posthog.capture('daily_verse_viewed', { verse_reference: ref.displayRef });
       } catch (err) {
         if (!cancelled) setError((err as Error).message);
       } finally {

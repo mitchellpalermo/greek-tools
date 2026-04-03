@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import posthog from 'posthog-js';
 import { vocabulary, type VocabWord } from '../data/vocabulary';
 import {
   type SRSCard,
@@ -136,13 +137,15 @@ export default function Flashcards() {
   // ─── Session management ─────────────────────────────────────────────────────
 
   const startSession = useCallback(() => {
-    setQueue(buildQueue(filteredVocab, studyMode, srsStoreRef.current));
+    const queue = buildQueue(filteredVocab, studyMode, srsStoreRef.current);
+    setQueue(queue);
     setIndex(0);
     setFlipped(false);
     setTypedAnswer('');
     setAnswerResult(null);
     setSessionScore({ known: 0, learning: 0 });
     setSessionDone(false);
+    posthog.capture('flashcard_session_started', { deck_size: queue.length });
   }, [filteredVocab, studyMode]);
 
   // Mount: start initial session
@@ -176,6 +179,8 @@ export default function Flashcards() {
     (correct: boolean) => {
       if (!card) return;
 
+      const intervalDays = srsStore[normalizeKey(card.greek)]?.interval ?? 0;
+
       if (studyMode === 'srs') {
         setSrsStore(prev => {
           const k = normalizeKey(card.greek);
@@ -186,6 +191,11 @@ export default function Flashcards() {
           return next;
         });
       }
+
+      posthog.capture('flashcard_reviewed', {
+        result: correct ? 'correct' : 'incorrect',
+        interval_days: intervalDays,
+      });
 
       setStats(prev => {
         const next = recordReview(prev, correct);
@@ -207,7 +217,7 @@ export default function Flashcards() {
         setSessionDone(true);
       }
     },
-    [card, studyMode, index, queue.length],
+    [card, studyMode, srsStore, index, queue.length],
   );
 
   const handleFlip = useCallback(() => setFlipped(f => !f), []);

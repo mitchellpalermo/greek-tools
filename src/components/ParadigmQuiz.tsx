@@ -12,6 +12,7 @@
  */
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import posthog from 'posthog-js';
 import {
   buildTableModels,
   applyDensity,
@@ -666,6 +667,7 @@ export default function ParadigmQuiz() {
     setInputs({});
     setResults({});
     setPhase({ name: 'quiz', table, cells, density });
+    posthog.capture('paradigm_quiz_started', { quiz_type: table.label });
   }, []);
 
   const handleInputChange = useCallback((cellIndex: number, raw: string) => {
@@ -681,6 +683,13 @@ export default function ParadigmQuiz() {
       const userInput = inputs[cell.index] ?? '';
       newResults[cell.index] = checkAnswer(userInput, cell.answer);
     }
+    const vals = Object.values(newResults);
+    const correct = vals.filter(r => r === 'correct').length;
+    posthog.capture('paradigm_quiz_answered', {
+      paradigm: table.label,
+      correct,
+      total: vals.length,
+    });
     setResults(newResults);
     setPhase({ name: 'results', table, cells, density, inputs });
   }, [phase, inputs]);

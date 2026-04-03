@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import posthog from 'posthog-js';
 import {
   type MorphWord, type MorphBook, type BookMeta,
   fetchBook, fetchBooks,
@@ -111,11 +112,12 @@ export default function GNTReader() {
     return () => { cancelled = true; };
   }, [book]);
 
-  // Update URL and save history whenever passage changes
+  // Update URL and save history whenever passage changes; also track analytics
   useEffect(() => {
     if (typeof window === 'undefined') return;
     setUrlRef(book, chapter);
     saveLastPassage(`${book}.${chapter}`);
+    posthog.capture('gnt_reader_passage_opened', { book, chapter });
   }, [book, chapter]);
 
   // Scroll to verse anchor on initial load if ref includes verse

@@ -50,6 +50,7 @@ function isActive(href: string) {
       if (import.meta.env.PROD && key) {
         posthog.init(key, {
           api_host: host,
+          ui_host: 'https://us.posthog.com',
           session_recording: { sample_rate: 0.2 },
           capture_pageview: true,
           capture_pageleave: false,

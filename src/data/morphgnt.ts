@@ -45,6 +45,7 @@ const POS_LABEL: Record<string, string> = {
   'V-': 'Verb',
   'P-': 'Preposition',
   'D-': 'Adverb',
+  'C-': 'Conjunction',
   'CC': 'Conjunction',
   'CS': 'Conjunction',
   'I-': 'Interjection',

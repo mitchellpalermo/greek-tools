@@ -114,25 +114,20 @@ function isActive(href: string) {
     <!-- ── Footer (desktop only — bottom tab bar serves as nav on mobile) ── -->
     <footer class="hidden md:block bg-primary text-white/60 text-sm text-center py-5">
       <p>
-        greek.tools — free utilities for Koine Greek students
-        <span class="mx-2 opacity-40">·</span>
-        <!-- Easter egg: ὁπλον means "tool" in ancient Greek -->
-        <span class="group relative inline-block cursor-help">
-          <span
-            class="opacity-30 group-hover:opacity-100 transition-all duration-300 group-hover:text-accent-light"
-            style="font-family: var(--font-greek);"
-          >
-            ὁπλον
-          </span>
-          <span class="
-            pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-            bg-text text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap
-            opacity-0 group-hover:opacity-100 transition-opacity duration-200
-            shadow-lg
-          ">
-            ancient Greek for <em>"tool"</em>
+        <!-- "greek.tools" morphs into Greek translations on hover -->
+        <span class="group inline-block cursor-default select-none">
+          <span class="relative inline-block overflow-hidden align-bottom" style="height: 1.25em;">
+            <span class="absolute inset-0 flex items-center justify-center transition-all duration-300 group-hover:opacity-0 group-hover:-translate-y-full">greek</span>
+            <span class="absolute inset-0 flex items-center justify-center transition-all duration-300 opacity-0 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 text-accent-light" style="font-family: var(--font-greek);">ἑλληνικά</span>
+            <span class="invisible">ἑλληνικά</span>
+          </span><span class="relative inline-block overflow-hidden align-bottom ml-1" style="height: 1.25em;">
+            <span class="absolute inset-0 flex items-center justify-center transition-all duration-300 group-hover:opacity-0 group-hover:-translate-y-full">tools</span>
+            <span class="absolute inset-0 flex items-center justify-center transition-all duration-300 opacity-0 translate-y-full group-hover:opacity-100 group-hover:translate-y-0 text-accent-light" style="font-family: var(--font-greek);">ὅπλα</span>
+            <span class="invisible">tools</span>
           </span>
         </span>
+        <span class="mx-2 opacity-40">—</span>
+        free utilities for Koine Greek students
       </p>
       <p class="mt-2 text-white/40">
         Find something wrong? Something not working? Send me a note:

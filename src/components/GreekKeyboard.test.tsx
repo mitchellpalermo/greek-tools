@@ -12,6 +12,19 @@ function typeKey(textarea: HTMLTextAreaElement, key: string): void {
   fireEvent.keyDown(textarea, { key });
 }
 
+async function typeViaBeforeInput(textarea: HTMLTextAreaElement, data: string): Promise<void> {
+  // JSDOM's InputEvent constructor doesn't reliably initialize data/inputType
+  // from the init dict, so we create a plain Event and manually define them.
+  // We use act() because the handler is a native DOM listener (not a React
+  // synthetic event handler), so React state updates need explicit flushing.
+  const event = new Event('beforeinput', { bubbles: true, cancelable: true });
+  Object.defineProperty(event, 'inputType', { value: 'insertText' });
+  Object.defineProperty(event, 'data', { value: data });
+  await act(async () => {
+    fireEvent(textarea, event);
+  });
+}
+
 // ─── rendering ─────────────────────────────────────────────────────────────
 
 describe('GreekKeyboard', () => {
@@ -182,6 +195,65 @@ describe('GreekKeyboard', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /clear/i }));
       expect(textarea.value).toBe('');
+    });
+  });
+
+  // ─── Android soft keyboard (onBeforeInput) ───────────────────────────────
+
+  describe('Android soft keyboard (onBeforeInput)', () => {
+    it('produces Greek character from beforeinput insertText event', async () => {
+      render(<GreekKeyboard />);
+      await typeViaBeforeInput(getTextarea(), 'a');
+      expect(getTextarea().value).toContain('α');
+    });
+
+    it('produces diacritic character from beforeinput insertText event', async () => {
+      render(<GreekKeyboard />);
+      await typeViaBeforeInput(getTextarea(), '/');
+      expect(getTextarea().value).toContain('\u0301');
+    });
+
+    it('ignores beforeinput events that are not insertText', async () => {
+      render(<GreekKeyboard />);
+      const event = new Event('beforeinput', { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'inputType', { value: 'deleteContentBackward' });
+      Object.defineProperty(event, 'data', { value: null });
+      await act(async () => { fireEvent(getTextarea(), event); });
+      expect(getTextarea().value).toBe('');
+    });
+
+    it('ignores beforeinput insertText with null data', async () => {
+      render(<GreekKeyboard />);
+      const event = new Event('beforeinput', { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'inputType', { value: 'insertText' });
+      Object.defineProperty(event, 'data', { value: null });
+      await act(async () => { fireEvent(getTextarea(), event); });
+      expect(getTextarea().value).toBe('');
+    });
+
+    it('does not double-insert when keydown and beforeinput both fire (iOS Safari guard)', async () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // Simulate iOS Safari: keydown fires first (handled by onKeyDown), then
+      // beforeinput fires anyway. The guard ref should suppress the second insert.
+      fireEvent.keyDown(textarea, { key: 'a' });
+      await typeViaBeforeInput(textarea, 'a');
+      // Should be 'α' once, not 'αα'
+      expect(textarea.value).toBe('α');
+    });
+
+    it('accumulates multiple characters typed via beforeinput', async () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      await typeViaBeforeInput(textarea, 'l');
+      await typeViaBeforeInput(textarea, 'o');
+      await typeViaBeforeInput(textarea, 'g');
+      await typeViaBeforeInput(textarea, 'o');
+      await typeViaBeforeInput(textarea, 's');
+      // λόγος without accents; final sigma applied by display
+      expect(getTextarea().value).toContain('λ');
+      expect(getTextarea().value).toContain('ο');
+      expect(getTextarea().value).toContain('γ');
     });
   });
 

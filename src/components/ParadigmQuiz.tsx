@@ -11,7 +11,7 @@
  *     when true, accent errors are marked wrong (yellow).
  */
 
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import posthog from 'posthog-js';
 import {
   buildTableModels,
@@ -25,7 +25,7 @@ import {
   type Category,
   type CellResult,
 } from '../lib/paradigm-quiz';
-import { applyFinalSigma, checkAnswer, processGreekKey } from '../lib/greek-input';
+import { applyFinalSigma, checkAnswer, processGreekKey, processGreekInput } from '../lib/greek-input';
 import { loadQuizSettings, saveQuizSettings } from '../lib/quiz-settings';
 import { verbParadigms } from '../data/grammar';
 import VerbParadigmGrid from './grammar/VerbParadigmGrid';
@@ -183,20 +183,56 @@ interface CellInputProps {
 function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInputProps) {
   const displayValue = applyFinalSigma(value);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Flag set by onKeyDown when it handles a key. Prevents the beforeinput
+  // listener from double-inserting on platforms (e.g. iOS Safari) that fire
+  // both events for the same keystroke even after keydown.preventDefault().
+  const keyHandledRef = useRef(false);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      keyHandledRef.current = false;
       // append is non-null whenever a Greek key is pressed (processGreekKey contract).
       const { append } = processGreekKey(e.key, e.ctrlKey || e.metaKey);
       if (append !== null) {
         e.preventDefault();
         onChange(cellIndex, value + append);
+        keyHandledRef.current = true;
       }
     },
     [cellIndex, value, onChange],
   );
 
+  // Android soft keyboards fire keydown with key="Unidentified", so onKeyDown
+  // is a no-op. The native beforeinput event carries the actual character in
+  // InputEvent.data on all platforms. We use a native listener (not React's
+  // onBeforeInput prop, which is a synthetic composite event from keypress/
+  // textInput, not the native beforeinput) so it fires correctly on Android.
+  // The keyHandledRef guard ensures onKeyDown and this handler are mutually
+  // exclusive — safe even if a browser fires both after keydown.preventDefault().
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    const handler = (e: Event) => {
+      if (keyHandledRef.current) {
+        keyHandledRef.current = false;
+        return;
+      }
+      const ie = e as unknown as InputEvent;
+      if (ie.inputType !== 'insertText' || !ie.data) return;
+      const { preventDefault, append } = processGreekInput(ie.data);
+      if (preventDefault) {
+        e.preventDefault();
+        onChange(cellIndex, value + append!);
+      }
+    };
+    el.addEventListener('beforeinput', handler);
+    return () => el.removeEventListener('beforeinput', handler);
+  }, [cellIndex, value, onChange]);
+
   return (
     <input
+      ref={inputRef}
       type="text"
       value={displayValue}
       onKeyDown={handleKeyDown}

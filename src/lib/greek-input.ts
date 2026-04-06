@@ -151,3 +151,19 @@ export function processGreekKey(
 
   return { preventDefault: false, append: null };
 }
+
+/**
+ * Process an `InputEvent.data` value from a `beforeinput` event.
+ *
+ * Android soft keyboards fire `keydown` with `event.key === "Unidentified"`,
+ * making `processGreekKey` a no-op. The `beforeinput` event's `data` property
+ * contains the actual character on all platforms, including Android.
+ *
+ * @param data  The `InputEvent.data` string (a single character).
+ * @returns The same shape as `processGreekKey`.
+ */
+export function processGreekInput(
+  data: string,
+): { preventDefault: boolean; append: string | null } {
+  return processGreekKey(data, false);
+}

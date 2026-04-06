@@ -1,17 +1,50 @@
-import { useState, useRef, useCallback } from 'react';
-import { GREEK_MAP, DIACRITIC_MAP, applyFinalSigma, processGreekKey } from '../lib/greek-input';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { GREEK_MAP, DIACRITIC_MAP, applyFinalSigma, processGreekKey, processGreekInput } from '../lib/greek-input';
 
 export default function GreekKeyboard() {
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Flag set by onKeyDown when it handles a key. Prevents the beforeinput
+  // listener from double-inserting on platforms (e.g. iOS Safari) that fire
+  // both events for the same keystroke even after keydown.preventDefault().
+  const keyHandledRef = useRef(false);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    keyHandledRef.current = false;
     const { preventDefault, append } = processGreekKey(e.key, e.ctrlKey || e.metaKey);
     if (preventDefault) {
       e.preventDefault();
       if (append) setText(prev => prev + append);
+      keyHandledRef.current = true;
     }
+  }, []);
+
+  // Android soft keyboards fire keydown with key="Unidentified", so onKeyDown
+  // is a no-op. The native beforeinput event carries the actual character in
+  // InputEvent.data on all platforms. We use a native listener (not React's
+  // onBeforeInput prop, which is a synthetic composite event from keypress/
+  // textInput, not the native beforeinput) so it fires correctly on Android.
+  // The keyHandledRef guard ensures onKeyDown and this handler are mutually
+  // exclusive — safe even if a browser fires both after keydown.preventDefault().
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const handler = (e: Event) => {
+      if (keyHandledRef.current) {
+        keyHandledRef.current = false;
+        return;
+      }
+      const ie = e as unknown as InputEvent;
+      if (ie.inputType !== 'insertText' || !ie.data) return;
+      const { preventDefault, append } = processGreekInput(ie.data);
+      if (preventDefault) {
+        e.preventDefault();
+        if (append) setText(prev => prev + append);
+      }
+    };
+    el.addEventListener('beforeinput', handler);
+    return () => el.removeEventListener('beforeinput', handler);
   }, []);
 
   const displayText = applyFinalSigma(text);

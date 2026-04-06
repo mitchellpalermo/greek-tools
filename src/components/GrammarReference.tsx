@@ -858,50 +858,28 @@ function MiVerbGrid({
         ))}
       </div>
 
-      {/* Tense × Active grid — mirrors VerbParadigmGrid table style */}
-      <table className="text-sm border-separate" style={{ borderSpacing: '4px' }}>
-        <thead>
-          <tr>
-            <th className="px-2 py-1" />
-            <th
-              className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-text-muted)' }}
+      {/* Tense selector — full-width pill matching the mood tab strip above */}
+      <div className="flex gap-1 p-1 rounded-lg" style={{ background: 'rgba(30,58,95,0.07)' }}>
+        {tenses.map(({ key: tense, label }) => {
+          const cellId = `${verbId}-${tense}-${MI_MOOD_SUFFIX[activeMood]}`;
+          const isSelected = activeId === cellId;
+          return (
+            <button
+              key={tense}
+              onClick={() => onSelect(cellId)}
+              className="flex-1 px-4 py-1.5 rounded-md text-sm font-medium text-center transition-colors"
+              style={
+                isSelected
+                  ? { background: 'var(--color-primary)', color: '#fff' }
+                  : { background: 'transparent', color: 'var(--color-text-muted)' }
+              }
+              title={`${label} Active ${MI_MOOD_LABELS[activeMood]}`}
             >
-              Act
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {tenses.map(({ key: tense, label }) => {
-            const cellId = `${verbId}-${tense}-${MI_MOOD_SUFFIX[activeMood]}`;
-            const isSelected = activeId === cellId;
-            return (
-              <tr key={tense}>
-                <td
-                  className="px-2 py-1 text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
-                  style={{ color: 'var(--color-text-muted)' }}
-                >
-                  {label}
-                </td>
-                <td className="text-center">
-                  <button
-                    onClick={() => onSelect(cellId)}
-                    className="w-full rounded-lg px-2 py-1.5 text-xs font-medium transition-colors cursor-pointer"
-                    style={
-                      isSelected
-                        ? { background: 'var(--color-primary)', color: '#fff' }
-                        : { background: 'rgba(30,58,95,0.07)', color: 'var(--color-text)' }
-                    }
-                    title={`${label} Active ${MI_MOOD_LABELS[activeMood]}`}
-                  >
-                    ●
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+              {label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

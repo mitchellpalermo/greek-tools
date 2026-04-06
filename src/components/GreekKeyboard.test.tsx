@@ -184,6 +184,71 @@ describe('GreekKeyboard', () => {
     });
   });
 
+  // ─── Android / beforeinput path ──────────────────────────────────────────
+  //
+  // On Android, onKeyDown fires with key='Unidentified'. The onBeforeInput
+  // handler reads InputEvent.data instead to perform the Greek mapping.
+  // We simulate this by firing a beforeinput event directly (no keydown).
+
+  describe('Android soft keyboard (beforeinput path)', () => {
+    function fireBeforeInput(element: HTMLElement, data: string): void {
+      fireEvent(
+        element,
+        new InputEvent('beforeinput', {
+          inputType: 'insertText',
+          data,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    }
+
+    it('maps a Latin character to Greek via beforeinput', () => {
+      render(<GreekKeyboard />);
+      fireBeforeInput(getTextarea(), 'l');
+      expect(getTextarea().value).toContain('λ');
+    });
+
+    it('maps a diacritic key via beforeinput', () => {
+      render(<GreekKeyboard />);
+      fireBeforeInput(getTextarea(), '/');
+      expect(getTextarea().value).toContain('\u0301'); // acute
+    });
+
+    it('maps : to ano teleia via beforeinput', () => {
+      render(<GreekKeyboard />);
+      fireBeforeInput(getTextarea(), ':');
+      expect(getTextarea().value).toContain('·');
+    });
+
+    it('maps ? to Greek question mark via beforeinput', () => {
+      render(<GreekKeyboard />);
+      fireBeforeInput(getTextarea(), '?');
+      expect(getTextarea().value).toContain(';');
+    });
+
+    it('passes through unmapped characters via beforeinput', () => {
+      render(<GreekKeyboard />);
+      // Space is not in GREEK_MAP; beforeinput should not prevent default
+      // and the onChange handler (fired by the subsequent input event) handles it.
+      // Verify the handler does not append anything for space.
+      const textarea = getTextarea();
+      const before = textarea.value;
+      fireBeforeInput(textarea, ' ');
+      // Unmapped → no append; value unchanged until browser inserts it
+      expect(textarea.value).toBe(before);
+    });
+
+    it('produces the correct sequence for a full word (logos)', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      for (const ch of 'logos') fireBeforeInput(textarea, ch);
+      expect(textarea.value).toContain('λ');
+      expect(textarea.value).toContain('ο');
+      expect(textarea.value).toContain('γ');
+    });
+  });
+
   // ─── clear button ─────────────────────────────────────────────────────────
 
   describe('Clear button', () => {

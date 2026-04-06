@@ -846,7 +846,7 @@ function MiVerbGrid({
           <button
             key={mood}
             onClick={() => onMoodChange(mood)}
-            className="flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-1.5 rounded-md text-sm font-medium text-center transition-colors"
             style={
               activeMood === mood
                 ? { background: 'var(--color-primary)', color: '#fff' }

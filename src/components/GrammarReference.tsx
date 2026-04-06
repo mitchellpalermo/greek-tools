@@ -37,6 +37,8 @@ import {
   commonContractVerbs,
   liquidFutureComparison,
   liquidPrincipalParts,
+  miVerbEntries,
+  miVerbParadigms,
   type NounParadigm,
   type PersonalPronoun12,
   type CaseKey,
@@ -47,6 +49,9 @@ import {
   type ContractVerbParadigm,
   type ParticipleParadigm,
   type ParticipleTense,
+  type MiVerbEntry,
+  type MiVerbId,
+  type MiVerbParadigm,
 } from '../data/grammar';
 import {
   SectionHeading,
@@ -70,6 +75,7 @@ const NAV_SECTIONS = [
   { id: 'verbs',          label: 'Verbs',          shortLabel: 'Verbs'       },
   { id: 'contract-verbs', label: 'Contract Verbs', shortLabel: 'Contract'    },
   { id: 'liquid-verbs',   label: 'Liquid Verbs',   shortLabel: 'Liquid'      },
+  { id: 'mi-verbs',       label: 'μι-Verbs',       shortLabel: 'μι-Verbs'    },
   { id: 'participles',    label: 'Participles',    shortLabel: 'Participles' },
   { id: 'pronouns',       label: 'Pronouns',       shortLabel: 'Pronouns'    },
   { id: 'prepositions',   label: 'Prepositions',   shortLabel: 'Prepositions' },
@@ -77,7 +83,7 @@ const NAV_SECTIONS = [
 ] as const;
 
 const PARADIGM_NAV = NAV_SECTIONS.filter(s =>
-  ['nouns', 'adjectives', 'verbs', 'contract-verbs', 'liquid-verbs', 'participles'].includes(s.id)
+  ['nouns', 'adjectives', 'verbs', 'contract-verbs', 'liquid-verbs', 'mi-verbs', 'participles'].includes(s.id)
 );
 const REFERENCE_NAV = NAV_SECTIONS.filter(s =>
   ['pronouns', 'prepositions', 'accents'].includes(s.id)
@@ -791,6 +797,327 @@ function LiquidVerbsSection() {
 }
 
 // ---------------------------------------------------------------------------
+// μι-Verbs section
+// ---------------------------------------------------------------------------
+
+type MiVerbMood = 'indicative' | 'subjunctive' | 'imperative';
+
+const MI_MOODS: MiVerbMood[] = ['indicative', 'subjunctive', 'imperative'];
+
+const MI_MOOD_LABELS: Record<MiVerbMood, string> = {
+  indicative: 'Indicative',
+  subjunctive: 'Subjunctive',
+  imperative: 'Imperative',
+};
+
+/** Tense abbreviations available per mood for μι-verbs (active only). */
+const MI_TENSES_FOR_MOOD: Record<MiVerbMood, Array<{ key: string; label: string }>> = {
+  indicative:  [{ key: 'pres', label: 'Pres' }, { key: 'impf', label: 'Impf' }, { key: 'aor', label: 'Aor' }],
+  subjunctive: [{ key: 'pres', label: 'Pres' }, { key: 'aor', label: 'Aor' }],
+  imperative:  [{ key: 'pres', label: 'Pres' }, { key: 'aor', label: 'Aor' }],
+};
+
+const MI_MOOD_SUFFIX: Record<MiVerbMood, string> = {
+  indicative: 'ind',
+  subjunctive: 'subj',
+  imperative: 'imptv',
+};
+
+function MiVerbGrid({
+  verbId,
+  activeId,
+  activeMood,
+  onSelect,
+  onMoodChange,
+}: {
+  verbId: MiVerbId;
+  activeId: string;
+  activeMood: MiVerbMood;
+  onSelect: (id: string) => void;
+  onMoodChange: (mood: MiVerbMood) => void;
+}) {
+  const tenses = MI_TENSES_FOR_MOOD[activeMood];
+
+  return (
+    <div>
+      {/* Mood tabs — same pill-strip style as VerbParadigmGrid */}
+      <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(30,58,95,0.07)' }}>
+        {MI_MOODS.map(mood => (
+          <button
+            key={mood}
+            onClick={() => onMoodChange(mood)}
+            className="flex-1 px-4 py-1.5 rounded-md text-sm font-medium text-center transition-colors"
+            style={
+              activeMood === mood
+                ? { background: 'var(--color-primary)', color: '#fff' }
+                : { background: 'transparent', color: 'var(--color-text-muted)' }
+            }
+          >
+            {MI_MOOD_LABELS[mood]}
+          </button>
+        ))}
+      </div>
+
+      {/* Tense selector — full-width pill matching the mood tab strip above */}
+      <div className="flex gap-1 p-1 rounded-lg" style={{ background: 'rgba(30,58,95,0.07)' }}>
+        {tenses.map(({ key: tense, label }) => {
+          const cellId = `${verbId}-${tense}-${MI_MOOD_SUFFIX[activeMood]}`;
+          const isSelected = activeId === cellId;
+          return (
+            <button
+              key={tense}
+              onClick={() => onSelect(cellId)}
+              className="flex-1 px-4 py-1.5 rounded-md text-sm font-medium text-center transition-colors"
+              style={
+                isSelected
+                  ? { background: 'var(--color-primary)', color: '#fff' }
+                  : { background: 'transparent', color: 'var(--color-text-muted)' }
+              }
+              title={`${label} Active ${MI_MOOD_LABELS[activeMood]}`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MiVerbConjugationCard({
+  paradigm,
+}: {
+  paradigm: MiVerbParadigm;
+}) {
+  const [description, setDescription] = useState<string | null>(null);
+
+  return (
+    <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
+      <div
+        className="px-4 py-2.5 flex items-center justify-between"
+        style={{ background: 'var(--color-primary)' }}
+      >
+        <span className="text-sm font-semibold text-white">{paradigm.label}</span>
+      </div>
+      {description && (
+        <div
+          className="px-4 py-2 text-xs"
+          style={{ background: 'rgba(30,58,95,0.06)', color: 'var(--color-text-muted)' }}
+        >
+          {description}
+        </div>
+      )}
+      <div style={{ background: 'var(--color-bg-card)' }}>
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ background: 'rgba(30,58,95,0.04)' }}>
+              <th
+                className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)', width: '5.5rem' }}
+              >
+                Person
+              </th>
+              <th
+                className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                Form
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {PERSONS.map((pn, i) => {
+              const form = paradigm.forms[pn];
+              if (form === undefined) return null;
+              return (
+                <tr
+                  key={pn}
+                  className="cursor-pointer transition-colors hover:bg-blue-50"
+                  style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.02)' }}
+                  onClick={() => setDescription(PERSON_FULL_LABELS[pn])}
+                  title={PERSON_FULL_LABELS[pn]}
+                >
+                  <td
+                    className="px-4 py-2 text-xs font-medium"
+                    style={{ color: 'var(--color-text-muted)' }}
+                  >
+                    {PERSON_LABELS[pn]}
+                  </td>
+                  <td className="px-4 py-2 font-greek text-lg" style={{ color: 'var(--color-greek)' }}>
+                    {form}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function MiVerbCard({ entry }: { entry: MiVerbEntry }) {
+  const verbParadigms = miVerbParadigms.filter(p => p.verbId === entry.id);
+  const [activeMood, setActiveMood] = useState<MiVerbMood>('indicative');
+  const [activeId, setActiveId] = useState(verbParadigms[0]?.id ?? '');
+
+  const handleMoodChange = (mood: MiVerbMood) => {
+    setActiveMood(mood);
+    const first = verbParadigms.find(p => p.group === mood);
+    if (first) setActiveId(first.id);
+  };
+
+  const activeParadigm = verbParadigms.find(p => p.id === activeId) ?? verbParadigms[0];
+
+  return (
+    <div
+      className="rounded-xl p-5 shadow-sm"
+      style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}
+    >
+      {/* Verb header */}
+      <div className="flex flex-wrap items-baseline gap-3 mb-4">
+        <span className="font-greek text-2xl font-semibold" style={{ color: 'var(--color-greek)' }}>
+          {entry.lexical}
+        </span>
+        <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{entry.gloss}</span>
+        <span
+          className="text-xs px-2 py-0.5 rounded-full font-semibold"
+          style={{ background: 'rgba(30,58,95,0.08)', color: 'var(--color-primary)' }}
+        >
+          {entry.gntCount}× GNT
+        </span>
+      </div>
+
+      {/* Pattern notes */}
+      <ul className="mb-5 space-y-1">
+        {entry.patternNotes.map((note, i) => (
+          <li key={i} className="flex gap-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>
+            <span
+              className="shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white mt-0.5"
+              style={{ background: 'var(--color-accent)' }}
+            >
+              {i + 1}
+            </span>
+            <span>{note}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Paradigm selector + table */}
+      <div className="mb-5">
+        <ParadigmHeading>Conjugation</ParadigmHeading>
+        <div className="mb-3">
+          <MiVerbGrid verbId={entry.id} activeId={activeId} activeMood={activeMood} onSelect={setActiveId} onMoodChange={handleMoodChange} />
+        </div>
+        {activeParadigm && <MiVerbConjugationCard paradigm={activeParadigm} />}
+      </div>
+
+      {/* Infinitives */}
+      <div className="mb-5">
+        <ParadigmHeading>Infinitives</ParadigmHeading>
+        <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
+          <div className="overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
+                  {['Tense / Voice', 'Infinitive'].map(h => (
+                    <th
+                      key={h}
+                      className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--color-text-muted)' }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {entry.infinitives.map((inf, i) => (
+                  <tr key={inf.label} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
+                    <td className="px-4 py-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{inf.label}</td>
+                    <td className="px-4 py-2 font-greek text-lg" style={{ color: 'var(--color-greek)' }}>{inf.form}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Participle nom sg */}
+      <div>
+        <ParadigmHeading>Participle — Nom Sg</ParadigmHeading>
+        <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
+          <div className="overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
+                  {['Tense / Voice', 'Masc.', 'Fem.', 'Neut.'].map(h => (
+                    <th
+                      key={h}
+                      className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--color-text-muted)' }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {entry.participleNomSg.map((row, i) => (
+                  <tr key={row.label} style={{ background: i % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}>
+                    <td className="px-4 py-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{row.label}</td>
+                    <td className="px-4 py-2 font-greek text-lg" style={{ color: 'var(--color-greek)' }}>{row.m}</td>
+                    <td className="px-4 py-2 font-greek text-lg" style={{ color: 'var(--color-greek)' }}>{row.f}</td>
+                    <td className="px-4 py-2 font-greek text-lg" style={{ color: 'var(--color-greek)' }}>{row.n}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MiVerbsSection() {
+  const [activeVerbId, setActiveVerbId] = useState<MiVerbId>('didomi');
+  const activeEntry = miVerbEntries.find(e => e.id === activeVerbId) ?? miVerbEntries[0];
+
+  return (
+    <section id="mi-verbs" className="mb-16">
+      <SectionHeading id="mi-verbs">μι-Verb Paradigms</SectionHeading>
+      <p className="text-sm mb-6" style={{ color: 'var(--color-text-muted)' }}>
+        μι-verbs follow a different conjugation pattern from the standard ω-verbs: they use no thematic vowel,
+        reduplicate the initial consonant in the present, and show stem alternation between singular and plural.
+        These four verbs account for over 800 occurrences combined in the Greek New Testament (GNT).
+      </p>
+
+      {/* Verb tabs */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {miVerbEntries.map(e => (
+          <button
+            key={e.id}
+            onClick={() => setActiveVerbId(e.id)}
+            className="px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors font-greek"
+            style={
+              activeVerbId === e.id
+                ? { background: 'var(--color-primary)', color: '#fff' }
+                : { background: 'rgba(30,58,95,0.08)', color: 'var(--color-primary)' }
+            }
+          >
+            {e.lexical}
+          </button>
+        ))}
+      </div>
+
+      <MiVerbCard key={activeVerbId} entry={activeEntry} />
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Participles section
 // ---------------------------------------------------------------------------
 
@@ -966,6 +1293,9 @@ export default function GrammarReference() {
 
         {/* Liquid Verbs */}
         <LiquidVerbsSection />
+
+        {/* μι-Verbs */}
+        <MiVerbsSection />
 
         {/* Participles */}
         <ParticipleSection />

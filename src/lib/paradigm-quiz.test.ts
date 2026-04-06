@@ -10,6 +10,7 @@ import {
   buildTableModels,
   buildContractVerbTables,
   buildLiquidVerbTables,
+  buildMiVerbTables,
   getQuizCells,
   applyDensity,
   ALL_CATEGORIES,
@@ -535,5 +536,117 @@ describe('buildLiquidVerbTables', () => {
     const all = buildTableModels();
     const liquid = all.find(t => t.id === 'liquid-future-ballo');
     expect(liquid).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildMiVerbTables
+// ---------------------------------------------------------------------------
+
+describe('buildMiVerbTables', () => {
+  it('returns 36 tables (28 conjugation + 4 infinitive + 4 participle)', () => {
+    const tables = buildMiVerbTables();
+    expect(tables).toHaveLength(36);
+  });
+
+  it('all tables have category "verb"', () => {
+    const tables = buildMiVerbTables();
+    tables.forEach(t => expect(t.category).toBe('verb'));
+  });
+
+  it('all table ids are unique', () => {
+    const tables = buildMiVerbTables();
+    const ids = tables.map(t => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('all tables have ids prefixed with "mi-"', () => {
+    const tables = buildMiVerbTables();
+    tables.forEach(t => expect(t.id.startsWith('mi-')).toBe(true));
+  });
+
+  it('conjugation tables have 1 column ("Form")', () => {
+    const tables = buildMiVerbTables();
+    const conjugationTables = tables.filter(
+      t => !t.id.endsWith('-infinitives') && !t.id.endsWith('-participles')
+    );
+    conjugationTables.forEach(t => {
+      expect(t.cols).toEqual(['Form']);
+    });
+  });
+
+  it('conjugation tables for indicatives have 6 rows', () => {
+    const tables = buildMiVerbTables();
+    const indicatives = tables.filter(t =>
+      t.id.includes('-pres-ind') || t.id.includes('-impf-ind') || t.id.includes('-aor-ind')
+    );
+    indicatives.forEach(t => expect(t.rows).toHaveLength(6));
+  });
+
+  it('conjugation tables for imperatives have 4 rows (no 1sg/1pl)', () => {
+    const tables = buildMiVerbTables();
+    const imperatives = tables.filter(t =>
+      t.id.includes('-pres-imptv') || t.id.includes('-aor-imptv')
+    );
+    imperatives.forEach(t => expect(t.rows).toHaveLength(4));
+  });
+
+  it('infinitive tables have 2 rows and 1 column', () => {
+    const tables = buildMiVerbTables();
+    const infTables = tables.filter(t => t.id.endsWith('-infinitives'));
+    expect(infTables).toHaveLength(4);
+    infTables.forEach(t => {
+      expect(t.rows).toHaveLength(2);
+      expect(t.cols).toEqual(['Form']);
+    });
+  });
+
+  it('participle tables have 2 rows and 3 columns (Masc./Fem./Neut.)', () => {
+    const tables = buildMiVerbTables();
+    const ptcTables = tables.filter(t => t.id.endsWith('-participles'));
+    expect(ptcTables).toHaveLength(4);
+    ptcTables.forEach(t => {
+      expect(t.rows).toHaveLength(2);
+      expect(t.cols).toEqual(['Masc.', 'Fem.', 'Neut.']);
+    });
+  });
+
+  it('δίδωμι present indicative 1sg is δίδωμι', () => {
+    const tables = buildMiVerbTables();
+    const table = tables.find(t => t.id === 'mi-didomi-pres-ind')!;
+    expect(table).toBeDefined();
+    expect(table.rows[0].answers[0]).toBe('δίδωμι');
+  });
+
+  it('δίδωμι aorist indicative 1sg is ἔδωκα', () => {
+    const tables = buildMiVerbTables();
+    const table = tables.find(t => t.id === 'mi-didomi-aor-ind')!;
+    expect(table.rows[0].answers[0]).toBe('ἔδωκα');
+  });
+
+  it('ἀφίημι aorist imperative 2sg is ἄφες', () => {
+    const tables = buildMiVerbTables();
+    const table = tables.find(t => t.id === 'mi-aphiemi-aor-imptv')!;
+    // Rows are filtered to non-null forms; 2sg is first (1sg filtered out)
+    expect(table.rows[0].answers[0]).toBe('ἄφες');
+  });
+
+  it('τίθημι infinitive table includes θεῖναι', () => {
+    const tables = buildMiVerbTables();
+    const table = tables.find(t => t.id === 'mi-tithemi-infinitives')!;
+    const forms = table.rows.map(r => r.answers[0]);
+    expect(forms).toContain('θεῖναι');
+  });
+
+  it('ἵστημι participle table nom sg masc is ἱστάς (present)', () => {
+    const tables = buildMiVerbTables();
+    const table = tables.find(t => t.id === 'mi-histemi-participles')!;
+    expect(table.rows[0].answers[0]).toBe('ἱστάς');
+  });
+
+  it('μι-verb tables are excluded from buildTableModels', () => {
+    const all = buildTableModels();
+    const miTables = all.filter(t => t.id.startsWith('mi-'));
+    expect(miTables).toHaveLength(0);
   });
 });

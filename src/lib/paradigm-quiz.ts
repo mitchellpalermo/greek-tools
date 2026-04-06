@@ -25,6 +25,8 @@ import {
   articleForms,
   contractVerbParadigms,
   liquidFutureComparison,
+  miVerbEntries,
+  miVerbParadigms,
 } from '../data/grammar';
 
 // ---------------------------------------------------------------------------
@@ -224,6 +226,52 @@ export function buildContractVerbTables(): TableModel[] {
       answers: [p.forms[pn] ?? null],
     })),
   }));
+}
+
+/**
+ * μι-verb tables: one conjugation table per paradigm (all four verbs × all tense-mood combos),
+ * plus one infinitive table and one participle nom-sg table per verb.
+ * Excluded from buildTableModels() — opt-in via this export.
+ */
+export function buildMiVerbTables(): TableModel[] {
+  const conjugationTables: TableModel[] = miVerbParadigms.map(p => {
+    const entry = miVerbEntries.find(e => e.id === p.verbId)!;
+    return {
+      id: `mi-${p.id}`,
+      label: `${entry.lexical} — ${p.label}`,
+      category: 'verb' as const,
+      cols: ['Form'],
+      rows: PERSONS.map(pn => ({
+        label: PERSON_LABELS[pn],
+        answers: [p.forms[pn] ?? null],
+      })).filter(row => row.answers[0] !== null),
+    };
+  });
+
+  const infinitiveTables: TableModel[] = miVerbEntries.map(entry => ({
+    id: `mi-${entry.id}-infinitives`,
+    label: `${entry.lexical} — Infinitives`,
+    category: 'verb' as const,
+    cols: ['Form'],
+    rows: entry.infinitives.map(inf => ({
+      label: inf.label,
+      answers: [inf.form],
+    })),
+  }));
+
+  const participleTables: TableModel[] = miVerbEntries.map(entry => ({
+    id: `mi-${entry.id}-participles`,
+    label: `${entry.lexical} — Participle Nom Sg`,
+    category: 'verb' as const,
+    colGroups: undefined,
+    cols: ['Masc.', 'Fem.', 'Neut.'],
+    rows: entry.participleNomSg.map(row => ({
+      label: row.label,
+      answers: [row.m, row.f, row.n],
+    })),
+  }));
+
+  return [...conjugationTables, ...infinitiveTables, ...participleTables];
 }
 
 /**

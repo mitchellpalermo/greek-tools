@@ -800,83 +800,106 @@ function LiquidVerbsSection() {
 // μι-Verbs section
 // ---------------------------------------------------------------------------
 
-type MiTense = 'pres' | 'impf' | 'aor';
-type MiMood = 'ind' | 'subj' | 'imptv';
+type MiVerbMood = 'indicative' | 'subjunctive' | 'imperative';
 
-const MI_TENSE_LABELS: Record<MiTense, string> = { pres: 'Pres', impf: 'Impf', aor: 'Aor' };
-const MI_MOOD_LABELS: Record<MiMood, string> = { ind: 'Ind', subj: 'Subj', imptv: 'Imptv' };
-const MI_TENSES: MiTense[] = ['pres', 'impf', 'aor'];
-const MI_MOODS: MiMood[] = ['ind', 'subj', 'imptv'];
+const MI_MOODS: MiVerbMood[] = ['indicative', 'subjunctive', 'imperative'];
 
-/** Which tense × mood cells are available (imperfect has no subj/imptv). */
-const MI_GRID_AVAILABLE: Record<MiTense, Partial<Record<MiMood, boolean>>> = {
-  pres: { ind: true, subj: true, imptv: true },
-  impf: { ind: true,             },
-  aor:  { ind: true, subj: true, imptv: true },
+const MI_MOOD_LABELS: Record<MiVerbMood, string> = {
+  indicative: 'Indicative',
+  subjunctive: 'Subjunctive',
+  imperative: 'Imperative',
+};
+
+/** Tense abbreviations available per mood for μι-verbs (active only). */
+const MI_TENSES_FOR_MOOD: Record<MiVerbMood, Array<{ key: string; label: string }>> = {
+  indicative:  [{ key: 'pres', label: 'Pres' }, { key: 'impf', label: 'Impf' }, { key: 'aor', label: 'Aor' }],
+  subjunctive: [{ key: 'pres', label: 'Pres' }, { key: 'aor', label: 'Aor' }],
+  imperative:  [{ key: 'pres', label: 'Pres' }, { key: 'aor', label: 'Aor' }],
+};
+
+const MI_MOOD_SUFFIX: Record<MiVerbMood, string> = {
+  indicative: 'ind',
+  subjunctive: 'subj',
+  imperative: 'imptv',
 };
 
 function MiVerbGrid({
   verbId,
   activeId,
+  activeMood,
   onSelect,
+  onMoodChange,
 }: {
   verbId: MiVerbId;
   activeId: string;
+  activeMood: MiVerbMood;
   onSelect: (id: string) => void;
+  onMoodChange: (mood: MiVerbMood) => void;
 }) {
+  const tenses = MI_TENSES_FOR_MOOD[activeMood];
+
   return (
-    <div className="overflow-x-auto">
-      <table className="text-xs">
+    <div>
+      {/* Mood tabs — same pill-strip style as VerbParadigmGrid */}
+      <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(30,58,95,0.07)' }}>
+        {MI_MOODS.map(mood => (
+          <button
+            key={mood}
+            onClick={() => onMoodChange(mood)}
+            className="flex-1 sm:flex-none px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
+            style={
+              activeMood === mood
+                ? { background: 'var(--color-primary)', color: '#fff' }
+                : { background: 'transparent', color: 'var(--color-text-muted)' }
+            }
+          >
+            {MI_MOOD_LABELS[mood]}
+          </button>
+        ))}
+      </div>
+
+      {/* Tense × Active grid — mirrors VerbParadigmGrid table style */}
+      <table className="text-sm border-separate" style={{ borderSpacing: '4px' }}>
         <thead>
           <tr>
-            <th className="w-10" />
-            {MI_MOODS.map(m => (
-              <th
-                key={m}
-                className="px-3 py-1.5 text-center font-semibold uppercase tracking-wider"
-                style={{ color: 'var(--color-text-muted)', minWidth: '5rem' }}
-              >
-                {MI_MOOD_LABELS[m]}
-              </th>
-            ))}
+            <th className="px-2 py-1" />
+            <th
+              className="px-2 py-1 text-center text-xs font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              Act
+            </th>
           </tr>
         </thead>
         <tbody>
-          {MI_TENSES.map(t => (
-            <tr key={t}>
-              <td
-                className="pr-3 py-1 text-right text-xs font-medium whitespace-nowrap"
-                style={{ color: 'var(--color-text-muted)' }}
-              >
-                {MI_TENSE_LABELS[t]}
-              </td>
-              {MI_MOODS.map(m => {
-                const available = MI_GRID_AVAILABLE[t][m] ?? false;
-                const cellId = `${verbId}-${t}-${m === 'ind' ? 'ind' : m === 'subj' ? 'subj' : 'imptv'}`;
-                const isSelected = activeId === cellId;
-                return (
-                  <td key={m} className="px-1 py-1 text-center">
-                    {available ? (
-                      <button
-                        onClick={() => onSelect(cellId)}
-                        className="w-16 py-1.5 rounded-lg text-xs font-medium transition-colors"
-                        style={
-                          isSelected
-                            ? { background: 'var(--color-primary)', color: '#fff' }
-                            : { background: 'rgba(30,58,95,0.08)', color: 'var(--color-primary)' }
-                        }
-                        title={`${MI_TENSE_LABELS[t]} Active ${MI_MOOD_LABELS[m]}`}
-                      >
-                        ●
-                      </button>
-                    ) : (
-                      <span className="w-16 inline-block text-center" style={{ color: 'rgba(30,58,95,0.2)' }}>—</span>
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
+          {tenses.map(({ key: tense, label }) => {
+            const cellId = `${verbId}-${tense}-${MI_MOOD_SUFFIX[activeMood]}`;
+            const isSelected = activeId === cellId;
+            return (
+              <tr key={tense}>
+                <td
+                  className="px-2 py-1 text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
+                  style={{ color: 'var(--color-text-muted)' }}
+                >
+                  {label}
+                </td>
+                <td className="text-center">
+                  <button
+                    onClick={() => onSelect(cellId)}
+                    className="w-full rounded-lg px-2 py-1.5 text-xs font-medium transition-colors cursor-pointer"
+                    style={
+                      isSelected
+                        ? { background: 'var(--color-primary)', color: '#fff' }
+                        : { background: 'rgba(30,58,95,0.07)', color: 'var(--color-text)' }
+                    }
+                    title={`${label} Active ${MI_MOOD_LABELS[activeMood]}`}
+                  >
+                    ●
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -957,7 +980,15 @@ function MiVerbConjugationCard({
 
 function MiVerbCard({ entry }: { entry: MiVerbEntry }) {
   const verbParadigms = miVerbParadigms.filter(p => p.verbId === entry.id);
+  const [activeMood, setActiveMood] = useState<MiVerbMood>('indicative');
   const [activeId, setActiveId] = useState(verbParadigms[0]?.id ?? '');
+
+  const handleMoodChange = (mood: MiVerbMood) => {
+    setActiveMood(mood);
+    const first = verbParadigms.find(p => p.group === mood);
+    if (first) setActiveId(first.id);
+  };
+
   const activeParadigm = verbParadigms.find(p => p.id === activeId) ?? verbParadigms[0];
 
   return (
@@ -998,7 +1029,7 @@ function MiVerbCard({ entry }: { entry: MiVerbEntry }) {
       <div className="mb-5">
         <ParadigmHeading>Conjugation</ParadigmHeading>
         <div className="mb-3">
-          <MiVerbGrid verbId={entry.id} activeId={activeId} onSelect={setActiveId} />
+          <MiVerbGrid verbId={entry.id} activeId={activeId} activeMood={activeMood} onSelect={setActiveId} onMoodChange={handleMoodChange} />
         </div>
         {activeParadigm && <MiVerbConjugationCard paradigm={activeParadigm} />}
       </div>

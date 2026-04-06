@@ -230,6 +230,38 @@ export interface LiquidPrincipalParts {
 }
 
 // ---------------------------------------------------------------------------
+// μι-verb types
+// ---------------------------------------------------------------------------
+
+export type MiVerbId = 'didomi' | 'histemi' | 'aphiemi' | 'tithemi';
+
+export interface MiVerbEntry {
+  id: MiVerbId;
+  /** Lexical form, e.g. "δίδωμι" */
+  lexical: string;
+  /** English gloss */
+  gloss: string;
+  /** Approximate GNT occurrence count */
+  gntCount: number;
+  /** Short notes explaining key structural differences from ω-verbs */
+  patternNotes: string[];
+  /** Present and aorist active infinitives */
+  infinitives: Array<{ label: string; form: string }>;
+  /** Nominative singular of present and aorist active participles (m/f/n) */
+  participleNomSg: Array<{ label: string; m: string; f: string; n: string }>;
+}
+
+export interface MiVerbParadigm {
+  id: string;
+  verbId: MiVerbId;
+  /** Display label, e.g. "Present Active Indicative" */
+  label: string;
+  group: 'indicative' | 'subjunctive' | 'imperative';
+  /** Active forms only; undefined = form does not exist (e.g. 1sg imperative) */
+  forms: Partial<Record<PersonNum, string>>;
+}
+
+// ---------------------------------------------------------------------------
 // Accent rule types
 // ---------------------------------------------------------------------------
 
@@ -1128,6 +1160,483 @@ export const liquidPrincipalParts: LiquidPrincipalParts[] = [
     perfectAct: 'πέφηνα',
     perfectMidPass: '—',
     aoristPass: 'ἐφάνην',
+  },
+];
+
+// ---------------------------------------------------------------------------
+// μι-verb entries and paradigms
+// ---------------------------------------------------------------------------
+
+export const miVerbEntries: MiVerbEntry[] = [
+  {
+    id: 'didomi',
+    lexical: 'δίδωμι',
+    gloss: 'I give',
+    gntCount: 415,
+    patternNotes: [
+      'Reduplication: δι- (the initial consonant + ι).',
+      'Present stem δίδω-/δίδο-: the ω in sg lengthens to ω, shortens to ο in pl.',
+      'No thematic vowel — endings attach directly to the stem.',
+      'κ-Aorist: ἔδωκα (not the standard -σα ending); 3pl ἔδωκαν is unique.',
+      'Imperfect uses contracted ου forms (ε + ο → ου).',
+    ],
+    infinitives: [
+      { label: 'Present Active', form: 'διδόναι' },
+      { label: 'Aorist Active', form: 'δοῦναι' },
+    ],
+    participleNomSg: [
+      { label: 'Present Active', m: 'διδούς', f: 'διδοῦσα', n: 'διδόν' },
+      { label: 'Aorist Active', m: 'δούς', f: 'δοῦσα', n: 'δόν' },
+    ],
+  },
+  {
+    id: 'histemi',
+    lexical: 'ἵστημι',
+    gloss: 'I set, stand',
+    gntCount: 154,
+    patternNotes: [
+      'Reduplication: ἱ- (vocalic; the initial σ drops, leaving only the vowel).',
+      'Present stem ἱστη-/ἱστα-: η in sg, α in pl (η/α ablaut).',
+      'Transitive vs. intransitive: present/imperfect/1st aorist (ἔστησα) are transitive; 2nd aorist (ἔστην) and perfect are intransitive.',
+      'The 2nd aorist (ἔστην) is by far the most common in the GNT.',
+      '2nd aorist uses secondary active endings without a thematic vowel.',
+    ],
+    infinitives: [
+      { label: 'Present Active', form: 'ἱστάναι' },
+      { label: 'Aorist Active (2nd)', form: 'στῆναι' },
+    ],
+    participleNomSg: [
+      { label: 'Present Active', m: 'ἱστάς', f: 'ἱστᾶσα', n: 'ἱστάν' },
+      { label: 'Aorist Active (2nd)', m: 'στάς', f: 'στᾶσα', n: 'στάν' },
+    ],
+  },
+  {
+    id: 'aphiemi',
+    lexical: 'ἀφίημι',
+    gloss: 'I forgive, release, allow',
+    gntCount: 143,
+    patternNotes: [
+      'Compound: ἀπό + ἵημι; ἀπο- assimilates to ἀφ- before ι.',
+      'Present stem ἀφιε-/ἀφιη-: derived from ἵημι (reduplication ἱε-).',
+      'κ-Aorist: ἀφῆκα — the prefix carries the augment (ἀπ → ἀφ + η).',
+      'Imperfect augments the verb root: ἤφιον (η replaces ε of ἵημι).',
+      'GNT aorist imperative ἄφες is the most frequent imperatival form.',
+    ],
+    infinitives: [
+      { label: 'Present Active', form: 'ἀφιέναι' },
+      { label: 'Aorist Active', form: 'ἀφεῖναι' },
+    ],
+    participleNomSg: [
+      { label: 'Present Active', m: 'ἀφιείς', f: 'ἀφιεῖσα', n: 'ἀφιέν' },
+      { label: 'Aorist Active', m: 'ἀφείς', f: 'ἀφεῖσα', n: 'ἀφέν' },
+    ],
+  },
+  {
+    id: 'tithemi',
+    lexical: 'τίθημι',
+    gloss: 'I place, put',
+    gntCount: 100,
+    patternNotes: [
+      'Reduplication: τι- (initial τ + ι).',
+      'Present stem τίθη-/τίθε-: η in sg lengthens, shortens to ε in pl.',
+      'κ-Aorist: ἔθηκα — note the η-grade in the aorist stem (θη- vs. θε-).',
+      'Aorist subjunctive/imperative use short stem θε- (θῶ, θές).',
+      'Closely parallels δίδωμι in its overall pattern.',
+    ],
+    infinitives: [
+      { label: 'Present Active', form: 'τιθέναι' },
+      { label: 'Aorist Active', form: 'θεῖναι' },
+    ],
+    participleNomSg: [
+      { label: 'Present Active', m: 'τιθείς', f: 'τιθεῖσα', n: 'τιθέν' },
+      { label: 'Aorist Active', m: 'θείς', f: 'θεῖσα', n: 'θέν' },
+    ],
+  },
+];
+
+export const miVerbParadigms: MiVerbParadigm[] = [
+  // ── δίδωμι ──────────────────────────────────────────────────────────────
+  {
+    id: 'didomi-pres-ind',
+    verbId: 'didomi',
+    label: 'Present Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'δίδωμι',
+      '2sg': 'δίδως',
+      '3sg': 'δίδωσι(ν)',
+      '1pl': 'δίδομεν',
+      '2pl': 'δίδοτε',
+      '3pl': 'διδόασι(ν)',
+    },
+  },
+  {
+    id: 'didomi-impf-ind',
+    verbId: 'didomi',
+    label: 'Imperfect Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἐδίδουν',
+      '2sg': 'ἐδίδους',
+      '3sg': 'ἐδίδου',
+      '1pl': 'ἐδίδομεν',
+      '2pl': 'ἐδίδοτε',
+      '3pl': 'ἐδίδοσαν',
+    },
+  },
+  {
+    id: 'didomi-aor-ind',
+    verbId: 'didomi',
+    label: 'Aorist Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἔδωκα',
+      '2sg': 'ἔδωκας',
+      '3sg': 'ἔδωκε(ν)',
+      '1pl': 'ἐδώκαμεν',
+      '2pl': 'ἐδώκατε',
+      '3pl': 'ἔδωκαν',
+    },
+  },
+  {
+    id: 'didomi-pres-subj',
+    verbId: 'didomi',
+    label: 'Present Active Subjunctive',
+    group: 'subjunctive',
+    forms: {
+      '1sg': 'διδῶ',
+      '2sg': 'διδῷς',
+      '3sg': 'διδῷ',
+      '1pl': 'διδῶμεν',
+      '2pl': 'διδῶτε',
+      '3pl': 'διδῶσι(ν)',
+    },
+  },
+  {
+    id: 'didomi-aor-subj',
+    verbId: 'didomi',
+    label: 'Aorist Active Subjunctive',
+    group: 'subjunctive',
+    forms: {
+      '1sg': 'δῶ',
+      '2sg': 'δῷς',
+      '3sg': 'δῷ',
+      '1pl': 'δῶμεν',
+      '2pl': 'δῶτε',
+      '3pl': 'δῶσι(ν)',
+    },
+  },
+  {
+    id: 'didomi-pres-imptv',
+    verbId: 'didomi',
+    label: 'Present Active Imperative',
+    group: 'imperative',
+    forms: {
+      '2sg': 'δίδου',
+      '3sg': 'διδότω',
+      '2pl': 'δίδοτε',
+      '3pl': 'διδότωσαν',
+    },
+  },
+  {
+    id: 'didomi-aor-imptv',
+    verbId: 'didomi',
+    label: 'Aorist Active Imperative',
+    group: 'imperative',
+    forms: {
+      '2sg': 'δός',
+      '3sg': 'δότω',
+      '2pl': 'δότε',
+      '3pl': 'δότωσαν',
+    },
+  },
+
+  // ── ἵστημι ──────────────────────────────────────────────────────────────
+  {
+    id: 'histemi-pres-ind',
+    verbId: 'histemi',
+    label: 'Present Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἵστημι',
+      '2sg': 'ἵστης',
+      '3sg': 'ἵστησι(ν)',
+      '1pl': 'ἵσταμεν',
+      '2pl': 'ἵστατε',
+      '3pl': 'ἱστᾶσι(ν)',
+    },
+  },
+  {
+    id: 'histemi-impf-ind',
+    verbId: 'histemi',
+    label: 'Imperfect Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἵστην',
+      '2sg': 'ἵστης',
+      '3sg': 'ἵστη',
+      '1pl': 'ἵσταμεν',
+      '2pl': 'ἵστατε',
+      '3pl': 'ἵστασαν',
+    },
+  },
+  {
+    id: 'histemi-aor-ind',
+    verbId: 'histemi',
+    label: 'Aorist Active Indicative (2nd)',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἔστην',
+      '2sg': 'ἔστης',
+      '3sg': 'ἔστη',
+      '1pl': 'ἔστημεν',
+      '2pl': 'ἔστητε',
+      '3pl': 'ἔστησαν',
+    },
+  },
+  {
+    id: 'histemi-pres-subj',
+    verbId: 'histemi',
+    label: 'Present Active Subjunctive',
+    group: 'subjunctive',
+    forms: {
+      '1sg': 'ἱστῶ',
+      '2sg': 'ἱστῇς',
+      '3sg': 'ἱστῇ',
+      '1pl': 'ἱστῶμεν',
+      '2pl': 'ἱστῆτε',
+      '3pl': 'ἱστῶσι(ν)',
+    },
+  },
+  {
+    id: 'histemi-aor-subj',
+    verbId: 'histemi',
+    label: 'Aorist Active Subjunctive (2nd)',
+    group: 'subjunctive',
+    forms: {
+      '1sg': 'στῶ',
+      '2sg': 'στῇς',
+      '3sg': 'στῇ',
+      '1pl': 'στῶμεν',
+      '2pl': 'στῆτε',
+      '3pl': 'στῶσι(ν)',
+    },
+  },
+  {
+    id: 'histemi-pres-imptv',
+    verbId: 'histemi',
+    label: 'Present Active Imperative',
+    group: 'imperative',
+    forms: {
+      '2sg': 'ἵστη',
+      '3sg': 'ἱστάτω',
+      '2pl': 'ἵστατε',
+      '3pl': 'ἱστάτωσαν',
+    },
+  },
+  {
+    id: 'histemi-aor-imptv',
+    verbId: 'histemi',
+    label: 'Aorist Active Imperative (2nd)',
+    group: 'imperative',
+    forms: {
+      '2sg': 'στῆθι',
+      '3sg': 'στήτω',
+      '2pl': 'στῆτε',
+      '3pl': 'στήτωσαν',
+    },
+  },
+
+  // ── ἀφίημι ──────────────────────────────────────────────────────────────
+  {
+    id: 'aphiemi-pres-ind',
+    verbId: 'aphiemi',
+    label: 'Present Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἀφίημι',
+      '2sg': 'ἀφίης',
+      '3sg': 'ἀφίησι(ν)',
+      '1pl': 'ἀφίεμεν',
+      '2pl': 'ἀφίετε',
+      '3pl': 'ἀφιᾶσι(ν)',
+    },
+  },
+  {
+    id: 'aphiemi-impf-ind',
+    verbId: 'aphiemi',
+    label: 'Imperfect Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἤφιον',
+      '2sg': 'ἤφιες',
+      '3sg': 'ἤφιε(ν)',
+      '1pl': 'ἀφίεμεν',
+      '2pl': 'ἀφίετε',
+      '3pl': 'ἤφιον',
+    },
+  },
+  {
+    id: 'aphiemi-aor-ind',
+    verbId: 'aphiemi',
+    label: 'Aorist Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἀφῆκα',
+      '2sg': 'ἀφῆκας',
+      '3sg': 'ἀφῆκε(ν)',
+      '1pl': 'ἀφήκαμεν',
+      '2pl': 'ἀφήκατε',
+      '3pl': 'ἀφῆκαν',
+    },
+  },
+  {
+    id: 'aphiemi-pres-subj',
+    verbId: 'aphiemi',
+    label: 'Present Active Subjunctive',
+    group: 'subjunctive',
+    forms: {
+      '1sg': 'ἀφιῶ',
+      '2sg': 'ἀφιῇς',
+      '3sg': 'ἀφιῇ',
+      '1pl': 'ἀφιῶμεν',
+      '2pl': 'ἀφιῆτε',
+      '3pl': 'ἀφιῶσι(ν)',
+    },
+  },
+  {
+    id: 'aphiemi-aor-subj',
+    verbId: 'aphiemi',
+    label: 'Aorist Active Subjunctive',
+    group: 'subjunctive',
+    forms: {
+      '1sg': 'ἀφῶ',
+      '2sg': 'ἀφῇς',
+      '3sg': 'ἀφῇ',
+      '1pl': 'ἀφῶμεν',
+      '2pl': 'ἀφῆτε',
+      '3pl': 'ἀφῶσι(ν)',
+    },
+  },
+  {
+    id: 'aphiemi-pres-imptv',
+    verbId: 'aphiemi',
+    label: 'Present Active Imperative',
+    group: 'imperative',
+    forms: {
+      '2sg': 'ἀφίει',
+      '3sg': 'ἀφιέτω',
+      '2pl': 'ἀφίετε',
+      '3pl': 'ἀφιέτωσαν',
+    },
+  },
+  {
+    id: 'aphiemi-aor-imptv',
+    verbId: 'aphiemi',
+    label: 'Aorist Active Imperative',
+    group: 'imperative',
+    forms: {
+      '2sg': 'ἄφες',
+      '3sg': 'ἀφέτω',
+      '2pl': 'ἄφετε',
+      '3pl': 'ἀφέτωσαν',
+    },
+  },
+
+  // ── τίθημι ──────────────────────────────────────────────────────────────
+  {
+    id: 'tithemi-pres-ind',
+    verbId: 'tithemi',
+    label: 'Present Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'τίθημι',
+      '2sg': 'τίθης',
+      '3sg': 'τίθησι(ν)',
+      '1pl': 'τίθεμεν',
+      '2pl': 'τίθετε',
+      '3pl': 'τιθέασι(ν)',
+    },
+  },
+  {
+    id: 'tithemi-impf-ind',
+    verbId: 'tithemi',
+    label: 'Imperfect Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἐτίθειν',
+      '2sg': 'ἐτίθεις',
+      '3sg': 'ἐτίθει',
+      '1pl': 'ἐτίθεμεν',
+      '2pl': 'ἐτίθετε',
+      '3pl': 'ἐτίθεσαν',
+    },
+  },
+  {
+    id: 'tithemi-aor-ind',
+    verbId: 'tithemi',
+    label: 'Aorist Active Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'ἔθηκα',
+      '2sg': 'ἔθηκας',
+      '3sg': 'ἔθηκε(ν)',
+      '1pl': 'ἐθήκαμεν',
+      '2pl': 'ἐθήκατε',
+      '3pl': 'ἔθηκαν',
+    },
+  },
+  {
+    id: 'tithemi-pres-subj',
+    verbId: 'tithemi',
+    label: 'Present Active Subjunctive',
+    group: 'subjunctive',
+    forms: {
+      '1sg': 'τιθῶ',
+      '2sg': 'τιθῇς',
+      '3sg': 'τιθῇ',
+      '1pl': 'τιθῶμεν',
+      '2pl': 'τιθῆτε',
+      '3pl': 'τιθῶσι(ν)',
+    },
+  },
+  {
+    id: 'tithemi-aor-subj',
+    verbId: 'tithemi',
+    label: 'Aorist Active Subjunctive',
+    group: 'subjunctive',
+    forms: {
+      '1sg': 'θῶ',
+      '2sg': 'θῇς',
+      '3sg': 'θῇ',
+      '1pl': 'θῶμεν',
+      '2pl': 'θῆτε',
+      '3pl': 'θῶσι(ν)',
+    },
+  },
+  {
+    id: 'tithemi-pres-imptv',
+    verbId: 'tithemi',
+    label: 'Present Active Imperative',
+    group: 'imperative',
+    forms: {
+      '2sg': 'τίθει',
+      '3sg': 'τιθέτω',
+      '2pl': 'τίθετε',
+      '3pl': 'τιθέτωσαν',
+    },
+  },
+  {
+    id: 'tithemi-aor-imptv',
+    verbId: 'tithemi',
+    label: 'Aorist Active Imperative',
+    group: 'imperative',
+    forms: {
+      '2sg': 'θές',
+      '3sg': 'θέτω',
+      '2pl': 'θέτε',
+      '3pl': 'θέτωσαν',
+    },
   },
 ];
 

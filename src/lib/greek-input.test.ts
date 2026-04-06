@@ -14,6 +14,7 @@ import {
   getAcceptableVariants,
   normalizeUserInput,
   processGreekKey,
+  processGreekInput,
   GREEK_MAP,
   DIACRITIC_MAP,
 } from './greek-input';
@@ -315,6 +316,65 @@ describe('processGreekKey', () => {
   it('maps all diacritic keys in DIACRITIC_MAP', () => {
     for (const [key, char] of Object.entries(DIACRITIC_MAP)) {
       const result = processGreekKey(key, false);
+      expect(result.preventDefault).toBe(true);
+      expect(result.append).toBe(char);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// processGreekInput (Android beforeinput path)
+// ---------------------------------------------------------------------------
+
+describe('processGreekInput', () => {
+  it('returns Greek letter for mapped ASCII character', () => {
+    const result = processGreekInput('a');
+    expect(result.preventDefault).toBe(true);
+    expect(result.append).toBe('α');
+  });
+
+  it('returns diacritic for / character', () => {
+    const result = processGreekInput('/');
+    expect(result.preventDefault).toBe(true);
+    expect(result.append).toBe('\u0301');
+  });
+
+  it('returns ano teleia for : character', () => {
+    const result = processGreekInput(':');
+    expect(result.preventDefault).toBe(true);
+    expect(result.append).toBe('·');
+  });
+
+  it('returns Greek question mark for ? character', () => {
+    const result = processGreekInput('?');
+    expect(result.preventDefault).toBe(true);
+    expect(result.append).toBe(';');
+  });
+
+  it('returns no-op for unmapped character', () => {
+    const result = processGreekInput('v');
+    expect(result.preventDefault).toBe(false);
+    expect(result.append).toBeNull();
+  });
+
+  it('returns no-op for "Unidentified" (not a real character)', () => {
+    const result = processGreekInput('Unidentified');
+    expect(result.preventDefault).toBe(false);
+    expect(result.append).toBeNull();
+  });
+
+  it('maps all lowercase letter characters in GREEK_MAP', () => {
+    const lowerKeys = Object.keys(GREEK_MAP).filter(k => k === k.toLowerCase());
+    for (const key of lowerKeys) {
+      const result = processGreekInput(key);
+      expect(result.preventDefault).toBe(true);
+      expect(result.append).toBe(GREEK_MAP[key]);
+    }
+  });
+
+  it('maps all diacritic characters in DIACRITIC_MAP', () => {
+    for (const [key, char] of Object.entries(DIACRITIC_MAP)) {
+      const result = processGreekInput(key);
       expect(result.preventDefault).toBe(true);
       expect(result.append).toBe(char);
     }

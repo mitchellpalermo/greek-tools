@@ -184,6 +184,71 @@ describe('GreekKeyboard', () => {
     });
   });
 
+  // ─── Android / beforeinput path ──────────────────────────────────────────
+  //
+  // On Android, onKeyDown fires with key='Unidentified'. The onBeforeInput
+  // handler reads InputEvent.data instead to perform the Greek mapping.
+  // We simulate this by firing a beforeinput event directly (no keydown).
+
+  describe('Android soft keyboard (beforeinput path)', () => {
+    function fireBeforeInput(element: HTMLElement, data: string): void {
+      fireEvent(
+        element,
+        new InputEvent('beforeinput', {
+          inputType: 'insertText',
+          data,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    }
+
+    it('maps a Latin character to Greek via beforeinput', () => {
+      render(<GreekKeyboard />);
+      fireBeforeInput(getTextarea(), 'l');
+      expect(getTextarea().value).toContain('λ');
+    });
+
+    it('maps a diacritic key via beforeinput', () => {
+      render(<GreekKeyboard />);
+      fireBeforeInput(getTextarea(), '/');
+      expect(getTextarea().value).toContain('\u0301'); // acute
+    });
+
+    it('maps : to ano teleia via beforeinput', () => {
+      render(<GreekKeyboard />);
+      fireBeforeInput(getTextarea(), ':');
+      expect(getTextarea().value).toContain('·');
+    });
+
+    it('maps ? to Greek question mark via beforeinput', () => {
+      render(<GreekKeyboard />);
+      fireBeforeInput(getTextarea(), '?');
+      expect(getTextarea().value).toContain(';');
+    });
+
+    it('passes through unmapped characters via beforeinput', () => {
+      render(<GreekKeyboard />);
+      // Space is not in GREEK_MAP; beforeinput should not prevent default
+      // and the onChange handler (fired by the subsequent input event) handles it.
+      // Verify the handler does not append anything for space.
+      const textarea = getTextarea();
+      const before = textarea.value;
+      fireBeforeInput(textarea, ' ');
+      // Unmapped → no append; value unchanged until browser inserts it
+      expect(textarea.value).toBe(before);
+    });
+
+    it('produces the correct sequence for a full word (logos)', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      for (const ch of 'logos') fireBeforeInput(textarea, ch);
+      expect(textarea.value).toContain('λ');
+      expect(textarea.value).toContain('ο');
+      expect(textarea.value).toContain('γ');
+    });
+  });
+
   // ─── clear button ─────────────────────────────────────────────────────────
 
   describe('Clear button', () => {
@@ -254,6 +319,82 @@ describe('GreekKeyboard', () => {
       expect(getTextarea().value).toContain('λ');
       expect(getTextarea().value).toContain('ο');
       expect(getTextarea().value).toContain('γ');
+    });
+
+    it('translates a multi-char beforeinput data string (Android IME word commit)', async () => {
+      render(<GreekKeyboard />);
+      // Some Android keyboards commit the whole composed word in one beforeinput
+      // event instead of one per character.
+      await typeViaBeforeInput(getTextarea(), 'logos');
+      expect(getTextarea().value).toContain('λ');
+      expect(getTextarea().value).toContain('ο');
+      expect(getTextarea().value).toContain('γ');
+    });
+  });
+
+  // ─── Android onChange fallback ───────────────────────────────────────────
+  //
+  // When Android's IME commits a composed word via onChange (bypassing
+  // beforeinput), the handler must translate Latin text to Greek rather than
+  // writing the raw Latin into state.
+
+  describe('Android onChange fallback', () => {
+    it('translates Latin text committed via onChange to Greek', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // Simulate the Android IME pushing "logos" into the DOM value
+      fireEvent.change(textarea, { target: { value: 'logos' } });
+      expect(textarea.value).toBe('λογος');
+    });
+
+    it('preserves Greek already in the textarea when onChange fires', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // Type a word first via keydown (Greek state built up correctly)
+      typeKey(textarea, 'o');
+      typeKey(textarea, 'l');
+      // Simulate Android pushing Latin on top — state should stay Greek
+      fireEvent.change(textarea, { target: { value: 'ol' } });
+      expect(textarea.value).toBe('ολ');
+    });
+
+    it('handles a space appended by the IME after a Latin commit', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      fireEvent.change(textarea, { target: { value: 'logos ' } });
+      // Space is not translated, Latin letters are
+      expect(textarea.value).toBe('λογος ');
+    });
+
+    it('does not mangle Greek characters that pass through onChange', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // Simulate paste of genuine Greek text
+      fireEvent.change(textarea, { target: { value: 'λόγος' } });
+      expect(textarea.value).toBe('λόγος');
+    });
+
+    it('does not double the word when onChange echoes what beforeinput already built', async () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // beforeinput builds "λογος" in state one char at a time
+      for (const ch of 'logos') await typeViaBeforeInput(textarea, ch);
+      // The display value at this point is "λογος" (final sigma via applyFinalSigma)
+      const afterBeforeInput = textarea.value;
+      expect(afterBeforeInput).toBe('λογος');
+      // Android IME then fires onChange with the same display string as an echo
+      fireEvent.change(textarea, { target: { value: afterBeforeInput } });
+      // Should still be "λογος", not "λογοσλογος" or "λογοσλογος"
+      expect(textarea.value).toBe('λογος');
+    });
+
+    it('does accept new text when onChange value differs from last handled', async () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      await typeViaBeforeInput(textarea, 'o');
+      // onChange fires with a genuinely different value (e.g. user pasted more)
+      fireEvent.change(textarea, { target: { value: 'ο logos' } });
+      expect(textarea.value).toBe('ο λογος');
     });
   });
 

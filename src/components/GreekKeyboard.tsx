@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { GREEK_MAP, DIACRITIC_MAP, applyFinalSigma, processGreekKey, processGreekInput } from '../lib/greek-input';
+import { GREEK_MAP, DIACRITIC_MAP, applyFinalSigma, processGreekKey, processGreekInput, translateGreekInput } from '../lib/greek-input';
 
 export default function GreekKeyboard() {
   const [text, setText] = useState('');
@@ -9,13 +9,24 @@ export default function GreekKeyboard() {
   // listener from double-inserting on platforms (e.g. iOS Safari) that fire
   // both events for the same keystroke even after keydown.preventDefault().
   const keyHandledRef = useRef(false);
+  // Tracks the display value (applyFinalSigma applied) we expect the textarea
+  // to show after our last beforeinput/keydown insert. onChange compares
+  // against this to detect IME echo-backs and skip them, preventing the
+  // Android "word doubled in Greek" bug.
+  const lastHandledRef = useRef('');
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     keyHandledRef.current = false;
     const { preventDefault, append } = processGreekKey(e.key, e.ctrlKey || e.metaKey);
     if (preventDefault) {
       e.preventDefault();
-      if (append) setText(prev => prev + append);
+      if (append) {
+        setText(prev => {
+          const next = prev + append;
+          lastHandledRef.current = applyFinalSigma(next);
+          return next;
+        });
+      }
       keyHandledRef.current = true;
     }
   }, []);
@@ -37,10 +48,27 @@ export default function GreekKeyboard() {
       }
       const ie = e as unknown as InputEvent;
       if (ie.inputType !== 'insertText' || !ie.data) return;
+      // Multi-char data means the Android IME is committing a buffered word
+      // (e.g. "logos" → "λογος"). Translate each character individually.
+      if (ie.data.length > 1) {
+        e.preventDefault();
+        setText(prev => {
+          const next = prev + translateGreekInput(ie.data!);
+          lastHandledRef.current = applyFinalSigma(next);
+          return next;
+        });
+        return;
+      }
       const { preventDefault, append } = processGreekInput(ie.data);
       if (preventDefault) {
         e.preventDefault();
-        if (append) setText(prev => prev + append);
+        if (append) {
+          setText(prev => {
+            const next = prev + append;
+            lastHandledRef.current = applyFinalSigma(next);
+            return next;
+          });
+        }
       }
     };
     el.addEventListener('beforeinput', handler);
@@ -57,6 +85,7 @@ export default function GreekKeyboard() {
 
   const handleClear = () => {
     setText('');
+    lastHandledRef.current = '';
     textareaRef.current?.focus();
   };
 
@@ -66,7 +95,12 @@ export default function GreekKeyboard() {
         ref={textareaRef}
         value={displayText}
         onKeyDown={handleKeyDown}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => {
+          // Skip if this is the browser echoing a value we already built via
+          // beforeinput/keydown — prevents the Android IME double-word bug.
+          if (e.target.value === lastHandledRef.current) return;
+          setText(translateGreekInput(e.target.value));
+        }}
         placeholder="Start typing in English to produce Greek text..."
         className="w-full h-48 p-4 text-2xl rounded-xl border-2 border-indigo-100 focus:border-primary focus:outline-none resize-y bg-bg-card shadow-sm"
         style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}

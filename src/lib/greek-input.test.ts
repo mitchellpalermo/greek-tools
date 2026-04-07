@@ -15,6 +15,7 @@ import {
   normalizeUserInput,
   processGreekKey,
   processGreekInput,
+  translateGreekInput,
   GREEK_MAP,
   DIACRITIC_MAP,
 } from './greek-input';
@@ -378,5 +379,66 @@ describe('processGreekInput', () => {
       expect(result.preventDefault).toBe(true);
       expect(result.append).toBe(char);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// translateGreekInput (Android IME word-commit + onChange fallback)
+// ---------------------------------------------------------------------------
+
+describe('translateGreekInput', () => {
+  it('translates a single Latin letter to Greek', () => {
+    expect(translateGreekInput('a')).toBe('α');
+  });
+
+  it('translates a whole Latin word to Greek', () => {
+    // Android IME commits "logos" as a single beforeinput data string.
+    // 's' maps to σ (U+03C3); final sigma conversion happens at display time.
+    expect(translateGreekInput('logos')).toBe('λογοσ');
+  });
+
+  it('translates a word followed by a space', () => {
+    // translateGreekInput maps characters only; final sigma (σ→ς at word
+    // boundaries) is applied separately by applyFinalSigma at display time.
+    // 's' maps to σ (U+03C3), not ς (U+03C2).
+    expect(translateGreekInput('logos ')).toBe('λογοσ ');
+  });
+
+  it('preserves Greek characters already in the string', () => {
+    // Existing Greek text must survive the onChange fallback.
+    // ς (U+03C2) is not in GREEK_MAP so it passes through unchanged.
+    expect(translateGreekInput('λογος')).toBe('λογος');
+  });
+
+  it('preserves spaces and unmapped characters', () => {
+    expect(translateGreekInput(' ')).toBe(' ');
+    expect(translateGreekInput('1')).toBe('1');
+  });
+
+  it('handles a full textarea value with Greek words and spaces', () => {
+    // Simulates onChange where state is "ο λόγος" (already-correct Greek).
+    // Greek chars are not in GREEK_MAP, so they pass through.
+    const value = 'ο λόγος';
+    expect(translateGreekInput(value)).toBe('ο λόγος');
+  });
+
+  it('translates Latin mixed into existing Greek (Android IME corruption)', () => {
+    // Android commits "logos" after "ο " is already in the textarea,
+    // resulting in e.target.value = "ο logos".  Raw result has σ (not ς);
+    // applyFinalSigma converts it at display time.
+    expect(translateGreekInput('ο logos')).toBe('ο λογοσ');
+  });
+
+  it('translates multiple words separated by spaces', () => {
+    expect(translateGreekInput('o logos')).toBe('ο λογοσ');
+  });
+
+  it('translates : and ? to Greek punctuation', () => {
+    expect(translateGreekInput('o logos:')).toBe('ο λογοσ·');
+    expect(translateGreekInput('o logos?')).toBe('ο λογοσ;');
+  });
+
+  it('returns empty string for empty input', () => {
+    expect(translateGreekInput('')).toBe('');
   });
 });

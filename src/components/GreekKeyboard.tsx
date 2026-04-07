@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { GREEK_MAP, DIACRITIC_MAP, applyFinalSigma, processGreekKey, processGreekInput } from '../lib/greek-input';
+import { GREEK_MAP, DIACRITIC_MAP, applyFinalSigma, processGreekKey, processGreekInput, translateGreekInput } from '../lib/greek-input';
 
 export default function GreekKeyboard() {
   const [text, setText] = useState('');
@@ -37,6 +37,13 @@ export default function GreekKeyboard() {
       }
       const ie = e as unknown as InputEvent;
       if (ie.inputType !== 'insertText' || !ie.data) return;
+      // Multi-char data means the Android IME is committing a buffered word
+      // (e.g. "logos" → "λογος"). Translate each character individually.
+      if (ie.data.length > 1) {
+        e.preventDefault();
+        setText(prev => prev + translateGreekInput(ie.data!));
+        return;
+      }
       const { preventDefault, append } = processGreekInput(ie.data);
       if (preventDefault) {
         e.preventDefault();
@@ -66,7 +73,7 @@ export default function GreekKeyboard() {
         ref={textareaRef}
         value={displayText}
         onKeyDown={handleKeyDown}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => setText(translateGreekInput(e.target.value))}
         placeholder="Start typing in English to produce Greek text..."
         className="w-full h-48 p-4 text-2xl rounded-xl border-2 border-indigo-100 focus:border-primary focus:outline-none resize-y bg-bg-card shadow-sm"
         style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}

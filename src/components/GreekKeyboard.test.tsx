@@ -320,6 +320,59 @@ describe('GreekKeyboard', () => {
       expect(getTextarea().value).toContain('ο');
       expect(getTextarea().value).toContain('γ');
     });
+
+    it('translates a multi-char beforeinput data string (Android IME word commit)', async () => {
+      render(<GreekKeyboard />);
+      // Some Android keyboards commit the whole composed word in one beforeinput
+      // event instead of one per character.
+      await typeViaBeforeInput(getTextarea(), 'logos');
+      expect(getTextarea().value).toContain('λ');
+      expect(getTextarea().value).toContain('ο');
+      expect(getTextarea().value).toContain('γ');
+    });
+  });
+
+  // ─── Android onChange fallback ───────────────────────────────────────────
+  //
+  // When Android's IME commits a composed word via onChange (bypassing
+  // beforeinput), the handler must translate Latin text to Greek rather than
+  // writing the raw Latin into state.
+
+  describe('Android onChange fallback', () => {
+    it('translates Latin text committed via onChange to Greek', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // Simulate the Android IME pushing "logos" into the DOM value
+      fireEvent.change(textarea, { target: { value: 'logos' } });
+      expect(textarea.value).toBe('λογος');
+    });
+
+    it('preserves Greek already in the textarea when onChange fires', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // Type a word first via keydown (Greek state built up correctly)
+      typeKey(textarea, 'o');
+      typeKey(textarea, 'l');
+      // Simulate Android pushing Latin on top — state should stay Greek
+      fireEvent.change(textarea, { target: { value: 'ol' } });
+      expect(textarea.value).toBe('ολ');
+    });
+
+    it('handles a space appended by the IME after a Latin commit', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      fireEvent.change(textarea, { target: { value: 'logos ' } });
+      // Space is not translated, Latin letters are
+      expect(textarea.value).toBe('λογος ');
+    });
+
+    it('does not mangle Greek characters that pass through onChange', () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // Simulate paste of genuine Greek text
+      fireEvent.change(textarea, { target: { value: 'λόγος' } });
+      expect(textarea.value).toBe('λόγος');
+    });
   });
 
   // ─── copy button ──────────────────────────────────────────────────────────

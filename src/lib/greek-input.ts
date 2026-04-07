@@ -167,3 +167,33 @@ export function processGreekInput(
 ): { preventDefault: boolean; append: string | null } {
   return processGreekKey(data, false);
 }
+
+/**
+ * Translate a string character by character through the Beta Code mapping.
+ *
+ * Each character is looked up in `GREEK_MAP`, `DIACRITIC_MAP`, and the
+ * special-punctuation rules. Characters that have no mapping (spaces, Greek
+ * letters already in Unicode, digits, …) are passed through unchanged.
+ *
+ * This handles two Android-specific edge cases:
+ *
+ * 1. **IME word commit** — some Android keyboards buffer a whole word during
+ *    composition and fire a single `beforeinput` event with `data="logos"`.
+ *    `processGreekInput` only handles single characters, so "logos" falls
+ *    through and lands in the `onChange` fallback as raw Latin text.
+ *
+ * 2. **onChange fallback** — even when `beforeinput.preventDefault()` is
+ *    called for each letter, pressing space causes the IME to commit the
+ *    buffered Latin word into the DOM, triggering `onChange` with the raw
+ *    Latin value.  Running the new value through `translateGreekInput` before
+ *    storing it ensures the Greek state is preserved.
+ *
+ * @param text  Any string — single char, whole word, or full textarea value.
+ * @returns     The string with every translatable character mapped to Greek.
+ */
+export function translateGreekInput(text: string): string {
+  return [...text].map(ch => {
+    const result = processGreekKey(ch, false);
+    return result.append ?? ch;
+  }).join('');
+}

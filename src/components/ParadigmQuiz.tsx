@@ -25,7 +25,7 @@ import {
   type Category,
   type CellResult,
 } from '../lib/paradigm-quiz';
-import { applyFinalSigma, checkAnswer, processGreekKey, processGreekInput } from '../lib/greek-input';
+import { applyFinalSigma, checkAnswer, processGreekKey, processGreekInput, translateGreekInput } from '../lib/greek-input';
 import { loadQuizSettings, saveQuizSettings } from '../lib/quiz-settings';
 import { verbParadigms } from '../data/grammar';
 import VerbParadigmGrid from './grammar/VerbParadigmGrid';
@@ -220,6 +220,12 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
       }
       const ie = e as unknown as InputEvent;
       if (ie.inputType !== 'insertText' || !ie.data) return;
+      // Multi-char data means the Android IME is committing a buffered word.
+      if (ie.data.length > 1) {
+        e.preventDefault();
+        onChange(cellIndex, value + translateGreekInput(ie.data!));
+        return;
+      }
       const { preventDefault, append } = processGreekInput(ie.data);
       if (preventDefault) {
         e.preventDefault();
@@ -236,7 +242,7 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
       type="text"
       value={displayValue}
       onKeyDown={handleKeyDown}
-      onChange={e => onChange(cellIndex, e.target.value)}
+      onChange={e => onChange(cellIndex, translateGreekInput(e.target.value))}
       autoFocus={autoFocus}
       disabled={disabled}
       spellCheck={false}

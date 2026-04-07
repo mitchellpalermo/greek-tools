@@ -373,6 +373,29 @@ describe('GreekKeyboard', () => {
       fireEvent.change(textarea, { target: { value: 'λόγος' } });
       expect(textarea.value).toBe('λόγος');
     });
+
+    it('does not double the word when onChange echoes what beforeinput already built', async () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      // beforeinput builds "λογος" in state one char at a time
+      for (const ch of 'logos') await typeViaBeforeInput(textarea, ch);
+      // The display value at this point is "λογος" (final sigma via applyFinalSigma)
+      const afterBeforeInput = textarea.value;
+      expect(afterBeforeInput).toBe('λογος');
+      // Android IME then fires onChange with the same display string as an echo
+      fireEvent.change(textarea, { target: { value: afterBeforeInput } });
+      // Should still be "λογος", not "λογοσλογος" or "λογοσλογος"
+      expect(textarea.value).toBe('λογος');
+    });
+
+    it('does accept new text when onChange value differs from last handled', async () => {
+      render(<GreekKeyboard />);
+      const textarea = getTextarea();
+      await typeViaBeforeInput(textarea, 'o');
+      // onChange fires with a genuinely different value (e.g. user pasted more)
+      fireEvent.change(textarea, { target: { value: 'ο logos' } });
+      expect(textarea.value).toBe('ο λογος');
+    });
   });
 
   // ─── copy button ──────────────────────────────────────────────────────────

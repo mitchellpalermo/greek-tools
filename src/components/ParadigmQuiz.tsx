@@ -188,6 +188,9 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
   // listener from double-inserting on platforms (e.g. iOS Safari) that fire
   // both events for the same keystroke even after keydown.preventDefault().
   const keyHandledRef = useRef(false);
+  // Tracks the display value we expect after our last insert. onChange skips
+  // when it matches — prevents Android IME echo-backs from doubling the word.
+  const lastHandledRef = useRef('');
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -196,7 +199,9 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
       const { append } = processGreekKey(e.key, e.ctrlKey || e.metaKey);
       if (append !== null) {
         e.preventDefault();
-        onChange(cellIndex, value + append);
+        const next = value + append;
+        lastHandledRef.current = applyFinalSigma(next);
+        onChange(cellIndex, next);
         keyHandledRef.current = true;
       }
     },
@@ -223,13 +228,17 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
       // Multi-char data means the Android IME is committing a buffered word.
       if (ie.data.length > 1) {
         e.preventDefault();
-        onChange(cellIndex, value + translateGreekInput(ie.data!));
+        const next = value + translateGreekInput(ie.data!);
+        lastHandledRef.current = applyFinalSigma(next);
+        onChange(cellIndex, next);
         return;
       }
       const { preventDefault, append } = processGreekInput(ie.data);
       if (preventDefault) {
         e.preventDefault();
-        onChange(cellIndex, value + append!);
+        const next = value + append!;
+        lastHandledRef.current = applyFinalSigma(next);
+        onChange(cellIndex, next);
       }
     };
     el.addEventListener('beforeinput', handler);
@@ -242,7 +251,10 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
       type="text"
       value={displayValue}
       onKeyDown={handleKeyDown}
-      onChange={e => onChange(cellIndex, translateGreekInput(e.target.value))}
+      onChange={e => {
+        if (e.target.value === lastHandledRef.current) return;
+        onChange(cellIndex, translateGreekInput(e.target.value));
+      }}
       autoFocus={autoFocus}
       disabled={disabled}
       spellCheck={false}

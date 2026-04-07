@@ -7,6 +7,10 @@ describe('vocabulary data', () => {
     expect(vocabulary.length).toBeGreaterThan(0);
   });
 
+  it('covers all GNT lemmas (generated from MorphGNT + Dodson)', () => {
+    expect(vocabulary.length).toBeGreaterThan(4000);
+  });
+
   it('every entry has a non-empty greek field', () => {
     vocabulary.forEach((word) => {
       expect(word.greek.trim().length).toBeGreaterThan(0);

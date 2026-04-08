@@ -1158,7 +1158,7 @@ export const accentSections: AccentSection[] = [
     rules: [
       'Finite verb forms take a recessive accent — it moves as far toward the beginning of the word as the rules allow.',
       'If the ultima is short, the accent falls on the antepenult (acute): λύ-ο-μεν.',
-      'If the ultima is long, the accent falls on the penult (acute): λυ-ό-με-θα.',
+      'If the ultima is long, the accent falls on the penult (acute): λύ-ω (long ultima -ω forces accent to penult).',
     ],
   },
   {

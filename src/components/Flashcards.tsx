@@ -14,6 +14,18 @@ type AnswerMode = 'flip' | 'type';
 type Direction = 'gr-en' | 'en-gr';
 type FreqFilter = 'all' | '500+' | '100-499' | '50-99' | '<50';
 
+// ─── Frequency presets ────────────────────────────────────────────────────────
+
+export const FREQ_PRESETS = [
+  { id: 'all',    label: 'All',     filter: 'all'     as FreqFilter },
+  { id: 'top',    label: 'Top 100', filter: '500+'    as FreqFilter },
+  { id: 'mid-hi', label: '101–300', filter: '100-499' as FreqFilter },
+  { id: 'mid',    label: '301–500', filter: '50-99'   as FreqFilter },
+  { id: 'rare',   label: '500+',    filter: '<50'     as FreqFilter },
+] as const;
+
+export const DEFAULT_FREQ_PRESET = FREQ_PRESETS[1]; // Top 100 (500+ occurrences)
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function shuffle<T>(arr: T[]): T[] {
@@ -94,7 +106,7 @@ export default function Flashcards() {
   const [direction, setDirection] = useState<Direction>('gr-en');
 
   // Filters
-  const [freqFilter, setFreqFilter] = useState<FreqFilter>('all');
+  const [freqFilter, setFreqFilter] = useState<FreqFilter>(DEFAULT_FREQ_PRESET.filter);
   const [posFilter, setPosFilter] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -262,6 +274,7 @@ export default function Flashcards() {
   const back = card ? (direction === 'gr-en' ? card.gloss : card.greek) : '';
   const expectedAnswer = card ? (direction === 'gr-en' ? card.gloss : card.greek) : '';
   const hasActiveFilters = freqFilter !== 'all' || posFilter.length > 0;
+  const activePreset = FREQ_PRESETS.find(p => p.filter === freqFilter) ?? FREQ_PRESETS[0];
 
   // ─── Session complete screen ─────────────────────────────────────────────────
 
@@ -397,6 +410,7 @@ export default function Flashcards() {
           {/* Filters toggle */}
           <button
             onClick={() => setShowFilters(f => !f)}
+            aria-label="Toggle filters"
             className={`px-3 py-1.5 rounded-xl text-sm border-2 font-semibold transition-colors ${
               hasActiveFilters
                 ? 'border-grape text-grape bg-grape/5'
@@ -405,9 +419,42 @@ export default function Flashcards() {
                 : 'border-gray-200 text-text-muted hover:border-grape/40'
             }`}
           >
-            Filters{hasActiveFilters ? ' ●' : ''}
+            {freqFilter !== 'all' ? activePreset.label : 'Filters'}
+            {hasActiveFilters ? ' ●' : ''}
           </button>
         </div>
+      </div>
+
+      {/* ── Preset selector ───────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-bold text-text-muted uppercase tracking-wider shrink-0">
+          Preset
+        </span>
+        {FREQ_PRESETS.map(preset => {
+          const active = freqFilter === preset.filter;
+          const count = preset.filter !== 'all'
+            ? vocabulary.filter(w => matchFreq(w.frequency, preset.filter)).length
+            : null;
+          return (
+            <button
+              key={preset.id}
+              onClick={() => setFreqFilter(preset.filter)}
+              aria-pressed={active}
+              className={`px-3 py-1 rounded-full text-sm border-2 font-medium transition-colors ${
+                active
+                  ? 'bg-grape text-white border-grape'
+                  : 'border-indigo-100 text-text-muted hover:border-grape/40 hover:text-text'
+              }`}
+            >
+              {preset.label}
+              {count !== null && (
+                <span className={`ml-1 text-xs ${active ? 'text-white/70' : 'text-text-muted'}`}>
+                  ({count})
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Filter panel ──────────────────────────────────────────────────── */}

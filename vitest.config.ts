@@ -19,7 +19,6 @@ export default defineConfig({
         'src/layouts/**',
         'src/env.d.ts',
         // TODO: add tests for these components and remove from exclude
-        'src/components/Flashcards.tsx',
         'src/components/GrammarReference.tsx',
         'src/components/DailyVerse.tsx',
         'src/components/GNTReader.tsx',

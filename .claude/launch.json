@@ -4,8 +4,8 @@
     {
       "name": "greek-tools",
       "runtimeExecutable": "/bin/sh",
-      "runtimeArgs": ["-c", "export PATH=/opt/homebrew/bin:/opt/homebrew/Cellar/node/25.3.0/bin:$PATH && cd /Users/mitch/code/greek-tools/.claude/worktrees/thirsty-davinci && npm run dev -- --port 4331"],
-      "port": 4331,
+      "runtimeArgs": ["/Users/mitch/code/greek-tools/.claude/worktrees/lucid-elion/.claude/dev.sh"],
+      "port": 4330,
       "autoPort": true
     }
   ]

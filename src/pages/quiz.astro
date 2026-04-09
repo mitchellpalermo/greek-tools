@@ -18,7 +18,7 @@ import Layout from '../layouts/Layout.astro';
     </p>
   </div>
 
-  <div class="grid sm:grid-cols-2 gap-6 max-w-2xl">
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
 
     <!-- Paradigm Quiz -->
     <a
@@ -71,6 +71,34 @@ import Layout from '../layouts/Layout.astro';
       <div
         class="px-6 pb-4 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
         style="color: #059669;"
+      >
+        Open →
+      </div>
+    </a>
+
+    <!-- GNT Passage Parsing -->
+    <a
+      href="/parse/gnt"
+      class="group block bg-bg-card rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-white hover:-translate-y-0.5"
+    >
+      <div class="h-1.5 w-full" style="background: #0369a1;" />
+      <div class="p-6">
+        <div
+          class="w-12 h-12 rounded-xl flex items-center justify-center text-xl mb-4 font-mono font-bold"
+          style="background: #e0f2fe; color: #0369a1; font-family: var(--font-greek);"
+        >
+          Ἰω
+        </div>
+        <h2 class="text-lg font-bold mb-2" style="color: #0369a1;">
+          GNT Passage
+        </h2>
+        <p class="text-text-muted text-sm leading-relaxed">
+          Choose a chapter of the Greek New Testament and parse its verbs in context — finite, infinitive, and participle.
+        </p>
+      </div>
+      <div
+        class="px-6 pb-4 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        style="color: #0369a1;"
       >
         Open →
       </div>

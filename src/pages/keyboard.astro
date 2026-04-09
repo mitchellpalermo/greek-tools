@@ -1,19 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import GreekKeyboard from '../components/GreekKeyboard';
+import GreekInputHub from '../components/GreekInputHub';
 ---
 
-<Layout title="Greek Keyboard" description="Type Koine Greek using your English keyboard. Supports diacritics, breathing marks, and final sigma.">
+<Layout title="Greek Input" description="Type Koine Greek using your English keyboard, or convert between polytonic Greek and SBL romanized transliteration.">
   <div class="mb-6">
     <h1
       class="text-3xl font-bold mb-1"
       style="color: var(--color-primary);"
     >
-      Greek Keyboard
+      Greek Input
     </h1>
     <p class="text-text-muted">
-      Type on your English keyboard to produce polytonic Koine Greek. Diacritics are typed after the letter.
+      Type in English to produce polytonic Greek, or convert between Greek and SBL romanized transliteration.
     </p>
   </div>
-  <GreekKeyboard client:load />
+  <GreekInputHub client:load />
 </Layout>

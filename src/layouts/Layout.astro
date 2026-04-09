@@ -9,13 +9,12 @@ interface Props {
 const { title, description = "Free tools for Koine Greek students — keyboard, flashcards, and more." } = Astro.props;
 
 const navLinks = [
-  { href: '/keyboard',        label: 'Keyboard',   tabLabel: 'Keys'      },
-  { href: '/flashcards',      label: 'Flashcards', tabLabel: 'Cards'     },
-  { href: '/daily',           label: 'Daily',      tabLabel: 'Daily'     },
-  { href: '/reader',          label: 'Reader',     tabLabel: 'Reader'    },
-  { href: '/transliteration', label: 'Transliteration', tabLabel: 'Translit' },
-  { href: '/grammar',         label: 'Grammar',    tabLabel: 'Grammar'   },
-  { href: '/paradigms',       label: 'Quiz',       tabLabel: 'Quiz'      },
+  { href: '/keyboard',   label: 'Type', tabLabel: 'Type'   },
+  { href: '/flashcards', label: 'Flashcards',  tabLabel: 'Cards'  },
+  { href: '/daily',      label: 'Daily',       tabLabel: 'Daily'  },
+  { href: '/reader',     label: 'Reader',      tabLabel: 'Reader' },
+  { href: '/grammar',    label: 'Grammar',     tabLabel: 'Grammar'},
+  { href: '/paradigms',  label: 'Quiz',        tabLabel: 'Quiz'   },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -168,7 +167,7 @@ function isActive(href: string) {
               <circle cx="12" cy="14" r="1" fill="currentColor" stroke="none"/>
               <circle cx="16" cy="14" r="1" fill="currentColor" stroke="none"/>
             </svg>
-            <span class="tab-label">Keys</span>
+            <span class="tab-label">Type</span>
           </span>
         </a>
 
@@ -226,23 +225,6 @@ function isActive(href: string) {
               <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
             </svg>
             <span class="tab-label">Reader</span>
-          </span>
-        </a>
-
-        <!-- Transliteration -->
-        <a
-          href="/transliteration"
-          class:list={["tab-item", isActive('/transliteration') ? "tab-active" : "tab-inactive"]}
-          aria-label="Transliteration"
-          aria-current={isActive('/transliteration') ? 'page' : undefined}
-        >
-          <span class:list={["tab-pill", { "tab-pill-active": isActive('/transliteration') }]}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="4 7 4 4 20 4 20 7"/>
-              <line x1="9" y1="20" x2="15" y2="20"/>
-              <line x1="12" y1="4" x2="12" y2="20"/>
-            </svg>
-            <span class="tab-label">Translit</span>
           </span>
         </a>
 

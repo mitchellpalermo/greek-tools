@@ -6,6 +6,8 @@ import {
   loadSRSStore, saveSRSStore, loadStats, saveStats,
   recordReview, newCard, nextSRS, isDue, STREAK_THRESHOLD, normalizeKey,
 } from '../data/srs';
+import { loadCustomDecks, type CustomDeck } from '../data/customDecks';
+import DeckBuilder from './DeckBuilder';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -110,6 +112,11 @@ export default function Flashcards() {
   const [posFilter, setPosFilter] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Custom decks
+  const [customDecks, setCustomDecks] = useState<CustomDeck[]>(() => loadCustomDecks());
+  const [activeDeckId, setActiveDeckId] = useState<string | null>(null);
+  const [showDeckBuilder, setShowDeckBuilder] = useState(false);
+
   // Session state
   const [queue, setQueue] = useState<VocabWord[]>([]);
   const [index, setIndex] = useState(0);
@@ -126,15 +133,23 @@ export default function Flashcards() {
 
   // ─── Filtered vocabulary ────────────────────────────────────────────────────
 
-  const filteredVocab = useMemo(
-    () =>
-      vocabulary.filter(
+  const filteredVocab = useMemo(() => {
+    if (activeDeckId !== null) {
+      const deck = customDecks.find(d => d.id === activeDeckId);
+      if (!deck) return [];
+      const keySet = new Set(deck.wordKeys);
+      return vocabulary.filter(
         w =>
-          matchFreq(w.frequency, freqFilter) &&
+          keySet.has(normalizeKey(w.greek)) &&
           (posFilter.length === 0 || posFilter.includes(w.partOfSpeech)),
-      ),
-    [freqFilter, posFilter],
-  );
+      );
+    }
+    return vocabulary.filter(
+      w =>
+        matchFreq(w.frequency, freqFilter) &&
+        (posFilter.length === 0 || posFilter.includes(w.partOfSpeech)),
+    );
+  }, [freqFilter, posFilter, activeDeckId, customDecks]);
 
   // SRS stats for display
   const dueCount = useMemo(
@@ -166,19 +181,28 @@ export default function Flashcards() {
 
   // Restart when mode or filters change (not on srsStore changes)
   const posFilterKey = posFilter.join(',');
+  const activeDeckWordKeysKey = activeDeckId !== null
+    ? (customDecks.find(d => d.id === activeDeckId)?.wordKeys.join(',') ?? '')
+    : '';
   const prevStudyMode = useRef(studyMode);
   const prevFreqFilter = useRef(freqFilter);
   const prevPosFilterKey = useRef(posFilterKey);
+  const prevActiveDeckId = useRef(activeDeckId);
+  const prevActiveDeckWordKeysKey = useRef(activeDeckWordKeysKey);
 
   useEffect(() => {
     if (
       studyMode !== prevStudyMode.current ||
       freqFilter !== prevFreqFilter.current ||
-      posFilterKey !== prevPosFilterKey.current
+      posFilterKey !== prevPosFilterKey.current ||
+      activeDeckId !== prevActiveDeckId.current ||
+      activeDeckWordKeysKey !== prevActiveDeckWordKeysKey.current
     ) {
       prevStudyMode.current = studyMode;
       prevFreqFilter.current = freqFilter;
       prevPosFilterKey.current = posFilterKey;
+      prevActiveDeckId.current = activeDeckId;
+      prevActiveDeckWordKeysKey.current = activeDeckWordKeysKey;
       startSession();
     }
   });
@@ -273,7 +297,7 @@ export default function Flashcards() {
   const front = card ? (direction === 'gr-en' ? card.greek : card.gloss) : '';
   const back = card ? (direction === 'gr-en' ? card.gloss : card.greek) : '';
   const expectedAnswer = card ? (direction === 'gr-en' ? card.gloss : card.greek) : '';
-  const hasActiveFilters = freqFilter !== 'all' || posFilter.length > 0;
+  const hasActiveFilters = freqFilter !== 'all' || posFilter.length > 0 || activeDeckId !== null;
   const activePreset = FREQ_PRESETS.find(p => p.filter === freqFilter) ?? FREQ_PRESETS[0];
 
   // ─── Session complete screen ─────────────────────────────────────────────────
@@ -338,7 +362,7 @@ export default function Flashcards() {
         )}
         {studyMode === 'all' && hasActiveFilters && (
           <button
-            onClick={() => { setFreqFilter('all'); setPosFilter([]); }}
+            onClick={() => { setFreqFilter('all'); setPosFilter([]); setActiveDeckId(null); }}
             className="px-5 py-2.5 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium"
           >
             Clear filters
@@ -409,7 +433,7 @@ export default function Flashcards() {
 
           {/* Filters toggle */}
           <button
-            onClick={() => setShowFilters(f => !f)}
+            onClick={() => { setShowFilters(f => !f); setShowDeckBuilder(false); }}
             aria-label="Toggle filters"
             className={`px-3 py-1.5 rounded-xl text-sm border-2 font-semibold transition-colors ${
               hasActiveFilters
@@ -455,6 +479,44 @@ export default function Flashcards() {
             </button>
           );
         })}
+      </div>
+
+      {/* ── My Decks row ─────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-bold text-text-muted uppercase tracking-wider shrink-0">
+          My Decks
+        </span>
+        {customDecks.map(deck => {
+          const active = activeDeckId === deck.id;
+          return (
+            <button
+              key={deck.id}
+              onClick={() => setActiveDeckId(active ? null : deck.id)}
+              aria-pressed={active}
+              className={`px-3 py-1 rounded-full text-sm border-2 font-medium transition-colors ${
+                active
+                  ? 'bg-grape text-white border-grape'
+                  : 'border-indigo-100 text-text-muted hover:border-grape/40 hover:text-text'
+              }`}
+            >
+              {deck.name}
+              <span className={`ml-1 text-xs ${active ? 'text-white/70' : 'text-text-muted'}`}>
+                ({deck.wordKeys.length})
+              </span>
+            </button>
+          );
+        })}
+        <button
+          onClick={() => { setShowDeckBuilder(d => !d); setShowFilters(false); }}
+          aria-label="Manage custom decks"
+          className={`px-3 py-1 rounded-full text-sm border-2 border-dashed font-medium transition-colors ${
+            showDeckBuilder
+              ? 'border-grape/40 text-grape bg-grape/5'
+              : 'border-indigo-200 text-text-muted hover:border-grape/40 hover:text-text'
+          }`}
+        >
+          {customDecks.length === 0 ? '+ Create deck' : 'Manage'}
+        </button>
       </div>
 
       {/* ── Filter panel ──────────────────────────────────────────────────── */}
@@ -526,7 +588,7 @@ export default function Flashcards() {
             </p>
             {hasActiveFilters && (
               <button
-                onClick={() => { setFreqFilter('all'); setPosFilter([]); }}
+                onClick={() => { setFreqFilter('all'); setPosFilter([]); setActiveDeckId(null); }}
                 className="text-sm text-coral hover:opacity-80 font-semibold transition-opacity"
               >
                 Clear filters
@@ -534,6 +596,17 @@ export default function Flashcards() {
             )}
           </div>
         </div>
+      )}
+
+      {/* ── Deck builder panel ───────────────────────────────────────────── */}
+      {showDeckBuilder && (
+        <DeckBuilder
+          decks={customDecks}
+          activeDeckId={activeDeckId}
+          onActivateDeck={(id) => { setActiveDeckId(id); setShowDeckBuilder(false); }}
+          onDecksChange={setCustomDecks}
+          onClose={() => setShowDeckBuilder(false)}
+        />
       )}
 
       {/* ── Stats bar ─────────────────────────────────────────────────────── */}

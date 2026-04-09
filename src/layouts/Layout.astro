@@ -9,17 +9,21 @@ interface Props {
 const { title, description = "Free tools for Koine Greek students — keyboard, flashcards, and more." } = Astro.props;
 
 const navLinks = [
-  { href: '/keyboard',   label: 'Type', tabLabel: 'Type'   },
-  { href: '/flashcards', label: 'Flashcards',  tabLabel: 'Cards'  },
-  { href: '/daily',      label: 'Daily',       tabLabel: 'Daily'  },
-  { href: '/reader',     label: 'Reader',      tabLabel: 'Reader' },
-  { href: '/grammar',    label: 'Grammar',     tabLabel: 'Grammar'},
-  { href: '/paradigms',  label: 'Quiz',        tabLabel: 'Quiz'   },
+  { href: '/keyboard',   label: 'Type',       tabLabel: 'Type'   },
+  { href: '/flashcards', label: 'Flashcards', tabLabel: 'Cards'  },
+  { href: '/daily',      label: 'Daily',      tabLabel: 'Daily'  },
+  { href: '/reader',     label: 'Reader',     tabLabel: 'Reader' },
+  { href: '/grammar',    label: 'Grammar',    tabLabel: 'Grammar'},
+  { href: '/quiz',       label: 'Quiz',       tabLabel: 'Quiz'   },
 ];
 
 const currentPath = Astro.url.pathname;
 
+// Quiz section covers the picker and both quiz modes
+const QUIZ_PATHS = ['/quiz', '/paradigms', '/parse'];
+
 function isActive(href: string) {
+  if (href === '/quiz') return QUIZ_PATHS.some(p => currentPath.startsWith(p));
   return currentPath.startsWith(href);
 }
 ---
@@ -246,14 +250,14 @@ function isActive(href: string) {
           </span>
         </a>
 
-        <!-- Paradigm Quiz -->
+        <!-- Quiz -->
         <a
-          href="/paradigms"
-          class:list={["tab-item", isActive('/paradigms') ? "tab-active" : "tab-inactive"]}
-          aria-label="Paradigm Quiz"
-          aria-current={isActive('/paradigms') ? 'page' : undefined}
+          href="/quiz"
+          class:list={["tab-item", isActive('/quiz') ? "tab-active" : "tab-inactive"]}
+          aria-label="Quiz"
+          aria-current={isActive('/quiz') ? 'page' : undefined}
         >
-          <span class:list={["tab-pill", { "tab-pill-active": isActive('/paradigms') }]}>
+          <span class:list={["tab-pill", { "tab-pill-active": isActive('/quiz') }]}>
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>

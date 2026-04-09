@@ -274,7 +274,7 @@ export default function DeckBuilder({
             type="text"
             value={wordSearch}
             onChange={e => setWordSearch(e.target.value)}
-            placeholder="Search Greek or English…"
+            placeholder="Search for English definition…"
             className="flex-1 px-3 py-2 border-2 border-indigo-100 rounded-xl text-sm focus:border-grape focus:outline-none"
             autoComplete="off"
             spellCheck={false}

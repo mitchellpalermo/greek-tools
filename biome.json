@@ -17,7 +17,9 @@
         "useButtonType": "warn",
         "useKeyWithClickEvents": "warn",
         "noStaticElementInteractions": "warn",
-        "noLabelWithoutControl": "warn"
+        "noLabelWithoutControl": "warn",
+        "noRedundantRoles": "warn",
+        "useSemanticElements": "warn"
       },
       "correctness": {
         "noUnusedImports": "error",
@@ -68,7 +70,8 @@
       "linter": {
         "rules": {
           "correctness": {
-            "noUnusedVariables": "off"
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
           }
         }
       }

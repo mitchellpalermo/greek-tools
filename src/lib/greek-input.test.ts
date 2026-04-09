@@ -5,19 +5,19 @@
  * checkAnswer, and processGreekKey.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   applyFinalSigma,
-  normalizeAnswer,
-  stripDiacritics,
   checkAnswer,
-  getAcceptableVariants,
-  normalizeUserInput,
-  processGreekKey,
-  processGreekInput,
-  translateGreekInput,
-  GREEK_MAP,
   DIACRITIC_MAP,
+  GREEK_MAP,
+  getAcceptableVariants,
+  normalizeAnswer,
+  normalizeUserInput,
+  processGreekInput,
+  processGreekKey,
+  stripDiacritics,
+  translateGreekInput,
 } from './greek-input';
 
 // ---------------------------------------------------------------------------
@@ -26,8 +26,8 @@ import {
 
 describe('applyFinalSigma', () => {
   it('converts word-final σ to ς', () => {
-    expect(applyFinalSigma('λόγος')).toBe('λόγος');       // already ς
-    expect(applyFinalSigma('λόγοσ')).toBe('λόγος');       // trailing σ → ς
+    expect(applyFinalSigma('λόγος')).toBe('λόγος'); // already ς
+    expect(applyFinalSigma('λόγοσ')).toBe('λόγος'); // trailing σ → ς
   });
 
   it('does not convert medial σ', () => {
@@ -37,7 +37,7 @@ describe('applyFinalSigma', () => {
 
   it('converts σ at end of string', () => {
     expect(applyFinalSigma('λυουσι')).toBe('λυουσι'); // ends in ι, no σ
-    expect(applyFinalSigma('λυουσ')).toBe('λυους');    // ends in σ
+    expect(applyFinalSigma('λυουσ')).toBe('λυους'); // ends in σ
   });
 
   it('converts σ before punctuation', () => {
@@ -306,7 +306,7 @@ describe('processGreekKey', () => {
   });
 
   it('maps all lowercase letter keys in GREEK_MAP', () => {
-    const lowerKeys = Object.keys(GREEK_MAP).filter(k => k === k.toLowerCase());
+    const lowerKeys = Object.keys(GREEK_MAP).filter((k) => k === k.toLowerCase());
     for (const key of lowerKeys) {
       const result = processGreekKey(key, false);
       expect(result.preventDefault).toBe(true);
@@ -365,7 +365,7 @@ describe('processGreekInput', () => {
   });
 
   it('maps all lowercase letter characters in GREEK_MAP', () => {
-    const lowerKeys = Object.keys(GREEK_MAP).filter(k => k === k.toLowerCase());
+    const lowerKeys = Object.keys(GREEK_MAP).filter((k) => k === k.toLowerCase());
     for (const key of lowerKeys) {
       const result = processGreekInput(key);
       expect(result.preventDefault).toBe(true);

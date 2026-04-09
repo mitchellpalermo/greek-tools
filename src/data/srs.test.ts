@@ -1,16 +1,16 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  newCard,
   isDue,
-  nextSRS,
   loadSRSStore,
-  saveSRSStore,
   loadStats,
-  saveStats,
+  newCard,
+  nextSRS,
   recordReview,
-  STREAK_THRESHOLD,
   type SRSCard,
+  STREAK_THRESHOLD,
   type StudyStats,
+  saveSRSStore,
+  saveStats,
 } from './srs';
 
 // ─── helpers ───────────────────────────────────────────────────────────────

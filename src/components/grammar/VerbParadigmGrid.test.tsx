@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import VerbParadigmGrid from './VerbParadigmGrid';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { verbParadigms } from '../../data/grammar';
+import VerbParadigmGrid from './VerbParadigmGrid';
 
 const defaultProps = {
   paradigms: verbParadigms,
@@ -71,7 +71,9 @@ describe('VerbParadigmGrid', () => {
   // ─── Subjunctive grid ────────────────────────────────────────────────────
 
   it('renders only Present and Aorist for subjunctive', () => {
-    render(<VerbParadigmGrid {...defaultProps} activeMood="subjunctive" selectedId="pres-act-subj" />);
+    render(
+      <VerbParadigmGrid {...defaultProps} activeMood="subjunctive" selectedId="pres-act-subj" />,
+    );
     expect(screen.getByText('Pres')).toBeInTheDocument();
     expect(screen.getByText('Aor')).toBeInTheDocument();
     expect(screen.queryByText('Impf')).not.toBeInTheDocument();
@@ -79,7 +81,9 @@ describe('VerbParadigmGrid', () => {
   });
 
   it('renders Act and Pass columns for subjunctive (no Mid)', () => {
-    render(<VerbParadigmGrid {...defaultProps} activeMood="subjunctive" selectedId="pres-act-subj" />);
+    render(
+      <VerbParadigmGrid {...defaultProps} activeMood="subjunctive" selectedId="pres-act-subj" />,
+    );
     expect(screen.getByText('Act')).toBeInTheDocument();
     expect(screen.getByText('Pass')).toBeInTheDocument();
     expect(screen.queryByText('Mid')).not.toBeInTheDocument();
@@ -88,7 +92,9 @@ describe('VerbParadigmGrid', () => {
   // ─── Imperative grid ─────────────────────────────────────────────────────
 
   it('renders Present and Aorist for imperative', () => {
-    render(<VerbParadigmGrid {...defaultProps} activeMood="imperative" selectedId="pres-act-imp" />);
+    render(
+      <VerbParadigmGrid {...defaultProps} activeMood="imperative" selectedId="pres-act-imp" />,
+    );
     expect(screen.getByText('Pres')).toBeInTheDocument();
     expect(screen.getByText('Aor')).toBeInTheDocument();
   });

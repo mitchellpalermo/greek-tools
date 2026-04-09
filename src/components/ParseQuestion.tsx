@@ -1,16 +1,23 @@
-import React from 'react';
-import type { ParseItem, ParseAnswer, ParseTense, ParseVoice, ParseMood, ParsePerson, ParseNumber } from '../lib/verb-parse';
+import type {
+  ParseAnswer,
+  ParseItem,
+  ParseMood,
+  ParseNumber,
+  ParsePerson,
+  ParseTense,
+  ParseVoice,
+} from '../lib/verb-parse';
 import {
+  MOOD_LABELS,
+  NUMBER_LABELS,
+  PARSE_MOODS,
+  PARSE_NUMBERS,
+  PARSE_PERSONS,
   PARSE_TENSES,
   PARSE_VOICES,
-  PARSE_MOODS,
-  PARSE_PERSONS,
-  PARSE_NUMBERS,
+  PERSON_LABELS,
   TENSE_LABELS,
   VOICE_LABELS,
-  MOOD_LABELS,
-  PERSON_LABELS,
-  NUMBER_LABELS,
 } from '../lib/verb-parse';
 
 interface Props {
@@ -50,9 +57,7 @@ export default function ParseQuestion({ item, index, total, answer, onChange, on
 
       {/* ── Verb form ───────────────────────────────────────────────────── */}
       <div className="text-center py-8">
-        <p className="text-xs uppercase tracking-widest text-text-muted mb-3">
-          Parse this form
-        </p>
+        <p className="text-xs uppercase tracking-widest text-text-muted mb-3">Parse this form</p>
         <p
           className="text-6xl font-bold leading-none"
           style={{ fontFamily: 'var(--font-greek)', color: 'var(--color-primary)' }}
@@ -68,35 +73,35 @@ export default function ParseQuestion({ item, index, total, answer, onChange, on
           value={answer.tense}
           options={PARSE_TENSES}
           labels={TENSE_LABELS}
-          onChange={v => onChange({ ...answer, tense: v })}
+          onChange={(v) => onChange({ ...answer, tense: v })}
         />
         <ParseSelect<ParseVoice>
           label="Voice"
           value={answer.voice}
           options={PARSE_VOICES}
           labels={VOICE_LABELS}
-          onChange={v => onChange({ ...answer, voice: v })}
+          onChange={(v) => onChange({ ...answer, voice: v })}
         />
         <ParseSelect<ParseMood>
           label="Mood"
           value={answer.mood}
           options={PARSE_MOODS}
           labels={MOOD_LABELS}
-          onChange={v => onChange({ ...answer, mood: v })}
+          onChange={(v) => onChange({ ...answer, mood: v })}
         />
         <ParseSelect<ParsePerson>
           label="Person"
           value={answer.person}
           options={PARSE_PERSONS}
           labels={PERSON_LABELS}
-          onChange={v => onChange({ ...answer, person: v })}
+          onChange={(v) => onChange({ ...answer, person: v })}
         />
         <ParseSelect<ParseNumber>
           label="Number"
           value={answer.number}
           options={PARSE_NUMBERS}
           labels={NUMBER_LABELS}
-          onChange={v => onChange({ ...answer, number: v })}
+          onChange={(v) => onChange({ ...answer, number: v })}
           className="col-span-2"
         />
       </div>
@@ -146,11 +151,11 @@ function ParseSelect<T extends string>({
       </label>
       <select
         value={value}
-        onChange={e => onChange(e.target.value as T)}
+        onChange={(e) => onChange(e.target.value as T)}
         className="w-full rounded-lg border border-bg-card bg-bg-card px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] appearance-none"
       >
         <option value="">— select —</option>
-        {options.map(opt => (
+        {options.map((opt) => (
           <option key={opt} value={opt}>
             {labels[opt]}
           </option>

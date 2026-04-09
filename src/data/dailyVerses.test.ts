@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   DAILY_VERSES,
+  type DailyStreakData,
   getTodayIndex,
   getTodayVerse,
   loadStreakData,
   markReadToday,
-  type DailyStreakData,
 } from './dailyVerses';
 
 // ─── localStorage mock ────────────────────────────────────────────────────────
@@ -14,9 +14,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { store = {}; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 
@@ -61,7 +67,7 @@ describe('DAILY_VERSES', () => {
   });
 
   it('contains well-known passages', () => {
-    const refs = DAILY_VERSES.map(v => v.displayRef);
+    const refs = DAILY_VERSES.map((v) => v.displayRef);
     expect(refs).toContain('John 3:16');
     expect(refs).toContain('Romans 3:23');
     expect(refs).toContain('Philippians 4:13');

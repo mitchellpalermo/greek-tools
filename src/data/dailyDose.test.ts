@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { BOOK_NAME_TO_CODE, parseDailyDoseRef, fetchDailyDoseVerse } from './dailyDose';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BOOK_NAME_TO_CODE, fetchDailyDoseVerse, parseDailyDoseRef } from './dailyDose';
 
 // ─── sessionStorage mock ─────────────────────────────────────────────────────
 
@@ -7,10 +7,18 @@ const sessionStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { store = {}; },
-    get length() { return Object.keys(store).length; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
     key: (i: number) => Object.keys(store)[i] ?? null,
   };
 })();
@@ -25,11 +33,11 @@ describe('BOOK_NAME_TO_CODE', () => {
   });
 
   it('maps well-known books correctly', () => {
-    expect(BOOK_NAME_TO_CODE['Matthew']).toBe('MAT');
-    expect(BOOK_NAME_TO_CODE['John']).toBe('JHN');
-    expect(BOOK_NAME_TO_CODE['Romans']).toBe('ROM');
+    expect(BOOK_NAME_TO_CODE.Matthew).toBe('MAT');
+    expect(BOOK_NAME_TO_CODE.John).toBe('JHN');
+    expect(BOOK_NAME_TO_CODE.Romans).toBe('ROM');
     expect(BOOK_NAME_TO_CODE['1 Corinthians']).toBe('1CO');
-    expect(BOOK_NAME_TO_CODE['Revelation']).toBe('REV');
+    expect(BOOK_NAME_TO_CODE.Revelation).toBe('REV');
   });
 
   it('has unique 3-letter codes', () => {
@@ -75,9 +83,9 @@ describe('parseDailyDoseRef', () => {
     for (const [name, code] of Object.entries(BOOK_NAME_TO_CODE)) {
       const ref = parseDailyDoseRef(`${name} 1:1`);
       expect(ref).not.toBeNull();
-      expect(ref!.book).toBe(code);
-      expect(ref!.chapter).toBe(1);
-      expect(ref!.verse).toBe(1);
+      expect(ref?.book).toBe(code);
+      expect(ref?.chapter).toBe(1);
+      expect(ref?.verse).toBe(1);
     }
   });
 
@@ -100,7 +108,7 @@ describe('parseDailyDoseRef', () => {
   it('trims whitespace', () => {
     const ref = parseDailyDoseRef('  John 3:16  ');
     expect(ref).not.toBeNull();
-    expect(ref!.book).toBe('JHN');
+    expect(ref?.book).toBe('JHN');
   });
 });
 
@@ -184,7 +192,9 @@ describe('fetchDailyDoseVerse', () => {
   it('returns null when title is unparseable', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValue({
       ok: true,
-      json: async () => [{ title: { rendered: 'Song Mnemonic: Aorist' }, link: 'https://example.com' }],
+      json: async () => [
+        { title: { rendered: 'Song Mnemonic: Aorist' }, link: 'https://example.com' },
+      ],
     } as Response);
 
     const result = await fetchDailyDoseVerse();

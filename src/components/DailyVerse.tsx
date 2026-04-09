@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
 import posthog from 'posthog-js';
-import { type MorphWord, type MorphVerse, fetchBook } from '../data/morphgnt';
-import {
-  getTodayVerse,
-  markReadToday,
-  loadStreakData,
-  type DailyVerseRef,
-  type DailyStreakData,
-} from '../data/dailyVerses';
+import { useCallback, useEffect, useState } from 'react';
 import { fetchDailyDoseVerse } from '../data/dailyDose';
+import {
+  type DailyStreakData,
+  type DailyVerseRef,
+  getTodayVerse,
+  loadStreakData,
+  markReadToday,
+} from '../data/dailyVerses';
+import { fetchBook, type MorphVerse, type MorphWord } from '../data/morphgnt';
 import { getStudiedLemmas } from '../data/srs';
 import { type ActiveWord, WordPopup, WordToken } from './GreekText';
 
@@ -22,7 +22,11 @@ export default function DailyVerse() {
   const [showGlosses, setShowGlosses] = useState(false);
   const [streakData, setStreakData] = useState<DailyStreakData>({ streak: 0, lastReadDate: '' });
   const [studiedLemmas] = useState<Set<string>>(() => {
-    try { return getStudiedLemmas(); } catch { return new Set(); }
+    try {
+      return getStudiedLemmas();
+    } catch {
+      return new Set();
+    }
   });
 
   // Resolve verse (Daily Dose → fallback to curated list) then fetch MorphGNT data
@@ -57,23 +61,28 @@ export default function DailyVerse() {
     const updated = markReadToday();
     setStreakData(updated);
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // On mount, also load existing streak to show immediately before markReadToday resolves
   useEffect(() => {
-    try { setStreakData(loadStreakData()); } catch { /* ignore */ }
+    try {
+      setStreakData(loadStreakData());
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const handleActivate = useCallback((word: MorphWord, rect: DOMRect) => {
-    setActiveWord(prev => prev?.word === word ? null : { word, rect });
+    setActiveWord((prev) => (prev?.word === word ? null : { word, rect }));
   }, []);
 
   const handleClosePopup = useCallback(() => setActiveWord(null), []);
 
   return (
     <div onClick={handleClosePopup}>
-
       {/* ── Streak counter ─────────────────────────────────────────────────── */}
       {streakData.streak > 0 && (
         <div
@@ -89,16 +98,14 @@ export default function DailyVerse() {
 
       {/* ── Verse card ─────────────────────────────────────────────────────── */}
       <div className="bg-bg-card rounded-2xl shadow-sm border border-white p-8 mb-4">
-
-        {loading && (
-          <p className="text-text-muted text-center py-10">Loading…</p>
-        )}
+        {loading && <p className="text-text-muted text-center py-10">Loading…</p>}
 
         {error && (
           <div className="text-center py-10 space-y-2">
             <p className="text-red-600 text-sm">Could not load verse: {error}</p>
             <p className="text-text-muted text-xs">
-              Run <code className="bg-gray-100 px-1 rounded">pnpm run build:data</code> to generate the MorphGNT data files.
+              Run <code className="bg-gray-100 px-1 rounded">pnpm run build:data</code> to generate
+              the MorphGNT data files.
             </p>
           </div>
         )}
@@ -109,7 +116,7 @@ export default function DailyVerse() {
             <div
               className="flex flex-wrap mb-6"
               style={{ gap: '0 0', lineHeight: '2' }}
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               {verse.map((word, i) => (
                 <WordToken
@@ -131,9 +138,9 @@ export default function DailyVerse() {
                 — {verseRef.displayRef}
               </p>
 
-              <div className="flex gap-2 flex-wrap" onClick={e => e.stopPropagation()}>
+              <div className="flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
                 <button
-                  onClick={() => setShowGlosses(g => !g)}
+                  onClick={() => setShowGlosses((g) => !g)}
                   className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
                     showGlosses
                       ? 'border-primary bg-primary text-white'
@@ -167,8 +174,8 @@ export default function DailyVerse() {
               <p className="text-text-muted text-xs mt-4 select-none">
                 <span className="underline decoration-accent/60 decoration-dotted underline-offset-2">
                   dotted underline
-                </span>
-                {' '}= word you've studied in Flashcards
+                </span>{' '}
+                = word you've studied in Flashcards
               </p>
             )}
           </>

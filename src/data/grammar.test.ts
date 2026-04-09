@@ -1,22 +1,29 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  CASES, NUMBERS, GENDERS, PERSONS,
-  CASE_LABELS, CASE_DESCRIPTIONS,
-  NUM_LABELS, GENDER_LABELS, PERSON_LABELS, PERSON_FULL_LABELS,
-  nounParadigms,
-  adjParadigms,
-  verbParadigms,
-  infinitiveForms,
-  participleRows,
-  participleParadigms,
-  personalPronouns12,
-  genderedPronouns,
-  prepositions,
   accentSections,
+  adjParadigms,
   articleForms,
+  CASE_DESCRIPTIONS,
+  CASE_LABELS,
+  CASES,
+  GENDER_LABELS,
+  GENDERS,
+  genderedPronouns,
   getArticle,
+  infinitiveForms,
   miVerbEntries,
   miVerbParadigms,
+  NUM_LABELS,
+  NUMBERS,
+  nounParadigms,
+  PERSON_FULL_LABELS,
+  PERSON_LABELS,
+  PERSONS,
+  participleParadigms,
+  participleRows,
+  personalPronouns12,
+  prepositions,
+  verbParadigms,
 } from './grammar';
 
 // ─── grammatical constants ─────────────────────────────────────────────────
@@ -217,11 +224,11 @@ describe('participleParadigms', () => {
 
   it('nom sg forms match participleRows', () => {
     participleParadigms.forEach((paradigm) => {
-      const row = participleRows.find(r => r.label === paradigm.label);
+      const row = participleRows.find((r) => r.label === paradigm.label);
       expect(row).toBeDefined();
-      expect(paradigm.forms.nom.sg.m).toBe(row!.m);
-      expect(paradigm.forms.nom.sg.f).toBe(row!.f);
-      expect(paradigm.forms.nom.sg.n).toBe(row!.n);
+      expect(paradigm.forms.nom.sg.m).toBe(row?.m);
+      expect(paradigm.forms.nom.sg.f).toBe(row?.f);
+      expect(paradigm.forms.nom.sg.n).toBe(row?.n);
     });
   });
 });
@@ -304,18 +311,18 @@ describe('articleForms', () => {
   it('has null forms for all vocative slots', () => {
     NUMBERS.forEach((n) => {
       GENDERS.forEach((g) => {
-        expect(articleForms['voc'][n][g]).toBeNull();
+        expect(articleForms.voc[n][g]).toBeNull();
       });
     });
   });
 
   it('nom sg masculine is ὁ', () => {
-    expect(articleForms['nom']['sg']['m']).toBe('ὁ');
+    expect(articleForms.nom.sg.m).toBe('ὁ');
   });
 
   it('gen pl all genders are τῶν', () => {
     GENDERS.forEach((g) => {
-      expect(articleForms['gen']['pl'][g]).toBe('τῶν');
+      expect(articleForms.gen.pl[g]).toBe('τῶν');
     });
   });
 });
@@ -356,7 +363,7 @@ describe('miVerbEntries', () => {
   });
 
   it('covers δίδωμι, ἵστημι, ἀφίημι, τίθημι', () => {
-    const ids = miVerbEntries.map(e => e.id);
+    const ids = miVerbEntries.map((e) => e.id);
     expect(ids).toContain('didomi');
     expect(ids).toContain('histemi');
     expect(ids).toContain('aphiemi');
@@ -364,7 +371,7 @@ describe('miVerbEntries', () => {
   });
 
   it('every entry has a lexical form, gloss, and positive gntCount', () => {
-    miVerbEntries.forEach(e => {
+    miVerbEntries.forEach((e) => {
       expect(e.lexical).toBeTruthy();
       expect(e.gloss).toBeTruthy();
       expect(e.gntCount).toBeGreaterThan(0);
@@ -372,16 +379,16 @@ describe('miVerbEntries', () => {
   });
 
   it('every entry has at least one pattern note', () => {
-    miVerbEntries.forEach(e => {
+    miVerbEntries.forEach((e) => {
       expect(e.patternNotes.length).toBeGreaterThan(0);
-      e.patternNotes.forEach(note => expect(note).toBeTruthy());
+      e.patternNotes.forEach((note) => expect(note).toBeTruthy());
     });
   });
 
   it('every entry has exactly two infinitives (present and aorist)', () => {
-    miVerbEntries.forEach(e => {
+    miVerbEntries.forEach((e) => {
       expect(e.infinitives).toHaveLength(2);
-      e.infinitives.forEach(inf => {
+      e.infinitives.forEach((inf) => {
         expect(inf.label).toBeTruthy();
         expect(inf.form).toBeTruthy();
       });
@@ -389,9 +396,9 @@ describe('miVerbEntries', () => {
   });
 
   it('every entry has exactly two participle nom-sg rows', () => {
-    miVerbEntries.forEach(e => {
+    miVerbEntries.forEach((e) => {
       expect(e.participleNomSg).toHaveLength(2);
-      e.participleNomSg.forEach(row => {
+      e.participleNomSg.forEach((row) => {
         expect(row.label).toBeTruthy();
         expect(row.m).toBeTruthy();
         expect(row.f).toBeTruthy();
@@ -401,17 +408,17 @@ describe('miVerbEntries', () => {
   });
 
   it('δίδωμι has gntCount 415', () => {
-    const didomi = miVerbEntries.find(e => e.id === 'didomi')!;
+    const didomi = miVerbEntries.find((e) => e.id === 'didomi')!;
     expect(didomi.gntCount).toBe(415);
   });
 
   it('δίδωμι present active infinitive is διδόναι', () => {
-    const didomi = miVerbEntries.find(e => e.id === 'didomi')!;
+    const didomi = miVerbEntries.find((e) => e.id === 'didomi')!;
     expect(didomi.infinitives[0].form).toBe('διδόναι');
   });
 
   it('ἀφίημι aorist active infinitive is ἀφεῖναι', () => {
-    const aphiemi = miVerbEntries.find(e => e.id === 'aphiemi')!;
+    const aphiemi = miVerbEntries.find((e) => e.id === 'aphiemi')!;
     expect(aphiemi.infinitives[1].form).toBe('ἀφεῖναι');
   });
 });
@@ -424,12 +431,12 @@ describe('miVerbParadigms', () => {
   });
 
   it('every paradigm has a unique id', () => {
-    const ids = miVerbParadigms.map(p => p.id);
+    const ids = miVerbParadigms.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('every paradigm has a verbId, label, and group', () => {
-    miVerbParadigms.forEach(p => {
+    miVerbParadigms.forEach((p) => {
       expect(['didomi', 'histemi', 'aphiemi', 'tithemi']).toContain(p.verbId);
       expect(p.label).toBeTruthy();
       expect(['indicative', 'subjunctive', 'imperative']).toContain(p.group);
@@ -437,24 +444,24 @@ describe('miVerbParadigms', () => {
   });
 
   it('each verb has 7 paradigms', () => {
-    (['didomi', 'histemi', 'aphiemi', 'tithemi'] as const).forEach(verbId => {
-      const count = miVerbParadigms.filter(p => p.verbId === verbId).length;
+    (['didomi', 'histemi', 'aphiemi', 'tithemi'] as const).forEach((verbId) => {
+      const count = miVerbParadigms.filter((p) => p.verbId === verbId).length;
       expect(count).toBe(7);
     });
   });
 
   it('indicative paradigms have all six person-number forms', () => {
-    const indicatives = miVerbParadigms.filter(p => p.group === 'indicative');
-    indicatives.forEach(p => {
-      PERSONS.forEach(person => {
+    const indicatives = miVerbParadigms.filter((p) => p.group === 'indicative');
+    indicatives.forEach((p) => {
+      PERSONS.forEach((person) => {
         expect(p.forms[person]).toBeTruthy();
       });
     });
   });
 
   it('imperative paradigms have 2sg and 3sg but no 1sg', () => {
-    const imperatives = miVerbParadigms.filter(p => p.group === 'imperative');
-    imperatives.forEach(p => {
+    const imperatives = miVerbParadigms.filter((p) => p.group === 'imperative');
+    imperatives.forEach((p) => {
       expect(p.forms['1sg']).toBeUndefined();
       expect(p.forms['2sg']).toBeTruthy();
       expect(p.forms['3sg']).toBeTruthy();
@@ -462,32 +469,32 @@ describe('miVerbParadigms', () => {
   });
 
   it('δίδωμι present indicative 1sg is δίδωμι', () => {
-    const p = miVerbParadigms.find(p => p.id === 'didomi-pres-ind')!;
+    const p = miVerbParadigms.find((p) => p.id === 'didomi-pres-ind')!;
     expect(p.forms['1sg']).toBe('δίδωμι');
   });
 
   it('δίδωμι aorist indicative 1sg is ἔδωκα', () => {
-    const p = miVerbParadigms.find(p => p.id === 'didomi-aor-ind')!;
+    const p = miVerbParadigms.find((p) => p.id === 'didomi-aor-ind')!;
     expect(p.forms['1sg']).toBe('ἔδωκα');
   });
 
   it('ἵστημι aorist indicative (2nd) 3sg is ἔστη', () => {
-    const p = miVerbParadigms.find(p => p.id === 'histemi-aor-ind')!;
+    const p = miVerbParadigms.find((p) => p.id === 'histemi-aor-ind')!;
     expect(p.forms['3sg']).toBe('ἔστη');
   });
 
   it('ἀφίημι aorist imperative 2sg is ἄφες', () => {
-    const p = miVerbParadigms.find(p => p.id === 'aphiemi-aor-imptv')!;
+    const p = miVerbParadigms.find((p) => p.id === 'aphiemi-aor-imptv')!;
     expect(p.forms['2sg']).toBe('ἄφες');
   });
 
   it('τίθημι present indicative 1sg is τίθημι', () => {
-    const p = miVerbParadigms.find(p => p.id === 'tithemi-pres-ind')!;
+    const p = miVerbParadigms.find((p) => p.id === 'tithemi-pres-ind')!;
     expect(p.forms['1sg']).toBe('τίθημι');
   });
 
   it('τίθημι aorist subjunctive 1sg is θῶ', () => {
-    const p = miVerbParadigms.find(p => p.id === 'tithemi-aor-subj')!;
+    const p = miVerbParadigms.find((p) => p.id === 'tithemi-aor-subj')!;
     expect(p.forms['1sg']).toBe('θῶ');
   });
 });

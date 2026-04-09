@@ -1,12 +1,31 @@
-import React from 'react';
 import { splitWordPunct } from '../data/morphgnt';
-import type { MorphWord } from '../data/morphgnt';
-import type { GNTParseItem, GNTParseAnswer, GNTTense, GNTVoice, GNTMood, GNTPerson, GNTNumber, GNTCase, GNTGender } from '../lib/gnt-parse';
+import type {
+  GNTCase,
+  GNTGender,
+  GNTMood,
+  GNTNumber,
+  GNTParseAnswer,
+  GNTParseItem,
+  GNTPerson,
+  GNTTense,
+  GNTVoice,
+} from '../lib/gnt-parse';
 import {
-  GNT_TENSES, GNT_VOICES, GNT_MOODS, GNT_PERSONS, GNT_NUMBERS, GNT_CASES, GNT_GENDERS,
-  GNT_TENSE_LABELS, GNT_VOICE_LABELS, GNT_MOOD_LABELS, GNT_PERSON_LABELS,
-  GNT_NUMBER_LABELS, GNT_CASE_LABELS, GNT_GENDER_LABELS,
   FINITE_MOODS,
+  GNT_CASE_LABELS,
+  GNT_CASES,
+  GNT_GENDER_LABELS,
+  GNT_GENDERS,
+  GNT_MOOD_LABELS,
+  GNT_MOODS,
+  GNT_NUMBER_LABELS,
+  GNT_NUMBERS,
+  GNT_PERSON_LABELS,
+  GNT_PERSONS,
+  GNT_TENSE_LABELS,
+  GNT_TENSES,
+  GNT_VOICE_LABELS,
+  GNT_VOICES,
 } from '../lib/gnt-parse';
 
 interface Props {
@@ -18,7 +37,14 @@ interface Props {
   onSubmit: () => void;
 }
 
-export default function GNTParseQuestion({ item, index, total, answer, onChange, onSubmit }: Props) {
+export default function GNTParseQuestion({
+  item,
+  index,
+  total,
+  answer,
+  onChange,
+  onSubmit,
+}: Props) {
   const selectedMood = answer.mood as GNTMood | '';
   const isFiniteMood = selectedMood && FINITE_MOODS.includes(selectedMood);
   const isParticiple = selectedMood === 'participle';
@@ -32,8 +58,8 @@ export default function GNTParseQuestion({ item, index, total, answer, onChange,
   const canSubmit = (() => {
     if (!answer.tense || !answer.voice || !answer.mood) return false;
     if (isFiniteMood) return !!(answer.person && answer.number);
-    if (isParticiple)  return !!(answer.parseCase && answer.number && answer.gender);
-    if (isInfinitive)  return true;
+    if (isParticiple) return !!(answer.parseCase && answer.number && answer.gender);
+    if (isInfinitive) return true;
     return false;
   })();
 
@@ -47,30 +73,31 @@ export default function GNTParseQuestion({ item, index, total, answer, onChange,
             style={{ width: `${(index / total) * 100}%`, background: 'var(--color-accent)' }}
           />
         </div>
-        <span className="text-sm text-text-muted whitespace-nowrap">{index + 1} / {total}</span>
+        <span className="text-sm text-text-muted whitespace-nowrap">
+          {index + 1} / {total}
+        </span>
       </div>
 
       {/* ── Verse context ────────────────────────────────────────────────── */}
       <div className="bg-bg-card rounded-xl p-4">
-        <p className="text-xs uppercase tracking-widest text-text-muted mb-3">
-          {item.verseRef}
-        </p>
-        <p
-          className="text-lg leading-relaxed"
-          style={{ fontFamily: 'var(--font-greek)' }}
-        >
+        <p className="text-xs uppercase tracking-widest text-text-muted mb-3">{item.verseRef}</p>
+        <p className="text-lg leading-relaxed" style={{ fontFamily: 'var(--font-greek)' }}>
           {item.verseWords.map((word, i) => {
             const [form, punct] = splitWordPunct(word.text);
             const isTarget = i === item.wordIndex;
             return (
               <span key={i}>
                 <span
-                  style={isTarget ? {
-                    color: 'var(--color-accent)',
-                    fontWeight: 700,
-                    textDecoration: 'underline',
-                    textDecorationColor: 'var(--color-accent)',
-                  } : undefined}
+                  style={
+                    isTarget
+                      ? {
+                          color: 'var(--color-accent)',
+                          fontWeight: 700,
+                          textDecoration: 'underline',
+                          textDecorationColor: 'var(--color-accent)',
+                        }
+                      : undefined
+                  }
                 >
                   {form}
                 </span>
@@ -100,14 +127,14 @@ export default function GNTParseQuestion({ item, index, total, answer, onChange,
             value={answer.tense}
             options={GNT_TENSES}
             labels={GNT_TENSE_LABELS}
-            onChange={v => onChange({ ...answer, tense: v })}
+            onChange={(v) => onChange({ ...answer, tense: v })}
           />
           <GNTSelect<GNTVoice>
             label="Voice"
             value={answer.voice}
             options={GNT_VOICES}
             labels={GNT_VOICE_LABELS}
-            onChange={v => onChange({ ...answer, voice: v })}
+            onChange={(v) => onChange({ ...answer, voice: v })}
           />
           <GNTSelect<GNTMood>
             label="Mood"
@@ -126,14 +153,14 @@ export default function GNTParseQuestion({ item, index, total, answer, onChange,
                 value={answer.person}
                 options={GNT_PERSONS}
                 labels={GNT_PERSON_LABELS}
-                onChange={v => onChange({ ...answer, person: v })}
+                onChange={(v) => onChange({ ...answer, person: v })}
               />
               <GNTSelect<GNTNumber>
                 label="Number"
                 value={answer.number}
                 options={GNT_NUMBERS}
                 labels={GNT_NUMBER_LABELS}
-                onChange={v => onChange({ ...answer, number: v })}
+                onChange={(v) => onChange({ ...answer, number: v })}
               />
             </>
           )}
@@ -146,21 +173,21 @@ export default function GNTParseQuestion({ item, index, total, answer, onChange,
                 value={answer.parseCase}
                 options={GNT_CASES}
                 labels={GNT_CASE_LABELS}
-                onChange={v => onChange({ ...answer, parseCase: v })}
+                onChange={(v) => onChange({ ...answer, parseCase: v })}
               />
               <GNTSelect<GNTNumber>
                 label="Number"
                 value={answer.number}
                 options={GNT_NUMBERS}
                 labels={GNT_NUMBER_LABELS}
-                onChange={v => onChange({ ...answer, number: v })}
+                onChange={(v) => onChange({ ...answer, number: v })}
               />
               <GNTSelect<GNTGender>
                 label="Gender"
                 value={answer.gender}
                 options={GNT_GENDERS}
                 labels={GNT_GENDER_LABELS}
-                onChange={v => onChange({ ...answer, gender: v })}
+                onChange={(v) => onChange({ ...answer, gender: v })}
                 className="col-span-2"
               />
             </>
@@ -198,7 +225,14 @@ interface SelectProps<T extends string> {
   className?: string;
 }
 
-function GNTSelect<T extends string>({ label, value, options, labels, onChange, className = '' }: SelectProps<T>) {
+function GNTSelect<T extends string>({
+  label,
+  value,
+  options,
+  labels,
+  onChange,
+  className = '',
+}: SelectProps<T>) {
   return (
     <div className={className}>
       <label className="block text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">
@@ -206,12 +240,14 @@ function GNTSelect<T extends string>({ label, value, options, labels, onChange, 
       </label>
       <select
         value={value}
-        onChange={e => onChange(e.target.value as T)}
+        onChange={(e) => onChange(e.target.value as T)}
         className="w-full rounded-lg border border-bg-card bg-bg-card px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] appearance-none"
       >
         <option value="">— select —</option>
-        {options.map(opt => (
-          <option key={opt} value={opt}>{labels[opt]}</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {labels[opt]}
+          </option>
         ))}
       </select>
     </div>

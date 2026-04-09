@@ -1,12 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
 import posthog from 'posthog-js';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  type MorphWord, type MorphBook, type BookMeta,
-  fetchBook, fetchBooks,
+  type BookMeta,
+  fetchBook,
+  fetchBooks,
+  type MorphBook,
+  type MorphWord,
   saveLastPassage,
 } from '../data/morphgnt';
 import { getStudiedLemmas } from '../data/srs';
-import { vocabLookup, type ActiveWord, WordPopup, WordToken } from './GreekText';
+import { type ActiveWord, WordPopup, WordToken } from './GreekText';
 
 // ─── URL helpers ──────────────────────────────────────────────────────────────
 
@@ -76,14 +79,22 @@ export default function GNTReader() {
   const [activeWord, setActiveWord] = useState<ActiveWord | null>(null);
   const [showGlosses, setShowGlosses] = useState(false);
   const [studiedLemmas] = useState<Set<string>>(() => {
-    try { return getStudiedLemmas(); } catch { return new Set(); }
+    try {
+      return getStudiedLemmas();
+    } catch {
+      return new Set();
+    }
   });
 
   // Load book list once on mount; also read initial passage from URL
   useEffect(() => {
     fetchBooks()
-      .then(list => { setBooks(list); })
-      .catch(() => { /* books.json not yet built; list will be empty */ });
+      .then((list) => {
+        setBooks(list);
+      })
+      .catch(() => {
+        /* books.json not yet built; list will be empty */
+      });
 
     const ref = getUrlRef();
     if (ref) {
@@ -101,15 +112,22 @@ export default function GNTReader() {
     setBookData(null);
 
     fetchBook(book)
-      .then(data => { if (!cancelled) { setBookData(data); setLoading(false); } })
-      .catch(err => {
+      .then((data) => {
+        if (!cancelled) {
+          setBookData(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
         if (!cancelled) {
           setError((err as Error).message);
           setLoading(false);
         }
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [book]);
 
   // Update URL and save history whenever passage changes; also track analytics
@@ -137,17 +155,17 @@ export default function GNTReader() {
   }, [bookData]);
 
   // Reset scroll flag when chapter changes
-  useEffect(() => { didScrollRef.current = false; }, [book, chapter]);
+  useEffect(() => {
+    didScrollRef.current = false;
+  }, []);
 
   const handleActivate = useCallback((word: MorphWord, rect: DOMRect) => {
-    setActiveWord(prev =>
-      prev?.word === word ? null : { word, rect },
-    );
+    setActiveWord((prev) => (prev?.word === word ? null : { word, rect }));
   }, []);
 
   const handleClosePopup = useCallback(() => setActiveWord(null), []);
 
-  const currentBook = books.find(b => b.code === book);
+  const currentBook = books.find((b) => b.code === book);
   const chapterCount = currentBook?.chapters ?? 0;
   const chapterVerses = bookData?.[String(chapter)] ?? {};
   const verseNums = Object.keys(chapterVerses)
@@ -157,23 +175,24 @@ export default function GNTReader() {
   return (
     // Overlay click closes popup
     <div onClick={handleClosePopup}>
-
       {/* ── Toolbar ───────────────────────────────────────────────────────── */}
-      <div
-        className="flex flex-wrap items-center gap-3 mb-6"
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="flex flex-wrap items-center gap-3 mb-6" onClick={(e) => e.stopPropagation()}>
         {/* Book selector */}
         <select
           value={book}
-          onChange={e => { setBook(e.target.value); setChapter(1); }}
+          onChange={(e) => {
+            setBook(e.target.value);
+            setChapter(1);
+          }}
           className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-bg-card focus:border-primary focus:outline-none"
         >
           {books.length === 0 ? (
             <option value={book}>{book}</option>
           ) : (
-            books.map(b => (
-              <option key={b.code} value={b.code}>{b.name}</option>
+            books.map((b) => (
+              <option key={b.code} value={b.code}>
+                {b.name}
+              </option>
             ))
           )}
         </select>
@@ -181,14 +200,16 @@ export default function GNTReader() {
         {/* Chapter selector */}
         <select
           value={chapter}
-          onChange={e => setChapter(Number(e.target.value))}
+          onChange={(e) => setChapter(Number(e.target.value))}
           className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-bg-card focus:border-primary focus:outline-none"
         >
           {chapterCount === 0 ? (
             <option value={chapter}>Chapter {chapter}</option>
           ) : (
-            Array.from({ length: chapterCount }, (_, i) => i + 1).map(n => (
-              <option key={n} value={n}>Chapter {n}</option>
+            Array.from({ length: chapterCount }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                Chapter {n}
+              </option>
             ))
           )}
         </select>
@@ -196,7 +217,10 @@ export default function GNTReader() {
         {/* Chapter navigation arrows */}
         <div className="flex gap-1">
           <button
-            onClick={e => { e.stopPropagation(); setChapter(c => Math.max(1, c - 1)); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setChapter((c) => Math.max(1, c - 1));
+            }}
             disabled={chapter <= 1}
             className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label="Previous chapter"
@@ -204,7 +228,10 @@ export default function GNTReader() {
             ←
           </button>
           <button
-            onClick={e => { e.stopPropagation(); setChapter(c => chapterCount ? Math.min(chapterCount, c + 1) : c + 1); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setChapter((c) => (chapterCount ? Math.min(chapterCount, c + 1) : c + 1));
+            }}
             disabled={chapterCount > 0 && chapter >= chapterCount}
             className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label="Next chapter"
@@ -215,7 +242,10 @@ export default function GNTReader() {
 
         {/* Gloss toggle */}
         <button
-          onClick={e => { e.stopPropagation(); setShowGlosses(g => !g); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowGlosses((g) => !g);
+          }}
           className={`ml-auto px-3 py-1.5 rounded-lg text-sm border transition-colors ${
             showGlosses
               ? 'border-primary bg-primary text-white'
@@ -234,9 +264,7 @@ export default function GNTReader() {
       )}
 
       {/* ── Text area ─────────────────────────────────────────────────────── */}
-      {loading && (
-        <p className="text-text-muted text-center py-16">Loading…</p>
-      )}
+      {loading && <p className="text-text-muted text-center py-16">Loading…</p>}
 
       {error && (
         <div className="text-center py-16 space-y-3">
@@ -244,7 +272,8 @@ export default function GNTReader() {
             Could not load {book}: {error}
           </p>
           <p className="text-text-muted text-xs">
-            Run <code className="bg-gray-100 px-1 rounded">pnpm run build:data</code> to generate the data files.
+            Run <code className="bg-gray-100 px-1 rounded">pnpm run build:data</code> to generate
+            the data files.
           </p>
         </div>
       )}
@@ -254,7 +283,7 @@ export default function GNTReader() {
           className="leading-relaxed max-w-2xl"
           style={{ wordSpacing: showGlosses ? '0.3em' : undefined }}
         >
-          {verseNums.map(v => (
+          {verseNums.map((v) => (
             <VerseDisplay
               key={v}
               verseNum={v}
@@ -271,15 +300,15 @@ export default function GNTReader() {
       {/* ── Legend ────────────────────────────────────────────────────────── */}
       {!loading && !error && bookData && studiedLemmas.size > 0 && (
         <p className="text-text-muted text-xs mt-6 select-none">
-          <span className="underline decoration-accent/60 decoration-dotted underline-offset-2">dotted underline</span>
-          {' '}= word you've studied in Flashcards
+          <span className="underline decoration-accent/60 decoration-dotted underline-offset-2">
+            dotted underline
+          </span>{' '}
+          = word you've studied in Flashcards
         </p>
       )}
 
       {/* ── Word popup ────────────────────────────────────────────────────── */}
-      {activeWord && (
-        <WordPopup active={activeWord} onClose={handleClosePopup} />
-      )}
+      {activeWord && <WordPopup active={activeWord} onClose={handleClosePopup} />}
     </div>
   );
 }

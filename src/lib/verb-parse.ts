@@ -5,7 +5,7 @@
  * No Greek text input needed; all answers are dropdown selections.
  */
 
-import { verbParadigms, type PersonNum } from '../data/grammar';
+import { type PersonNum, verbParadigms } from '../data/grammar';
 
 // ---------------------------------------------------------------------------
 // Domain types
@@ -101,24 +101,24 @@ export function emptyAnswer(): ParseAnswer {
 const ID_TENSE: Record<string, ParseTense> = {
   pres: 'present',
   impf: 'imperfect',
-  fut:  'future',
-  aor:  'aorist',
+  fut: 'future',
+  aor: 'aorist',
   perf: 'perfect',
 };
 
 /** Map paradigm id segment → ParseVoice */
 const ID_VOICE: Record<string, ParseVoice> = {
-  act:  'active',
-  mid:  'middle',
+  act: 'active',
+  mid: 'middle',
   pass: 'passive',
   'mid-pass': 'mid-pass',
 };
 
 /** Map paradigm id segment → ParseMood */
 const ID_MOOD: Record<string, ParseMood> = {
-  ind:  'indicative',
+  ind: 'indicative',
   subj: 'subjunctive',
-  imp:  'imperative',
+  imp: 'imperative',
 };
 
 /** Map PersonNum key → ParsePerson + ParseNumber */
@@ -133,7 +133,7 @@ const PERSON_MAP: Record<PersonNum, { person: ParsePerson; number: ParseNumber }
 
 function parseTenseFromId(id: string): ParseTense | null {
   for (const [seg, tense] of Object.entries(ID_TENSE)) {
-    if (id.startsWith(seg + '-')) return tense;
+    if (id.startsWith(`${seg}-`)) return tense;
   }
   return null;
 }
@@ -141,14 +141,14 @@ function parseTenseFromId(id: string): ParseTense | null {
 function parseVoiceFromId(id: string): ParseVoice | null {
   // Order matters: check mid-pass before mid and pass
   for (const seg of ['mid-pass', 'act', 'mid', 'pass']) {
-    if (id.includes('-' + seg + '-')) return ID_VOICE[seg];
+    if (id.includes(`-${seg}-`)) return ID_VOICE[seg];
   }
   return null;
 }
 
 function parseMoodFromId(id: string): ParseMood | null {
   for (const [seg, mood] of Object.entries(ID_MOOD)) {
-    if (id.endsWith('-' + seg)) return mood;
+    if (id.endsWith(`-${seg}`)) return mood;
   }
   return null;
 }
@@ -186,7 +186,7 @@ export function buildSession(settings: ParseSettings, count: number): ParseItem[
   for (const paradigm of verbParadigms) {
     const tense = parseTenseFromId(paradigm.id);
     const voice = parseVoiceFromId(paradigm.id);
-    const mood  = parseMoodFromId(paradigm.id);
+    const mood = parseMoodFromId(paradigm.id);
     if (!tense || !voice || !mood) continue;
 
     // Filter by settings — mid-pass paradigms can count for either middle or passive
@@ -195,11 +195,7 @@ export function buildSession(settings: ParseSettings, count: number): ParseItem[
       (voice === 'mid-pass' &&
         (settings.voices.includes('middle') || settings.voices.includes('passive')));
 
-    if (
-      !settings.tenses.includes(tense) ||
-      !voiceMatch ||
-      !settings.moods.includes(mood)
-    ) continue;
+    if (!settings.tenses.includes(tense) || !voiceMatch || !settings.moods.includes(mood)) continue;
 
     for (const [personNum, form] of Object.entries(paradigm.forms) as [PersonNum, string][]) {
       const { person, number } = PERSON_MAP[personNum];
@@ -230,9 +226,12 @@ export function buildSession(settings: ParseSettings, count: number): ParseItem[
   for (const [, items] of byForm) {
     const primary = items[0];
     if (items.length > 1) {
-      primary.ambiguous = items.slice(1).map(
-        i => `${TENSE_LABELS[i.tense]} ${VOICE_LABELS[i.voice]} ${MOOD_LABELS[i.mood]} ${i.person} ${NUMBER_LABELS[i.number]}`
-      );
+      primary.ambiguous = items
+        .slice(1)
+        .map(
+          (i) =>
+            `${TENSE_LABELS[i.tense]} ${VOICE_LABELS[i.voice]} ${MOOD_LABELS[i.mood]} ${i.person} ${NUMBER_LABELS[i.number]}`,
+        );
     }
     deduped.push(primary);
   }
@@ -244,12 +243,19 @@ export function buildSession(settings: ParseSettings, count: number): ParseItem[
 
 /** Grade a student's answer against the correct parse. */
 export function gradeAnswer(item: ParseItem, answer: ParseAnswer): ParseResult {
-  const tense  = answer.tense  === item.tense;
-  const voice  = gradeVoice(item.voice, answer.voice);
-  const mood   = answer.mood   === item.mood;
+  const tense = answer.tense === item.tense;
+  const voice = gradeVoice(item.voice, answer.voice);
+  const mood = answer.mood === item.mood;
   const person = answer.person === item.person;
   const number = answer.number === item.number;
-  return { tense, voice, mood, person, number, allCorrect: tense && voice && mood && person && number };
+  return {
+    tense,
+    voice,
+    mood,
+    person,
+    number,
+    allCorrect: tense && voice && mood && person && number,
+  };
 }
 
 /** mid-pass paradigms accept either 'middle' or 'passive' as correct. */
@@ -279,7 +285,7 @@ export function loadParseSettings(): ParseSettings {
     return {
       tenses: Array.isArray(parsed.tenses) ? parsed.tenses : [...PARSE_TENSES],
       voices: Array.isArray(parsed.voices) ? parsed.voices : ['active', 'middle', 'passive'],
-      moods:  Array.isArray(parsed.moods)  ? parsed.moods  : [...PARSE_MOODS],
+      moods: Array.isArray(parsed.moods) ? parsed.moods : [...PARSE_MOODS],
       sessionLength: ([10, 20, 30] as const).includes(parsed.sessionLength as 10 | 20 | 30)
         ? (parsed.sessionLength as 10 | 20 | 30)
         : 20,

@@ -15,10 +15,12 @@ export default function GreekInputHub() {
         role="tablist"
         aria-label="Greek input mode"
       >
-        {([
-          { id: 'keyboard',        label: 'Keyboard',        icon: '⌨' },
-          { id: 'transliteration', label: 'Transliteration', icon: 'Aa' },
-        ] as const).map(({ id, label, icon }) => (
+        {(
+          [
+            { id: 'keyboard', label: 'Keyboard', icon: '⌨' },
+            { id: 'transliteration', label: 'Transliteration', icon: 'Aa' },
+          ] as const
+        ).map(({ id, label, icon }) => (
           <button
             key={id}
             role="tab"
@@ -38,10 +40,11 @@ export default function GreekInputHub() {
       </div>
 
       <div role="tabpanel">
-        {activeTab === 'keyboard'
-          ? <GreekKeyboard key="keyboard" />
-          : <Transliteration key="transliteration" />
-        }
+        {activeTab === 'keyboard' ? (
+          <GreekKeyboard key="keyboard" />
+        ) : (
+          <Transliteration key="transliteration" />
+        )}
       </div>
     </div>
   );

@@ -1,20 +1,20 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
-  CASES,
-  NUMBERS,
-  GENDERS,
-  CASE_LABELS,
-  CASE_DESCRIPTIONS,
-  NUM_LABELS,
-  GENDER_LABELS,
   type AdjParadigm,
+  CASE_DESCRIPTIONS,
+  CASE_LABELS,
+  CASES,
   type CaseKey,
-  type NumKey,
+  GENDER_LABELS,
+  GENDERS,
   type GenderKey,
+  NUM_LABELS,
+  NUMBERS,
+  type NumKey,
 } from '../../data/grammar';
+import DescriptionBar from './DescriptionBar';
 import EndingsToggle from './EndingsToggle';
 import NumberToggle from './NumberToggle';
-import DescriptionBar from './DescriptionBar';
 
 export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm }) {
   const [showEndings, setShowEndings] = useState(false);
@@ -23,15 +23,12 @@ export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm })
 
   const handleCell = useCallback((caseKey: CaseKey, numKey: NumKey, genderKey: GenderKey) => {
     setDescription(
-      `${CASE_DESCRIPTIONS[caseKey].split(' — ')[0]} ${NUM_LABELS[numKey]} ${GENDER_LABELS[genderKey]} — ${CASE_DESCRIPTIONS[caseKey].split(' — ')[1]}`
+      `${CASE_DESCRIPTIONS[caseKey].split(' — ')[0]} ${NUM_LABELS[numKey]} ${GENDER_LABELS[genderKey]} — ${CASE_DESCRIPTIONS[caseKey].split(' — ')[1]}`,
     );
   }, []);
 
   return (
-    <div
-      className="rounded-xl overflow-hidden shadow-sm"
-      style={{ border: '1px solid #e5e7eb' }}
-    >
+    <div className="rounded-xl overflow-hidden shadow-sm" style={{ border: '1px solid #e5e7eb' }}>
       <div
         className="px-4 py-2.5 flex items-center justify-between"
         style={{ background: 'var(--color-primary)' }}
@@ -39,17 +36,23 @@ export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm })
         <span className="text-sm font-semibold text-white">{paradigm.name}</span>
         <div className="flex items-center gap-2">
           <NumberToggle activeNumber={activeNumber} onToggle={setActiveNumber} />
-          <EndingsToggle showEndings={showEndings} onToggle={() => setShowEndings(v => !v)} />
+          <EndingsToggle showEndings={showEndings} onToggle={() => setShowEndings((v) => !v)} />
         </div>
       </div>
 
       {/* Desktop: full 6-column table */}
-      <div className="hidden md:block overflow-x-auto" style={{ background: 'var(--color-bg-card)' }}>
+      <div
+        className="hidden md:block overflow-x-auto"
+        style={{ background: 'var(--color-bg-card)' }}
+      >
         <table className="w-full text-sm">
           <thead>
             <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
-              <th className="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', width: '4rem' }} />
-              {NUMBERS.map(num => (
+              <th
+                className="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)', width: '4rem' }}
+              />
+              {NUMBERS.map((num) => (
                 <th
                   key={num}
                   colSpan={3}
@@ -62,8 +65,8 @@ export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm })
             </tr>
             <tr style={{ background: 'rgba(30,58,95,0.03)' }}>
               <th />
-              {NUMBERS.map(num =>
-                GENDERS.map(g => (
+              {NUMBERS.map((num) =>
+                GENDERS.map((g) => (
                   <th
                     key={`${num}-${g}`}
                     className="px-3 py-1.5 text-center text-xs font-medium"
@@ -71,7 +74,7 @@ export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm })
                   >
                     {GENDER_LABELS[g]}
                   </th>
-                ))
+                )),
               )}
             </tr>
           </thead>
@@ -89,8 +92,8 @@ export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm })
                 >
                   {CASE_LABELS[c]}
                 </td>
-                {NUMBERS.map(num =>
-                  GENDERS.map(g => (
+                {NUMBERS.map((num) =>
+                  GENDERS.map((g) => (
                     <td
                       key={`${num}-${g}`}
                       className="px-3 py-2 text-center font-greek text-sm cursor-default"
@@ -101,7 +104,7 @@ export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm })
                     >
                       {paradigm.forms[c][num][g]}
                     </td>
-                  ))
+                  )),
                 )}
               </tr>
             ))}
@@ -114,8 +117,11 @@ export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm })
         <table className="w-full text-sm">
           <thead>
             <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
-              <th className="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', width: '4rem' }} />
-              {GENDERS.map(g => (
+              <th
+                className="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)', width: '4rem' }}
+              />
+              {GENDERS.map((g) => (
                 <th
                   key={g}
                   className="px-3 py-2 text-center text-xs font-medium"
@@ -139,7 +145,7 @@ export default function AdjParadigmCard({ paradigm }: { paradigm: AdjParadigm })
                 >
                   {CASE_LABELS[c]}
                 </td>
-                {GENDERS.map(g => (
+                {GENDERS.map((g) => (
                   <td
                     key={g}
                     className="px-3 py-2 text-center font-greek text-sm cursor-default"

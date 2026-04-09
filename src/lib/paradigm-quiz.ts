@@ -7,26 +7,26 @@
  */
 
 import {
-  CASES,
-  NUMBERS,
-  GENDERS,
-  PERSONS,
-  CASE_LABELS,
-  NUM_LABELS,
-  GENDER_LABELS,
-  PERSON_LABELS,
-  nounParadigms,
   adjParadigms,
-  verbParadigms,
-  infinitiveForms,
-  participleParadigms,
-  personalPronouns12,
-  genderedPronouns,
   articleForms,
+  CASE_LABELS,
+  CASES,
   contractVerbParadigms,
+  GENDER_LABELS,
+  GENDERS,
+  genderedPronouns,
+  infinitiveForms,
   liquidFutureComparison,
   miVerbEntries,
   miVerbParadigms,
+  NUM_LABELS,
+  NUMBERS,
+  nounParadigms,
+  PERSON_LABELS,
+  PERSONS,
+  participleParadigms,
+  personalPronouns12,
+  verbParadigms,
 } from '../data/grammar';
 
 // ---------------------------------------------------------------------------
@@ -90,14 +90,14 @@ export function buildTableModels(): TableModel[] {
 
 /** Noun paradigms: rows = cases, cols = [Singular, Plural]. */
 function buildNounTables(): TableModel[] {
-  return nounParadigms.map(p => ({
+  return nounParadigms.map((p) => ({
     id: `noun-${p.id}`,
     label: p.name,
     category: 'noun' as const,
-    cols: NUMBERS.map(n => NUM_LABELS[n]),
-    rows: CASES.map(c => ({
+    cols: NUMBERS.map((n) => NUM_LABELS[n]),
+    rows: CASES.map((c) => ({
       label: CASE_LABELS[c],
-      answers: NUMBERS.map(n => p.forms[c][n].full),
+      answers: NUMBERS.map((n) => p.forms[c][n].full),
     })),
   }));
 }
@@ -107,15 +107,15 @@ function buildNounTables(): TableModel[] {
  * leaf cols = [Masc., Fem., Neut.] repeated per group.
  */
 function buildAdjTables(): TableModel[] {
-  return adjParadigms.map(p => ({
+  return adjParadigms.map((p) => ({
     id: `adj-${p.id}`,
     label: p.name,
     category: 'adjective' as const,
-    colGroups: NUMBERS.map(n => NUM_LABELS[n]),
-    cols: NUMBERS.flatMap(() => GENDERS.map(g => GENDER_LABELS[g])),
-    rows: CASES.map(c => ({
+    colGroups: NUMBERS.map((n) => NUM_LABELS[n]),
+    cols: NUMBERS.flatMap(() => GENDERS.map((g) => GENDER_LABELS[g])),
+    rows: CASES.map((c) => ({
       label: CASE_LABELS[c],
-      answers: NUMBERS.flatMap(n => GENDERS.map(g => p.forms[c][n][g])),
+      answers: NUMBERS.flatMap((n) => GENDERS.map((g) => p.forms[c][n][g])),
     })),
   }));
 }
@@ -125,15 +125,15 @@ function buildAdjTables(): TableModel[] {
  * for infinitives and participles.
  */
 function buildVerbTables(): TableModel[] {
-  const conjugationTables: TableModel[] = verbParadigms.map(p => ({
+  const conjugationTables: TableModel[] = verbParadigms.map((p) => ({
     id: `verb-${p.id}`,
     label: p.label,
     category: 'verb' as const,
     cols: ['Form'],
-    rows: PERSONS.map(pn => ({
+    rows: PERSONS.map((pn) => ({
       label: PERSON_LABELS[pn],
       answers: [p.forms[pn] ?? null],
-    })).filter(row => row.answers[0] !== null || p.group !== 'imperative'),
+    })).filter((row) => row.answers[0] !== null || p.group !== 'imperative'),
   }));
 
   const infinitiveTable: TableModel = {
@@ -141,7 +141,7 @@ function buildVerbTables(): TableModel[] {
     label: 'Infinitives (λύω)',
     category: 'verb',
     cols: ['Form'],
-    rows: infinitiveForms.map(inf => ({
+    rows: infinitiveForms.map((inf) => ({
       label: inf.label,
       answers: [inf.form],
     })),
@@ -158,15 +158,15 @@ function buildVerbTables(): TableModel[] {
  * Mirrors the adjective table structure.
  */
 function buildParticipleParadigmTables(): TableModel[] {
-  return participleParadigms.map(p => ({
+  return participleParadigms.map((p) => ({
     id: `participle-${p.id}`,
     label: `${p.label} Participle (λύω)`,
     category: 'verb' as const,
-    colGroups: NUMBERS.map(n => NUM_LABELS[n]),
-    cols: NUMBERS.flatMap(() => GENDERS.map(g => GENDER_LABELS[g])),
-    rows: CASES.map(c => ({
+    colGroups: NUMBERS.map((n) => NUM_LABELS[n]),
+    cols: NUMBERS.flatMap(() => GENDERS.map((g) => GENDER_LABELS[g])),
+    rows: CASES.map((c) => ({
       label: CASE_LABELS[c],
-      answers: NUMBERS.flatMap(n => GENDERS.map(g => p.forms[c][n][g])),
+      answers: NUMBERS.flatMap((n) => GENDERS.map((g) => p.forms[c][n][g])),
     })),
   }));
 }
@@ -178,28 +178,26 @@ function buildParticipleParadigmTables(): TableModel[] {
  *   leaf cols = [Masc., Fem., Neut.]
  */
 function buildPronounTables(): TableModel[] {
-  const personal: TableModel[] = personalPronouns12.map(p => ({
+  const personal: TableModel[] = personalPronouns12.map((p) => ({
     id: `pronoun-${p.id}`,
     label: p.name,
     category: 'pronoun' as const,
-    cols: NUMBERS.map(n => NUM_LABELS[n]),
-    rows: CASES.filter(c => c !== 'voc').map(c => ({
+    cols: NUMBERS.map((n) => NUM_LABELS[n]),
+    rows: CASES.filter((c) => c !== 'voc').map((c) => ({
       label: CASE_LABELS[c],
-      answers: NUMBERS.map(n => p.forms[n][c] ?? null),
+      answers: NUMBERS.map((n) => p.forms[n][c] ?? null),
     })),
   }));
 
-  const gendered: TableModel[] = genderedPronouns.map(p => ({
+  const gendered: TableModel[] = genderedPronouns.map((p) => ({
     id: `pronoun-${p.id}`,
     label: p.name,
     category: 'pronoun' as const,
-    colGroups: NUMBERS.map(n => NUM_LABELS[n]),
-    cols: NUMBERS.flatMap(() => GENDERS.map(g => GENDER_LABELS[g])),
-    rows: CASES.filter(c => p.forms[c] !== undefined).map(c => ({
+    colGroups: NUMBERS.map((n) => NUM_LABELS[n]),
+    cols: NUMBERS.flatMap(() => GENDERS.map((g) => GENDER_LABELS[g])),
+    rows: CASES.filter((c) => p.forms[c] !== undefined).map((c) => ({
       label: CASE_LABELS[c],
-      answers: NUMBERS.flatMap(n =>
-        GENDERS.map(g => p.forms[c]?.[n]?.[g] ?? null)
-      ),
+      answers: NUMBERS.flatMap((n) => GENDERS.map((g) => p.forms[c]?.[n]?.[g] ?? null)),
     })),
   }));
 
@@ -212,16 +210,16 @@ function buildPronounTables(): TableModel[] {
  */
 export function buildContractVerbTables(): TableModel[] {
   const typeLabel: Record<string, string> = {
-    alpha:   'α-contract (ἀγαπάω)',
+    alpha: 'α-contract (ἀγαπάω)',
     epsilon: 'ε-contract (ποιέω)',
     omicron: 'ο-contract (πληρόω)',
   };
-  return contractVerbParadigms.map(p => ({
+  return contractVerbParadigms.map((p) => ({
     id: `contract-${p.id}`,
     label: `${p.label} — ${typeLabel[p.contractType]}`,
     category: 'verb' as const,
     cols: ['Form'],
-    rows: PERSONS.map(pn => ({
+    rows: PERSONS.map((pn) => ({
       label: PERSON_LABELS[pn],
       answers: [p.forms[pn] ?? null],
     })),
@@ -234,38 +232,38 @@ export function buildContractVerbTables(): TableModel[] {
  * Excluded from buildTableModels() — opt-in via this export.
  */
 export function buildMiVerbTables(): TableModel[] {
-  const conjugationTables: TableModel[] = miVerbParadigms.map(p => {
-    const entry = miVerbEntries.find(e => e.id === p.verbId)!;
+  const conjugationTables: TableModel[] = miVerbParadigms.map((p) => {
+    const entry = miVerbEntries.find((e) => e.id === p.verbId)!;
     return {
       id: `mi-${p.id}`,
       label: `${entry.lexical} — ${p.label}`,
       category: 'verb' as const,
       cols: ['Form'],
-      rows: PERSONS.map(pn => ({
+      rows: PERSONS.map((pn) => ({
         label: PERSON_LABELS[pn],
         answers: [p.forms[pn] ?? null],
-      })).filter(row => row.answers[0] !== null),
+      })).filter((row) => row.answers[0] !== null),
     };
   });
 
-  const infinitiveTables: TableModel[] = miVerbEntries.map(entry => ({
+  const infinitiveTables: TableModel[] = miVerbEntries.map((entry) => ({
     id: `mi-${entry.id}-infinitives`,
     label: `${entry.lexical} — Infinitives`,
     category: 'verb' as const,
     cols: ['Form'],
-    rows: entry.infinitives.map(inf => ({
+    rows: entry.infinitives.map((inf) => ({
       label: inf.label,
       answers: [inf.form],
     })),
   }));
 
-  const participleTables: TableModel[] = miVerbEntries.map(entry => ({
+  const participleTables: TableModel[] = miVerbEntries.map((entry) => ({
     id: `mi-${entry.id}-participles`,
     label: `${entry.lexical} — Participle Nom Sg`,
     category: 'verb' as const,
     colGroups: undefined,
     cols: ['Masc.', 'Fem.', 'Neut.'],
-    rows: entry.participleNomSg.map(row => ({
+    rows: entry.participleNomSg.map((row) => ({
       label: row.label,
       answers: [row.m, row.f, row.n],
     })),
@@ -284,7 +282,7 @@ export function buildLiquidVerbTables(): TableModel[] {
       label: 'Liquid Future Active — βαλῶ (βάλλω)',
       category: 'verb' as const,
       cols: ['Form'],
-      rows: liquidFutureComparison.map(row => ({
+      rows: liquidFutureComparison.map((row) => ({
         label: PERSON_LABELS[row.person],
         answers: [row.liquid],
       })),
@@ -342,9 +340,9 @@ const DENSITY_RATIO: Record<Density, number> = {
  */
 export function applyDensity(cells: QuizCell[], density: Density): QuizCell[] {
   const count = Math.max(1, Math.round(cells.length * DENSITY_RATIO[density]));
-  const shuffled = shuffle(cells.map(c => c.index));
+  const shuffled = shuffle(cells.map((c) => c.index));
   const blankSet = new Set(shuffled.slice(0, count));
-  return cells.map(c => ({ ...c, isBlank: blankSet.has(c.index) }));
+  return cells.map((c) => ({ ...c, isBlank: blankSet.has(c.index) }));
 }
 
 /**
@@ -353,16 +351,16 @@ export function applyDensity(cells: QuizCell[], density: Density): QuizCell[] {
  * col groups = Singular | Plural, leaf cols = Masc. | Fem. | Neut.
  */
 function buildArticleTable(): TableModel {
-  const articleCases = CASES.filter(c => c !== 'voc');
+  const articleCases = CASES.filter((c) => c !== 'voc');
   return {
     id: 'article',
     label: 'Definite Article — ὁ, ἡ, τό',
     category: 'article',
-    colGroups: NUMBERS.map(n => NUM_LABELS[n]),
-    cols: NUMBERS.flatMap(() => GENDERS.map(g => GENDER_LABELS[g])),
-    rows: articleCases.map(c => ({
+    colGroups: NUMBERS.map((n) => NUM_LABELS[n]),
+    cols: NUMBERS.flatMap(() => GENDERS.map((g) => GENDER_LABELS[g])),
+    rows: articleCases.map((c) => ({
       label: CASE_LABELS[c],
-      answers: NUMBERS.flatMap(n => GENDERS.map(g => articleForms[c][n][g])),
+      answers: NUMBERS.flatMap((n) => GENDERS.map((g) => articleForms[c][n][g])),
     })),
   };
 }

@@ -4,18 +4,18 @@
  * Covers: buildSession, gradeAnswer, normalizeForm, and type helpers.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   buildSession,
+  DEFAULT_PARSE_SETTINGS,
+  emptyAnswer,
   gradeAnswer,
   normalizeForm,
-  emptyAnswer,
-  DEFAULT_PARSE_SETTINGS,
+  PARSE_MOODS,
   PARSE_TENSES,
   PARSE_VOICES,
-  PARSE_MOODS,
-  type ParseSettings,
   type ParseAnswer,
+  type ParseSettings,
 } from './verb-parse';
 
 // ---------------------------------------------------------------------------
@@ -123,7 +123,7 @@ describe('buildSession', () => {
 
   it('de-duplicates forms that appear in multiple paradigms', () => {
     const items = buildSession(DEFAULT_PARSE_SETTINGS, 200);
-    const forms = items.map(i => normalizeForm(i.form));
+    const forms = items.map((i) => normalizeForm(i.form));
     const unique = new Set(forms);
     expect(forms.length).toBe(unique.size);
   });
@@ -181,8 +181,22 @@ describe('gradeAnswer', () => {
       voice: 'mid-pass' as const,
       paradigmLabel: 'Present Middle/Passive Indicative — λύω',
     };
-    const withMiddle: ParseAnswer = { ...emptyAnswer(), voice: 'middle', tense: 'present', mood: 'indicative', person: '1st', number: 'singular' };
-    const withPassive: ParseAnswer = { ...emptyAnswer(), voice: 'passive', tense: 'present', mood: 'indicative', person: '1st', number: 'singular' };
+    const withMiddle: ParseAnswer = {
+      ...emptyAnswer(),
+      voice: 'middle',
+      tense: 'present',
+      mood: 'indicative',
+      person: '1st',
+      number: 'singular',
+    };
+    const withPassive: ParseAnswer = {
+      ...emptyAnswer(),
+      voice: 'passive',
+      tense: 'present',
+      mood: 'indicative',
+      person: '1st',
+      number: 'singular',
+    };
     expect(gradeAnswer(midPassItem, withMiddle).voice).toBe(true);
     expect(gradeAnswer(midPassItem, withPassive).voice).toBe(true);
   });
@@ -192,7 +206,14 @@ describe('gradeAnswer', () => {
       ...presActIndItem,
       voice: 'mid-pass' as const,
     };
-    const withActive: ParseAnswer = { ...emptyAnswer(), voice: 'active', tense: 'present', mood: 'indicative', person: '1st', number: 'singular' };
+    const withActive: ParseAnswer = {
+      ...emptyAnswer(),
+      voice: 'active',
+      tense: 'present',
+      mood: 'indicative',
+      person: '1st',
+      number: 'singular',
+    };
     expect(gradeAnswer(midPassItem, withActive).voice).toBe(false);
   });
 

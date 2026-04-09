@@ -11,23 +11,65 @@
 
 /** Beta Code–style mapping from ASCII key to Greek letter. */
 export const GREEK_MAP: Record<string, string> = {
-  a: 'α', b: 'β', g: 'γ', d: 'δ', e: 'ε', z: 'ζ', h: 'η', q: 'θ',
-  i: 'ι', k: 'κ', l: 'λ', m: 'μ', n: 'ν', c: 'ξ', o: 'ο', p: 'π',
-  r: 'ρ', s: 'σ', w: 'ω', t: 'τ', u: 'υ', f: 'φ', x: 'χ', y: 'ψ',
+  a: 'α',
+  b: 'β',
+  g: 'γ',
+  d: 'δ',
+  e: 'ε',
+  z: 'ζ',
+  h: 'η',
+  q: 'θ',
+  i: 'ι',
+  k: 'κ',
+  l: 'λ',
+  m: 'μ',
+  n: 'ν',
+  c: 'ξ',
+  o: 'ο',
+  p: 'π',
+  r: 'ρ',
+  s: 'σ',
+  w: 'ω',
+  t: 'τ',
+  u: 'υ',
+  f: 'φ',
+  x: 'χ',
+  y: 'ψ',
   // Uppercase
-  A: 'Α', B: 'Β', G: 'Γ', D: 'Δ', E: 'Ε', Z: 'Ζ', H: 'Η', Q: 'Θ',
-  I: 'Ι', K: 'Κ', L: 'Λ', M: 'Μ', N: 'Ν', C: 'Ξ', O: 'Ο', P: 'Π',
-  R: 'Ρ', S: 'Σ', W: 'Ω', T: 'Τ', U: 'Υ', F: 'Φ', X: 'Χ', Y: 'Ψ',
+  A: 'Α',
+  B: 'Β',
+  G: 'Γ',
+  D: 'Δ',
+  E: 'Ε',
+  Z: 'Ζ',
+  H: 'Η',
+  Q: 'Θ',
+  I: 'Ι',
+  K: 'Κ',
+  L: 'Λ',
+  M: 'Μ',
+  N: 'Ν',
+  C: 'Ξ',
+  O: 'Ο',
+  P: 'Π',
+  R: 'Ρ',
+  S: 'Σ',
+  W: 'Ω',
+  T: 'Τ',
+  U: 'Υ',
+  F: 'Φ',
+  X: 'Χ',
+  Y: 'Ψ',
 };
 
 /** Mapping from ASCII symbol key to Greek combining diacritical character. */
 export const DIACRITIC_MAP: Record<string, string> = {
-  ')':  '\u0313', // smooth breathing  ̓
-  '(':  '\u0314', // rough breathing   ̔
-  '/':  '\u0301', // acute accent      ́
+  ')': '\u0313', // smooth breathing  ̓
+  '(': '\u0314', // rough breathing   ̔
+  '/': '\u0301', // acute accent      ́
   '\\': '\u0300', // grave accent      ̀
-  '=':  '\u0342', // circumflex        ͂
-  '|':  '\u0345', // iota subscript    ͅ
+  '=': '\u0342', // circumflex        ͂
+  '|': '\u0345', // iota subscript    ͅ
 };
 
 // ---------------------------------------------------------------------------
@@ -60,7 +102,10 @@ export function normalizeAnswer(s: string): string {
  * so we can compare base consonants/vowels independently from their accents.
  */
 export function stripDiacritics(s: string): string {
-  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').normalize('NFC');
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .normalize('NFC');
 }
 
 export type AnswerResult = 'correct' | 'accent-only' | 'wrong';
@@ -90,12 +135,9 @@ export function getAcceptableVariants(correctAnswer: string): string[] {
  * - Trim and NFC normalize
  */
 export function normalizeUserInput(userInput: string): string {
-  return applyFinalSigma(
-    userInput
-      .replace(/\(ν\)/g, 'ν')
-      .replace(/[()]/g, '')
-      .trim()
-  ).normalize('NFC');
+  return applyFinalSigma(userInput.replace(/\(ν\)/g, 'ν').replace(/[()]/g, '').trim()).normalize(
+    'NFC',
+  );
 }
 
 /**
@@ -113,10 +155,10 @@ export function checkAnswer(userInput: string, correctAnswer: string): AnswerRes
   const user = normalizeUserInput(userInput);
   const variants = getAcceptableVariants(correctAnswer);
 
-  if (variants.some(v => user === v)) return 'correct';
+  if (variants.some((v) => user === v)) return 'correct';
 
   const userStripped = stripDiacritics(user);
-  if (variants.some(v => userStripped === stripDiacritics(v))) return 'accent-only';
+  if (variants.some((v) => userStripped === stripDiacritics(v))) return 'accent-only';
 
   return 'wrong';
 }
@@ -162,9 +204,10 @@ export function processGreekKey(
  * @param data  The `InputEvent.data` string (a single character).
  * @returns The same shape as `processGreekKey`.
  */
-export function processGreekInput(
-  data: string,
-): { preventDefault: boolean; append: string | null } {
+export function processGreekInput(data: string): {
+  preventDefault: boolean;
+  append: string | null;
+} {
   return processGreekKey(data, false);
 }
 
@@ -192,8 +235,10 @@ export function processGreekInput(
  * @returns     The string with every translatable character mapped to Greek.
  */
 export function translateGreekInput(text: string): string {
-  return [...text].map(ch => {
-    const result = processGreekKey(ch, false);
-    return result.append ?? ch;
-  }).join('');
+  return [...text]
+    .map((ch) => {
+      const result = processGreekKey(ch, false);
+      return result.append ?? ch;
+    })
+    .join('');
 }

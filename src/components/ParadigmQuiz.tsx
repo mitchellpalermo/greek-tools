@@ -11,25 +11,31 @@
  *     when true, accent errors are marked wrong (yellow).
  */
 
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import posthog from 'posthog-js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { verbParadigms } from '../data/grammar';
 import {
-  buildTableModels,
-  applyDensity,
-  getQuizCells,
-  CATEGORY_LABELS,
+  applyFinalSigma,
+  checkAnswer,
+  processGreekInput,
+  processGreekKey,
+  translateGreekInput,
+} from '../lib/greek-input';
+import {
   ALL_CATEGORIES,
-  type TableModel,
-  type QuizCell,
-  type Density,
+  applyDensity,
+  buildTableModels,
+  CATEGORY_LABELS,
   type Category,
   type CellResult,
+  type Density,
+  getQuizCells,
+  type QuizCell,
+  type TableModel,
 } from '../lib/paradigm-quiz';
-import { applyFinalSigma, checkAnswer, processGreekKey, processGreekInput, translateGreekInput } from '../lib/greek-input';
 import { loadQuizSettings, saveQuizSettings } from '../lib/quiz-settings';
-import { verbParadigms } from '../data/grammar';
-import VerbParadigmGrid from './grammar/VerbParadigmGrid';
 import type { Mood } from './grammar/VerbParadigmGrid';
+import VerbParadigmGrid from './grammar/VerbParadigmGrid';
 
 // ---------------------------------------------------------------------------
 // BetaCodeReference — data tables
@@ -37,22 +43,50 @@ import type { Mood } from './grammar/VerbParadigmGrid';
 
 /** Lowercase letter rows for the keyboard reference chart (Greek-alphabet order). */
 const LETTER_ROWS: [string, string][][] = [
-  [['a','α'],['b','β'],['g','γ'],['d','δ'],['e','ε'],['z','ζ']],
-  [['h','η'],['q','θ'],['i','ι'],['k','κ'],['l','λ'],['m','μ']],
-  [['n','ν'],['c','ξ'],['o','ο'],['p','π'],['r','ρ'],['s','σ']],
-  [['t','τ'],['u','υ'],['f','φ'],['x','χ'],['y','ψ'],['w','ω']],
+  [
+    ['a', 'α'],
+    ['b', 'β'],
+    ['g', 'γ'],
+    ['d', 'δ'],
+    ['e', 'ε'],
+    ['z', 'ζ'],
+  ],
+  [
+    ['h', 'η'],
+    ['q', 'θ'],
+    ['i', 'ι'],
+    ['k', 'κ'],
+    ['l', 'λ'],
+    ['m', 'μ'],
+  ],
+  [
+    ['n', 'ν'],
+    ['c', 'ξ'],
+    ['o', 'ο'],
+    ['p', 'π'],
+    ['r', 'ρ'],
+    ['s', 'σ'],
+  ],
+  [
+    ['t', 'τ'],
+    ['u', 'υ'],
+    ['f', 'φ'],
+    ['x', 'χ'],
+    ['y', 'ψ'],
+    ['w', 'ω'],
+  ],
 ];
 
 /** Diacritic / punctuation entries with a concrete Greek example. */
 const DIACRITIC_ENTRIES: { key: string; name: string; example: string }[] = [
-  { key: ')',  name: 'smooth breathing',  example: 'ἀ' },
-  { key: '(',  name: 'rough breathing',   example: 'ἁ' },
-  { key: '/',  name: 'acute accent',      example: 'ά' },
-  { key: '\\', name: 'grave accent',      example: 'ὰ' },
-  { key: '=',  name: 'circumflex',        example: 'ᾶ' },
-  { key: '|',  name: 'iota subscript',    example: 'ᾳ' },
-  { key: ':',  name: 'ano teleia',        example: '·' },
-  { key: '?',  name: 'question mark',     example: ';' },
+  { key: ')', name: 'smooth breathing', example: 'ἀ' },
+  { key: '(', name: 'rough breathing', example: 'ἁ' },
+  { key: '/', name: 'acute accent', example: 'ά' },
+  { key: '\\', name: 'grave accent', example: 'ὰ' },
+  { key: '=', name: 'circumflex', example: 'ᾶ' },
+  { key: '|', name: 'iota subscript', example: 'ᾳ' },
+  { key: ':', name: 'ano teleia', example: '·' },
+  { key: '?', name: 'question mark', example: ';' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -71,22 +105,22 @@ type InputMap = Record<number, string>; // cell.index → raw text
 // ---------------------------------------------------------------------------
 
 const DENSITY_LABELS: Record<Density, string> = {
-  easy:   'Easy (25%)',
+  easy: 'Easy (25%)',
   medium: 'Medium (50%)',
-  hard:   'Full Recall',
+  hard: 'Full Recall',
 };
 
 const DENSITY_DESCS: Record<Density, string> = {
-  easy:   'A quarter of the cells are blank.',
+  easy: 'A quarter of the cells are blank.',
   medium: 'Half of the cells are blank.',
-  hard:   'Every cell is blank — full recall from memory.',
+  hard: 'Every cell is blank — full recall from memory.',
 };
 
 /** Raw result styles — used when accentStrict is on, or for non-accent results. */
 const RESULT_STYLES: Record<CellResult, { bg: string; border: string; text: string }> = {
-  correct:       { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
+  correct: { bg: '#d1fae5', border: '#6ee7b7', text: '#065f46' },
   'accent-only': { bg: '#fef3c7', border: '#fcd34d', text: '#78350f' },
-  wrong:         { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
+  wrong: { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b' },
 };
 
 /**
@@ -128,11 +162,17 @@ function BetaCodeReference() {
               <div key={key} className="flex items-center gap-1 text-xs">
                 <kbd
                   className="px-1 rounded font-mono text-xs"
-                  style={{ background: '#f3f4f6', color: 'var(--color-text)', border: '1px solid #e5e7eb' }}
+                  style={{
+                    background: '#f3f4f6',
+                    color: 'var(--color-text)',
+                    border: '1px solid #e5e7eb',
+                  }}
                 >
                   {key}
                 </kbd>
-                <span style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}>{greek}</span>
+                <span style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}>
+                  {greek}
+                </span>
               </div>
             ))}
           </div>
@@ -148,7 +188,11 @@ function BetaCodeReference() {
               <div key={key} className="flex items-center gap-2 text-xs">
                 <kbd
                   className="px-1.5 rounded font-mono text-xs min-w-[1.75rem] text-center"
-                  style={{ background: '#f3f4f6', color: 'var(--color-text)', border: '1px solid #e5e7eb' }}
+                  style={{
+                    background: '#f3f4f6',
+                    color: 'var(--color-text)',
+                    border: '1px solid #e5e7eb',
+                  }}
                 >
                   {key}
                 </kbd>
@@ -251,11 +295,10 @@ function CellInput({ cellIndex, value, onChange, autoFocus, disabled }: CellInpu
       type="text"
       value={displayValue}
       onKeyDown={handleKeyDown}
-      onChange={e => {
+      onChange={(e) => {
         if (e.target.value === lastHandledRef.current) return;
         onChange(cellIndex, translateGreekInput(e.target.value));
       }}
-      autoFocus={autoFocus}
       disabled={disabled}
       spellCheck={false}
       autoComplete="off"
@@ -296,7 +339,11 @@ function AccentToggle({ accentStrict, onChange, compact }: AccentToggleProps) {
             : { background: 'rgba(0,0,0,0.05)', color: 'var(--color-text-muted)' }
         }
         aria-pressed={accentStrict}
-        title={accentStrict ? 'Accent checking on — click to relax' : 'Accent checking off — click to enable'}
+        title={
+          accentStrict
+            ? 'Accent checking on — click to relax'
+            : 'Accent checking off — click to enable'
+        }
       >
         <span>{accentStrict ? 'Accents: on' : 'Accents: off'}</span>
       </button>
@@ -347,21 +394,24 @@ interface ParadigmSelectorProps {
   onStart: (table: TableModel, density: Density) => void;
 }
 
-function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChange, onStart }: ParadigmSelectorProps) {
+function ParadigmSelector({
+  accentStrict,
+  onToggleAccent,
+  density,
+  onDensityChange,
+  onStart,
+}: ParadigmSelectorProps) {
   const tables = useMemo(() => buildTableModels(), []);
   const [activeCategory, setActiveCategory] = useState<Category>('noun');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeMood, setActiveMood] = useState<Mood>('indicative');
 
-  const filtered = tables.filter(t => t.category === activeCategory);
-  const selected = filtered.find(t => t.id === selectedId) ?? null;
+  const filtered = tables.filter((t) => t.category === activeCategory);
+  const selected = filtered.find((t) => t.id === selectedId) ?? null;
 
   // Split verb tables into grid-eligible (standard λύω conjugations) and supplemental
-  const verbGridIds = useMemo(
-    () => new Set(verbParadigms.map(p => `verb-${p.id}`)),
-    [],
-  );
-  const supplementalVerbs = filtered.filter(t => !verbGridIds.has(t.id));
+  const verbGridIds = useMemo(() => new Set(verbParadigms.map((p) => `verb-${p.id}`)), []);
+  const supplementalVerbs = filtered.filter((t) => !verbGridIds.has(t.id));
 
   const handleStart = () => {
     if (!selected) return;
@@ -370,14 +420,20 @@ function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChan
 
   // Settings card (shared between both layout columns)
   const settingsCard = (
-    <div className="rounded-xl p-4 space-y-4" style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}>
+    <div
+      className="rounded-xl p-4 space-y-4"
+      style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}
+    >
       {/* Difficulty */}
       <div className="space-y-2">
-        <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+        <div
+          className="text-xs font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--color-text-muted)' }}
+        >
           Difficulty
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {(['easy', 'medium', 'hard'] as Density[]).map(d => (
+          {(['easy', 'medium', 'hard'] as Density[]).map((d) => (
             <button
               key={d}
               onClick={() => onDensityChange(d)}
@@ -385,7 +441,11 @@ function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChan
               style={
                 density === d
                   ? { background: 'var(--color-primary)', color: '#fff' }
-                  : { background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid #e5e7eb' }
+                  : {
+                      background: 'var(--color-bg)',
+                      color: 'var(--color-text)',
+                      border: '1px solid #e5e7eb',
+                    }
               }
             >
               <div className="font-semibold">{DENSITY_LABELS[d].split(' (')[0]}</div>
@@ -406,10 +466,10 @@ function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChan
   // Paradigm card list (non-verb categories, or supplemental verb tables)
   const paradigmCards = (tablesToShow: typeof filtered) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      {tablesToShow.map(table => {
+      {tablesToShow.map((table) => {
         const isSelected = table.id === selectedId;
         const totalCells = table.rows.reduce(
-          (sum, row) => sum + row.answers.filter(a => a !== null).length,
+          (sum, row) => sum + row.answers.filter((a) => a !== null).length,
           0,
         );
         return (
@@ -422,7 +482,10 @@ function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChan
               background: isSelected ? 'rgba(245,158,11,0.08)' : 'var(--color-bg-card)',
             }}
           >
-            <div className="font-semibold text-sm mb-0.5" style={{ color: isSelected ? 'var(--color-accent)' : 'var(--color-primary)' }}>
+            <div
+              className="font-semibold text-sm mb-0.5"
+              style={{ color: isSelected ? 'var(--color-accent)' : 'var(--color-primary)' }}
+            >
               {table.label}
             </div>
             <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
@@ -438,15 +501,22 @@ function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChan
     <div className="space-y-6">
       {/* Category tabs */}
       <div className="flex gap-1 flex-wrap">
-        {ALL_CATEGORIES.map(cat => (
+        {ALL_CATEGORIES.map((cat) => (
           <button
             key={cat}
-            onClick={() => { setActiveCategory(cat); setSelectedId(null); }}
+            onClick={() => {
+              setActiveCategory(cat);
+              setSelectedId(null);
+            }}
             className="px-4 py-1.5 rounded-full text-sm font-semibold transition-colors"
             style={
               activeCategory === cat
                 ? { background: 'var(--color-primary)', color: '#fff' }
-                : { background: 'var(--color-bg-card)', color: 'var(--color-text-muted)', border: '1px solid #e5e7eb' }
+                : {
+                    background: 'var(--color-bg-card)',
+                    color: 'var(--color-text-muted)',
+                    border: '1px solid #e5e7eb',
+                  }
             }
           >
             {CATEGORY_LABELS[cat]}
@@ -472,7 +542,10 @@ function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChan
           {/* Supplemental verb tables (infinitives, participles, contract, liquid) */}
           {supplementalVerbs.length > 0 && (
             <div className="space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
+              <div
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
                 Other Verb Paradigms
               </div>
               {paradigmCards(supplementalVerbs)}
@@ -489,7 +562,9 @@ function ParadigmSelector({ accentStrict, onToggleAccent, density, onDensityChan
 
         {/* Keyboard hint */}
         <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-          Inputs use Beta Code — type English letters to produce Greek (e.g., <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">l</kbd> → λ, <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">/</kbd> → acute accent).
+          Inputs use Beta Code — type English letters to produce Greek (e.g.,{' '}
+          <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">l</kbd> → λ,{' '}
+          <kbd className="px-1 py-0.5 rounded bg-gray-100 font-mono">/</kbd> → acute accent).
         </p>
 
         {/* Start button */}
@@ -524,8 +599,19 @@ interface QuizTableProps {
   accentStrict: boolean;
 }
 
-function QuizTable({ table, cells, inputs, onInputChange, submitted, results, accentStrict }: QuizTableProps) {
-  const blankSet = useMemo(() => new Set(cells.filter(c => c.isBlank).map(c => c.index)), [cells]);
+function QuizTable({
+  table,
+  cells,
+  inputs,
+  onInputChange,
+  submitted,
+  results,
+  accentStrict,
+}: QuizTableProps) {
+  const blankSet = useMemo(
+    () => new Set(cells.filter((c) => c.isBlank).map((c) => c.index)),
+    [cells],
+  );
 
   const hasColGroups = !!table.colGroups;
   const numGroups = table.colGroups?.length ?? 0;
@@ -540,7 +626,7 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results, ac
           {hasColGroups && (
             <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
               <th className="px-3 py-2" style={{ width: '5rem' }} />
-              {table.colGroups!.map((group, gi) => (
+              {table.colGroups?.map((group, gi) => (
                 <th
                   key={gi}
                   colSpan={colsPerGroup}
@@ -553,7 +639,10 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results, ac
             </tr>
           )}
           <tr style={{ background: 'rgba(30,58,95,0.06)' }}>
-            <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-text-muted)', width: '5rem' }} />
+            <th
+              className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--color-text-muted)', width: '5rem' }}
+            />
             {table.cols.map((col, ci) => (
               <th
                 key={ci}
@@ -569,7 +658,9 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results, ac
           {table.rows.map((row, rowIndex) => (
             <tr
               key={rowIndex}
-              style={{ background: rowIndex % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)' }}
+              style={{
+                background: rowIndex % 2 === 0 ? 'var(--color-bg-card)' : 'rgba(30,58,95,0.03)',
+              }}
             >
               <td
                 className="px-3 py-2 font-semibold text-xs uppercase tracking-wider"
@@ -584,7 +675,11 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results, ac
 
                 if (answer === null) {
                   return (
-                    <td key={colIndex} className="px-3 py-2 text-center" style={{ color: 'var(--color-text-muted)' }}>
+                    <td
+                      key={colIndex}
+                      className="px-3 py-2 text-center"
+                      style={{ color: 'var(--color-text-muted)' }}
+                    >
                       —
                     </td>
                   );
@@ -615,25 +710,32 @@ function QuizTable({ table, cells, inputs, onInputChange, submitted, results, ac
                     <td key={colIndex} className="px-2 py-1.5 text-center">
                       <div
                         className="rounded px-1.5 py-1 text-sm font-greek"
-                        style={{ background: style.bg, border: `1px solid ${style.border}`, color: style.text }}
+                        style={{
+                          background: style.bg,
+                          border: `1px solid ${style.border}`,
+                          color: style.text,
+                        }}
                       >
                         {displayResult === 'correct' ? (
                           <span>{answer}</span>
                         ) : (
                           <span>
-                            <span className="line-through opacity-60">{userInput || '—'}</span>
-                            {' '}
+                            <span className="line-through opacity-60">{userInput || '—'}</span>{' '}
                             <span className="font-semibold">{answer}</span>
                           </span>
                         )}
                       </div>
                       {/* Accent annotation: shown only when strict mode is ON */}
                       {wasAccentOnly && accentStrict && (
-                        <div className="text-xs mt-0.5" style={{ color: style.text }}>accent</div>
+                        <div className="text-xs mt-0.5" style={{ color: style.text }}>
+                          accent
+                        </div>
                       )}
                       {/* Relaxed-mode annotation: shown when strict is OFF and accent was wrong */}
                       {wasAccentOnly && !accentStrict && (
-                        <div className="text-xs mt-0.5" style={{ color: '#059669' }}>accent relaxed</div>
+                        <div className="text-xs mt-0.5" style={{ color: '#059669' }}>
+                          accent relaxed
+                        </div>
                       )}
                     </td>
                   );
@@ -684,12 +786,18 @@ function ScoreBadge({ correct, accentOnly, wrong, total, accentStrict }: ScoreBa
         {pct}%
       </span>
       {accentStrict && accentOnly > 0 && (
-        <span className="text-sm px-2 py-0.5 rounded-full font-medium" style={{ background: '#fef3c7', color: '#78350f' }}>
+        <span
+          className="text-sm px-2 py-0.5 rounded-full font-medium"
+          style={{ background: '#fef3c7', color: '#78350f' }}
+        >
           +{accentOnly} accent {accentOnly === 1 ? 'error' : 'errors'}
         </span>
       )}
       {!accentStrict && accentOnly > 0 && (
-        <span className="text-sm px-2 py-0.5 rounded-full font-medium" style={{ background: '#d1fae5', color: '#065f46' }}>
+        <span
+          className="text-sm px-2 py-0.5 rounded-full font-medium"
+          style={{ background: '#d1fae5', color: '#065f46' }}
+        >
           {accentOnly} accent {accentOnly === 1 ? 'error' : 'errors'} (ignored)
         </span>
       )}
@@ -725,7 +833,7 @@ export default function ParadigmQuiz() {
   }, []);
 
   const handleInputChange = useCallback((cellIndex: number, raw: string) => {
-    setInputs(prev => ({ ...prev, [cellIndex]: raw }));
+    setInputs((prev) => ({ ...prev, [cellIndex]: raw }));
   }, []);
 
   const handleSubmit = useCallback(() => {
@@ -738,7 +846,7 @@ export default function ParadigmQuiz() {
       newResults[cell.index] = checkAnswer(userInput, cell.answer);
     }
     const vals = Object.values(newResults);
-    const correct = vals.filter(r => r === 'correct').length;
+    const correct = vals.filter((r) => r === 'correct').length;
     posthog.capture('paradigm_quiz_answered', {
       paradigm: table.label,
       correct,
@@ -764,10 +872,10 @@ export default function ParadigmQuiz() {
     if (phase.name !== 'results') return { correct: 0, accentOnly: 0, wrong: 0, total: 0 };
     const vals = Object.values(results);
     return {
-      correct:    vals.filter(r => r === 'correct').length,
-      accentOnly: vals.filter(r => r === 'accent-only').length,
-      wrong:      vals.filter(r => r === 'wrong').length,
-      total:      vals.length,
+      correct: vals.filter((r) => r === 'correct').length,
+      accentOnly: vals.filter((r) => r === 'accent-only').length,
+      wrong: vals.filter((r) => r === 'wrong').length,
+      total: vals.length,
     };
   }, [phase, results]);
 
@@ -787,7 +895,7 @@ export default function ParadigmQuiz() {
   // ── Quiz & Results phases ─────────────────────────────────────────────────
   const { table, cells, density: phaseDensity } = phase;
   const activeInputs = phase.name === 'results' ? phase.inputs : inputs;
-  const blankCount = cells.filter(c => c.isBlank).length;
+  const blankCount = cells.filter((c) => c.isBlank).length;
 
   // Effective score counts accent-only as correct when not strict
   const effectiveCorrect = accentStrict ? score.correct : score.correct + score.accentOnly;
@@ -808,11 +916,7 @@ export default function ParadigmQuiz() {
               {DENSITY_LABELS[phaseDensity]} — {blankCount} blank{blankCount !== 1 ? 's' : ''}
             </span>
             {/* Accent toggle: compact pill in quiz/results header */}
-            <AccentToggle
-              accentStrict={accentStrict}
-              onChange={setAccentStrict}
-              compact
-            />
+            <AccentToggle accentStrict={accentStrict} onChange={setAccentStrict} compact />
           </div>
         </div>
         <button
@@ -826,7 +930,10 @@ export default function ParadigmQuiz() {
 
       {/* Score (results phase only) */}
       {phase.name === 'results' && (
-        <div className="rounded-xl p-4" style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}>
+        <div
+          className="rounded-xl p-4"
+          style={{ background: 'var(--color-bg-card)', border: '1px solid #e5e7eb' }}
+        >
           <ScoreBadge
             correct={score.correct}
             accentOnly={score.accentOnly}
@@ -838,10 +945,10 @@ export default function ParadigmQuiz() {
             {effectiveCorrect === score.total
               ? 'Perfect! Every cell correct.'
               : !accentStrict && score.accentOnly > 0
-              ? 'Green = correct (accents ignored). Red = wrong form.'
-              : score.accentOnly > 0
-              ? 'Yellow = correct letters, wrong accent. Red = wrong form.'
-              : 'Red = wrong form — correct answer shown.'}
+                ? 'Green = correct (accents ignored). Red = wrong form.'
+                : score.accentOnly > 0
+                  ? 'Yellow = correct letters, wrong accent. Red = wrong form.'
+                  : 'Red = wrong form — correct answer shown.'}
           </div>
         </div>
       )}
@@ -861,17 +968,26 @@ export default function ParadigmQuiz() {
       {phase.name === 'results' && (
         <div className="flex gap-4 flex-wrap text-xs">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 rounded" style={{ background: '#d1fae5', border: '1px solid #6ee7b7' }} />
+            <span
+              className="inline-block w-3 h-3 rounded"
+              style={{ background: '#d1fae5', border: '1px solid #6ee7b7' }}
+            />
             <span style={{ color: 'var(--color-text-muted)' }}>Correct</span>
           </span>
           {accentStrict && (
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded" style={{ background: '#fef3c7', border: '1px solid #fcd34d' }} />
+              <span
+                className="inline-block w-3 h-3 rounded"
+                style={{ background: '#fef3c7', border: '1px solid #fcd34d' }}
+              />
               <span style={{ color: 'var(--color-text-muted)' }}>Accent error</span>
             </span>
           )}
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 rounded" style={{ background: '#fee2e2', border: '1px solid #fca5a5' }} />
+            <span
+              className="inline-block w-3 h-3 rounded"
+              style={{ background: '#fee2e2', border: '1px solid #fca5a5' }}
+            />
             <span style={{ color: 'var(--color-text-muted)' }}>Wrong</span>
           </span>
         </div>
@@ -900,7 +1016,11 @@ export default function ParadigmQuiz() {
             <button
               onClick={handleNewParadigm}
               className="px-6 py-2.5 rounded-xl font-bold text-sm transition-colors"
-              style={{ background: 'var(--color-bg-card)', color: 'var(--color-primary)', border: '1px solid #e5e7eb' }}
+              style={{
+                background: 'var(--color-bg-card)',
+                color: 'var(--color-primary)',
+                border: '1px solid #e5e7eb',
+              }}
             >
               New Paradigm
             </button>

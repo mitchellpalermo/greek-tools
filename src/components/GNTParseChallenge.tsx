@@ -1,21 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import PassageSelector from './PassageSelector';
-import GNTParseQuestion from './GNTParseQuestion';
-import ParseResults from './ParseResults';
-import type { SessionResults } from './ParseResults';
-import { splitWordPunct } from '../data/morphgnt';
-import { fetchBook } from '../data/morphgnt';
+import { useEffect, useState } from 'react';
 import type { MorphBook } from '../data/morphgnt';
-import {
-  extractVerbs, sampleVerbs, gradeGNTAnswer, emptyGNTAnswer,
-  loadGNTSettings, saveGNTSettings,
-  DEFAULT_GNT_SETTINGS,
-  GNT_TENSE_LABELS, GNT_VOICE_LABELS, GNT_MOOD_LABELS,
-  GNT_PERSON_LABELS, GNT_NUMBER_LABELS, GNT_CASE_LABELS, GNT_GENDER_LABELS,
-  FINITE_MOODS,
+import { fetchBook, fetchBooks } from '../data/morphgnt';
+import type {
+  GNTParseAnswer,
+  GNTParseItem,
+  GNTParseResult,
+  GNTPassageSettings,
 } from '../lib/gnt-parse';
-import type { GNTParseItem, GNTParseAnswer, GNTParseResult, GNTPassageSettings } from '../lib/gnt-parse';
-import { fetchBooks } from '../data/morphgnt';
+import {
+  DEFAULT_GNT_SETTINGS,
+  emptyGNTAnswer,
+  extractVerbs,
+  GNT_CASE_LABELS,
+  GNT_GENDER_LABELS,
+  GNT_MOOD_LABELS,
+  GNT_NUMBER_LABELS,
+  GNT_PERSON_LABELS,
+  GNT_TENSE_LABELS,
+  GNT_VOICE_LABELS,
+  gradeGNTAnswer,
+  loadGNTSettings,
+  sampleVerbs,
+  saveGNTSettings,
+} from '../lib/gnt-parse';
+import GNTParseQuestion from './GNTParseQuestion';
+import type { SessionResults } from './ParseResults';
+import ParseResults from './ParseResults';
+import PassageSelector from './PassageSelector';
 
 type Phase = 'select' | 'question' | 'feedback' | 'results';
 
@@ -44,16 +55,16 @@ export default function GNTParseChallenge() {
     if (!settingsLoaded) return;
     setVerbCount(null);
     setLoading(true);
-    Promise.all([
-      fetchBook(settings.book),
-      fetchBooks(),
-    ]).then(([data, books]) => {
-      setBookData(data);
-      const meta = books.find(b => b.code === settings.book);
-      if (meta) setBookName(meta.name);
-      const verbs = extractVerbs(data, String(settings.chapter), meta?.name ?? settings.book);
-      setVerbCount(verbs.length);
-    }).catch(console.error).finally(() => setLoading(false));
+    Promise.all([fetchBook(settings.book), fetchBooks()])
+      .then(([data, books]) => {
+        setBookData(data);
+        const meta = books.find((b) => b.code === settings.book);
+        if (meta) setBookName(meta.name);
+        const verbs = extractVerbs(data, String(settings.chapter), meta?.name ?? settings.book);
+        setVerbCount(verbs.length);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [settings.book, settings.chapter, settingsLoaded]);
 
   function handleSettingsChange(s: GNTPassageSettings) {
@@ -87,7 +98,7 @@ export default function GNTParseChallenge() {
     if (currentIndex + 1 >= session.length) {
       setPhase('results');
     } else {
-      setCurrentIndex(i => i + 1);
+      setCurrentIndex((i) => i + 1);
       setAnswer(emptyGNTAnswer());
       setCurrentResult(null);
       setPhase('question');
@@ -96,10 +107,10 @@ export default function GNTParseChallenge() {
 
   // Adapt GNTParseResult[] → ParseResult[] for the shared ParseResults component
   const sessionResults: SessionResults = {
-    results: results.map(r => ({
-      tense:  r.tense,
-      voice:  r.voice,
-      mood:   r.mood,
+    results: results.map((r) => ({
+      tense: r.tense,
+      voice: r.voice,
+      mood: r.mood,
       // For person/number/case/gender: count nulls as correct (not graded)
       person: r.person ?? true,
       number: r.number ?? true,
@@ -182,7 +193,7 @@ function GNTFeedback({
   onNext: () => void;
   isLast: boolean;
 }) {
-  const isFinite   = item.type === 'finite';
+  const isFiniteVerb = item.type === 'finite';
   const isParticiple = item.type === 'participle';
 
   // Build the correct parse label
@@ -201,7 +212,10 @@ function GNTFeedback({
       {/* Form + ref */}
       <div className="text-center py-5">
         <p className="text-xs uppercase tracking-widest text-text-muted mb-1">{item.verseRef}</p>
-        <p className="text-4xl font-bold" style={{ fontFamily: 'var(--font-greek)', color: 'var(--color-accent)' }}>
+        <p
+          className="text-4xl font-bold"
+          style={{ fontFamily: 'var(--font-greek)', color: 'var(--color-accent)' }}
+        >
           {item.form}
         </p>
         <p className="mt-2 text-sm text-text-muted">{correctLabel}</p>
@@ -209,49 +223,75 @@ function GNTFeedback({
 
       {/* Per-property rows */}
       <div className="space-y-2">
-        <FeedbackRow property="Tense" correct={result.tense}
+        <FeedbackRow
+          property="Tense"
+          correct={result.tense}
           given={answer.tense ? GNT_TENSE_LABELS[answer.tense] : '—'}
-          expected={GNT_TENSE_LABELS[item.tense]} />
-        <FeedbackRow property="Voice" correct={result.voice}
+          expected={GNT_TENSE_LABELS[item.tense]}
+        />
+        <FeedbackRow
+          property="Voice"
+          correct={result.voice}
           given={answer.voice ? GNT_VOICE_LABELS[answer.voice] : '—'}
-          expected={GNT_VOICE_LABELS[item.voice]} />
-        <FeedbackRow property="Mood" correct={result.mood}
+          expected={GNT_VOICE_LABELS[item.voice]}
+        />
+        <FeedbackRow
+          property="Mood"
+          correct={result.mood}
           given={answer.mood ? GNT_MOOD_LABELS[answer.mood] : '—'}
-          expected={GNT_MOOD_LABELS[item.mood]} />
+          expected={GNT_MOOD_LABELS[item.mood]}
+        />
 
         {/* Finite */}
-        {isFinite && item.type === 'finite' && (
+        {isFiniteVerb && item.type === 'finite' && (
           <>
-            <FeedbackRow property="Person" correct={result.person!}
+            <FeedbackRow
+              property="Person"
+              correct={result.person!}
               given={answer.person ? GNT_PERSON_LABELS[answer.person] : '—'}
-              expected={GNT_PERSON_LABELS[item.person]} />
-            <FeedbackRow property="Number" correct={result.number!}
+              expected={GNT_PERSON_LABELS[item.person]}
+            />
+            <FeedbackRow
+              property="Number"
+              correct={result.number!}
               given={answer.number ? GNT_NUMBER_LABELS[answer.number] : '—'}
-              expected={GNT_NUMBER_LABELS[item.number]} />
+              expected={GNT_NUMBER_LABELS[item.number]}
+            />
           </>
         )}
 
         {/* Participle */}
         {isParticiple && item.type === 'participle' && (
           <>
-            <FeedbackRow property="Case" correct={result.parseCase!}
+            <FeedbackRow
+              property="Case"
+              correct={result.parseCase!}
               given={answer.parseCase ? GNT_CASE_LABELS[answer.parseCase] : '—'}
-              expected={GNT_CASE_LABELS[item.parseCase]} />
-            <FeedbackRow property="Number" correct={result.number!}
+              expected={GNT_CASE_LABELS[item.parseCase]}
+            />
+            <FeedbackRow
+              property="Number"
+              correct={result.number!}
               given={answer.number ? GNT_NUMBER_LABELS[answer.number] : '—'}
-              expected={GNT_NUMBER_LABELS[item.number]} />
-            <FeedbackRow property="Gender" correct={result.gender!}
+              expected={GNT_NUMBER_LABELS[item.number]}
+            />
+            <FeedbackRow
+              property="Gender"
+              correct={result.gender!}
               given={answer.gender ? GNT_GENDER_LABELS[answer.gender] : '—'}
-              expected={GNT_GENDER_LABELS[item.gender]} />
+              expected={GNT_GENDER_LABELS[item.gender]}
+            />
           </>
         )}
       </div>
 
       {/* Verdict */}
-      <div className={[
-        'rounded-xl px-5 py-3 text-center font-semibold text-sm',
-        result.allCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700',
-      ].join(' ')}>
+      <div
+        className={[
+          'rounded-xl px-5 py-3 text-center font-semibold text-sm',
+          result.allCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700',
+        ].join(' ')}
+      >
         {result.allCorrect ? 'Correct!' : 'Not quite — review the corrections above.'}
       </div>
 
@@ -265,12 +305,27 @@ function GNTFeedback({
   );
 }
 
-function FeedbackRow({ property, correct, given, expected }: {
-  property: string; correct: boolean; given: string; expected: string;
+function FeedbackRow({
+  property,
+  correct,
+  given,
+  expected,
+}: {
+  property: string;
+  correct: boolean;
+  given: string;
+  expected: string;
 }) {
   return (
-    <div className={['flex items-center justify-between rounded-lg px-4 py-2.5 text-sm', correct ? 'bg-green-50' : 'bg-red-50'].join(' ')}>
-      <span className={['font-semibold', correct ? 'text-green-700' : 'text-red-700'].join(' ')}>{property}</span>
+    <div
+      className={[
+        'flex items-center justify-between rounded-lg px-4 py-2.5 text-sm',
+        correct ? 'bg-green-50' : 'bg-red-50',
+      ].join(' ')}
+    >
+      <span className={['font-semibold', correct ? 'text-green-700' : 'text-red-700'].join(' ')}>
+        {property}
+      </span>
       <div className="flex items-center gap-2">
         {correct ? (
           <span className="text-green-700 font-medium">{given}</span>

@@ -1,11 +1,10 @@
-import React from 'react';
-import type { ParseItem, ParseAnswer, ParseResult } from '../lib/verb-parse';
+import type { ParseAnswer, ParseItem, ParseResult } from '../lib/verb-parse';
 import {
+  MOOD_LABELS,
+  NUMBER_LABELS,
+  PERSON_LABELS,
   TENSE_LABELS,
   VOICE_LABELS,
-  MOOD_LABELS,
-  PERSON_LABELS,
-  NUMBER_LABELS,
 } from '../lib/verb-parse';
 
 interface Props {
@@ -29,9 +28,7 @@ export default function ParseFeedback({ item, answer, result, onNext, isLast }: 
         </p>
         <p className="mt-3 text-sm text-text-muted">{item.paradigmLabel}</p>
         {item.ambiguous && item.ambiguous.length > 0 && (
-          <p className="mt-1 text-xs text-text-muted">
-            Also valid: {item.ambiguous.join('; ')}
-          </p>
+          <p className="mt-1 text-xs text-text-muted">Also valid: {item.ambiguous.join('; ')}</p>
         )}
       </div>
 
@@ -73,9 +70,7 @@ export default function ParseFeedback({ item, answer, result, onNext, isLast }: 
       <div
         className={[
           'rounded-xl px-5 py-3 text-center font-semibold text-sm',
-          result.allCorrect
-            ? 'bg-green-50 text-green-700'
-            : 'bg-red-50 text-red-700',
+          result.allCorrect ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700',
         ].join(' ')}
       >
         {result.allCorrect ? 'Correct!' : 'Not quite — review the corrections above.'}
@@ -126,9 +121,7 @@ function FeedbackRow({
             <span className="text-red-700 font-semibold">{expected}</span>
           </>
         )}
-        <span className={correct ? 'text-green-600' : 'text-red-600'}>
-          {correct ? '✓' : '✗'}
-        </span>
+        <span className={correct ? 'text-green-600' : 'text-red-600'}>{correct ? '✓' : '✗'}</span>
       </div>
     </div>
   );

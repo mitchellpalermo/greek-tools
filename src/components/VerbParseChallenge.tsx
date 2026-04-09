@@ -1,18 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import ParseSettings from './ParseSettings';
-import ParseQuestion from './ParseQuestion';
-import ParseFeedback from './ParseFeedback';
-import ParseResults from './ParseResults';
-import type { SessionResults } from './ParseResults';
+import { useEffect, useState } from 'react';
+import type {
+  ParseAnswer,
+  ParseItem,
+  ParseResult,
+  ParseSettings as ParseSettingsType,
+} from '../lib/verb-parse';
 import {
   buildSession,
-  gradeAnswer,
+  DEFAULT_PARSE_SETTINGS,
   emptyAnswer,
+  gradeAnswer,
   loadParseSettings,
   saveParseSettings,
-  DEFAULT_PARSE_SETTINGS,
 } from '../lib/verb-parse';
-import type { ParseItem, ParseAnswer, ParseResult, ParseSettings as ParseSettingsType } from '../lib/verb-parse';
+import ParseFeedback from './ParseFeedback';
+import ParseQuestion from './ParseQuestion';
+import type { SessionResults } from './ParseResults';
+import ParseResults from './ParseResults';
+import ParseSettings from './ParseSettings';
 
 type Phase = 'settings' | 'question' | 'feedback' | 'results';
 
@@ -62,7 +67,7 @@ export default function VerbParseChallenge() {
     if (currentIndex + 1 >= session.length) {
       setPhase('results');
     } else {
-      setCurrentIndex(i => i + 1);
+      setCurrentIndex((i) => i + 1);
       setAnswer(emptyAnswer());
       setCurrentResult(null);
       setPhase('question');
@@ -92,11 +97,7 @@ export default function VerbParseChallenge() {
   return (
     <div>
       {phase === 'settings' && (
-        <ParseSettings
-          settings={settings}
-          onChange={handleSettingsChange}
-          onStart={handleStart}
-        />
+        <ParseSettings settings={settings} onChange={handleSettingsChange} onStart={handleStart} />
       )}
 
       {phase === 'question' && session[currentIndex] && (

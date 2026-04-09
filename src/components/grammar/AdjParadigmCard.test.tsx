@@ -1,18 +1,33 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import AdjParadigmCard from './AdjParadigmCard';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import type { AdjParadigm } from '../../data/grammar';
+import AdjParadigmCard from './AdjParadigmCard';
 
 const paradigm: AdjParadigm = {
   id: 'adj-2-1-2',
   name: '2-1-2 Adjective — ἀγαθός, -ή, -όν',
   type: '2-1-2',
   forms: {
-    nom: { sg: { m: 'ἀγαθός', f: 'ἀγαθή', n: 'ἀγαθόν' }, pl: { m: 'ἀγαθοί', f: 'ἀγαθαί', n: 'ἀγαθά' } },
-    gen: { sg: { m: 'ἀγαθοῦ', f: 'ἀγαθῆς', n: 'ἀγαθοῦ' }, pl: { m: 'ἀγαθῶν', f: 'ἀγαθῶν', n: 'ἀγαθῶν' } },
-    dat: { sg: { m: 'ἀγαθῷ', f: 'ἀγαθῇ', n: 'ἀγαθῷ' }, pl: { m: 'ἀγαθοῖς', f: 'ἀγαθαῖς', n: 'ἀγαθοῖς' } },
-    acc: { sg: { m: 'ἀγαθόν', f: 'ἀγαθήν', n: 'ἀγαθόν' }, pl: { m: 'ἀγαθούς', f: 'ἀγαθάς', n: 'ἀγαθά' } },
-    voc: { sg: { m: 'ἀγαθέ', f: 'ἀγαθή', n: 'ἀγαθόν' }, pl: { m: 'ἀγαθοί', f: 'ἀγαθαί', n: 'ἀγαθά' } },
+    nom: {
+      sg: { m: 'ἀγαθός', f: 'ἀγαθή', n: 'ἀγαθόν' },
+      pl: { m: 'ἀγαθοί', f: 'ἀγαθαί', n: 'ἀγαθά' },
+    },
+    gen: {
+      sg: { m: 'ἀγαθοῦ', f: 'ἀγαθῆς', n: 'ἀγαθοῦ' },
+      pl: { m: 'ἀγαθῶν', f: 'ἀγαθῶν', n: 'ἀγαθῶν' },
+    },
+    dat: {
+      sg: { m: 'ἀγαθῷ', f: 'ἀγαθῇ', n: 'ἀγαθῷ' },
+      pl: { m: 'ἀγαθοῖς', f: 'ἀγαθαῖς', n: 'ἀγαθοῖς' },
+    },
+    acc: {
+      sg: { m: 'ἀγαθόν', f: 'ἀγαθήν', n: 'ἀγαθόν' },
+      pl: { m: 'ἀγαθούς', f: 'ἀγαθάς', n: 'ἀγαθά' },
+    },
+    voc: {
+      sg: { m: 'ἀγαθέ', f: 'ἀγαθή', n: 'ἀγαθόν' },
+      pl: { m: 'ἀγαθοί', f: 'ἀγαθαί', n: 'ἀγαθά' },
+    },
   },
 };
 

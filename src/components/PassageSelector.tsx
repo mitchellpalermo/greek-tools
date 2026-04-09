@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { fetchBooks, type BookMeta } from '../data/morphgnt';
+import { useEffect, useState } from 'react';
+import { type BookMeta, fetchBooks } from '../data/morphgnt';
 import type { GNTPassageSettings } from '../lib/gnt-parse';
 
 interface Props {
   settings: GNTPassageSettings;
-  verbCount: number | null;  // null while unknown
+  verbCount: number | null; // null while unknown
   onChange: (s: GNTPassageSettings) => void;
   onStart: () => void;
   loading: boolean;
@@ -12,7 +12,10 @@ interface Props {
 
 const SESSION_LENGTHS = [10, 20, 30, 'all'] as const;
 const SESSION_LABELS: Record<string, string> = {
-  10: '10', 20: '20', 30: '30', all: 'All',
+  10: '10',
+  20: '20',
+  30: '30',
+  all: 'All',
 };
 
 export default function PassageSelector({
@@ -28,7 +31,7 @@ export default function PassageSelector({
     fetchBooks().then(setBooks).catch(console.error);
   }, []);
 
-  const currentBook = books.find(b => b.code === settings.book);
+  const currentBook = books.find((b) => b.code === settings.book);
   const chapterCount = currentBook?.chapters ?? 1;
 
   function handleBookChange(code: string) {
@@ -56,11 +59,13 @@ export default function PassageSelector({
             </label>
             <select
               value={settings.book}
-              onChange={e => handleBookChange(e.target.value)}
+              onChange={(e) => handleBookChange(e.target.value)}
               className="w-full rounded-lg border border-bg-card bg-bg-card px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] appearance-none"
             >
-              {books.map(b => (
-                <option key={b.code} value={b.code}>{b.name}</option>
+              {books.map((b) => (
+                <option key={b.code} value={b.code}>
+                  {b.name}
+                </option>
               ))}
             </select>
           </div>
@@ -72,11 +77,13 @@ export default function PassageSelector({
             </label>
             <select
               value={settings.chapter}
-              onChange={e => handleChapterChange(Number(e.target.value))}
+              onChange={(e) => handleChapterChange(Number(e.target.value))}
               className="w-full rounded-lg border border-bg-card bg-bg-card px-3 py-2 text-sm text-text focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] appearance-none"
             >
-              {Array.from({ length: chapterCount }, (_, i) => i + 1).map(n => (
-                <option key={n} value={n}>{n}</option>
+              {Array.from({ length: chapterCount }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
               ))}
             </select>
           </div>
@@ -87,7 +94,9 @@ export default function PassageSelector({
           {loading && 'Loading…'}
           {!loading && verbCount === null && ''}
           {!loading && verbCount === 0 && 'No verbs found in this chapter.'}
-          {!loading && verbCount !== null && verbCount > 0 &&
+          {!loading &&
+            verbCount !== null &&
+            verbCount > 0 &&
             `${verbCount} verb form${verbCount !== 1 ? 's' : ''} in this chapter`}
         </p>
       </section>
@@ -98,7 +107,7 @@ export default function PassageSelector({
           Forms per session
         </h2>
         <div className="flex gap-2">
-          {SESSION_LENGTHS.map(n => (
+          {SESSION_LENGTHS.map((n) => (
             <button
               key={n}
               onClick={() => onChange({ ...settings, sessionLength: n })}

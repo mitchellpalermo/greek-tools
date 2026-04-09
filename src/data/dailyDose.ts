@@ -3,33 +3,33 @@ import type { DailyVerseRef } from './dailyVerses';
 // ─── Book name → MorphGNT code ──────────────────────────────────────────────
 
 export const BOOK_NAME_TO_CODE: Record<string, string> = {
-  'Matthew': 'MAT',
-  'Mark': 'MRK',
-  'Luke': 'LUK',
-  'John': 'JHN',
-  'Acts': 'ACT',
-  'Romans': 'ROM',
+  Matthew: 'MAT',
+  Mark: 'MRK',
+  Luke: 'LUK',
+  John: 'JHN',
+  Acts: 'ACT',
+  Romans: 'ROM',
   '1 Corinthians': '1CO',
   '2 Corinthians': '2CO',
-  'Galatians': 'GAL',
-  'Ephesians': 'EPH',
-  'Philippians': 'PHP',
-  'Colossians': 'COL',
+  Galatians: 'GAL',
+  Ephesians: 'EPH',
+  Philippians: 'PHP',
+  Colossians: 'COL',
   '1 Thessalonians': '1TH',
   '2 Thessalonians': '2TH',
   '1 Timothy': '1TI',
   '2 Timothy': '2TI',
-  'Titus': 'TIT',
-  'Philemon': 'PHM',
-  'Hebrews': 'HEB',
-  'James': 'JAS',
+  Titus: 'TIT',
+  Philemon: 'PHM',
+  Hebrews: 'HEB',
+  James: 'JAS',
   '1 Peter': '1PE',
   '2 Peter': '2PE',
   '1 John': '1JN',
   '2 John': '2JN',
   '3 John': '3JN',
-  'Jude': 'JUD',
-  'Revelation': 'REV',
+  Jude: 'JUD',
+  Revelation: 'REV',
 };
 
 // ─── Reference parser ────────────────────────────────────────────────────────
@@ -61,7 +61,8 @@ export function parseDailyDoseRef(title: string): DailyVerseRef | null {
 
 // ─── API fetch ───────────────────────────────────────────────────────────────
 
-const API_URL = 'https://dailydoseofgreek.com/wp-json/wp/v2/posts?per_page=1&orderby=date&order=desc&categories=5';
+const API_URL =
+  'https://dailydoseofgreek.com/wp-json/wp/v2/posts?per_page=1&orderby=date&order=desc&categories=5';
 const FETCH_TIMEOUT_MS = 5000;
 const CACHE_KEY_PREFIX = 'daily-dose-';
 
@@ -90,7 +91,9 @@ export async function fetchDailyDoseVerse(): Promise<DailyDoseResult | null> {
   try {
     const cached = sessionStorage.getItem(dateKey);
     if (cached) return JSON.parse(cached) as DailyDoseResult;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   // Fetch from API with timeout
   try {
@@ -102,7 +105,7 @@ export async function fetchDailyDoseVerse(): Promise<DailyDoseResult | null> {
 
     if (!res.ok) return null;
 
-    const posts = await res.json() as Array<{ title: { rendered: string }; link: string }>;
+    const posts = (await res.json()) as Array<{ title: { rendered: string }; link: string }>;
     if (!posts.length) return null;
 
     const verse = parseDailyDoseRef(posts[0].title.rendered);
@@ -113,7 +116,9 @@ export async function fetchDailyDoseVerse(): Promise<DailyDoseResult | null> {
     // Cache in sessionStorage
     try {
       sessionStorage.setItem(dateKey, JSON.stringify(result));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     return result;
   } catch {

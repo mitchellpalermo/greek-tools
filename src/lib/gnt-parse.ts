@@ -14,7 +14,7 @@
  *   [6] gender  — M/F/N
  */
 
-import type { MorphWord, MorphBook } from '../data/morphgnt';
+import type { MorphBook, MorphWord } from '../data/morphgnt';
 import { splitWordPunct } from '../data/morphgnt';
 
 // ---------------------------------------------------------------------------
@@ -23,27 +23,82 @@ import { splitWordPunct } from '../data/morphgnt';
 
 export type GNTTense = 'present' | 'imperfect' | 'future' | 'aorist' | 'perfect' | 'pluperfect';
 export type GNTVoice = 'active' | 'middle' | 'passive';
-export type GNTMood  = 'indicative' | 'imperative' | 'subjunctive' | 'optative' | 'infinitive' | 'participle';
+export type GNTMood =
+  | 'indicative'
+  | 'imperative'
+  | 'subjunctive'
+  | 'optative'
+  | 'infinitive'
+  | 'participle';
 export type GNTPerson = '1st' | '2nd' | '3rd';
 export type GNTNumber = 'singular' | 'plural';
-export type GNTCase   = 'nominative' | 'genitive' | 'dative' | 'accusative' | 'vocative';
+export type GNTCase = 'nominative' | 'genitive' | 'dative' | 'accusative' | 'vocative';
 export type GNTGender = 'masculine' | 'feminine' | 'neuter';
 
-export const GNT_TENSES:  GNTTense[]  = ['present', 'imperfect', 'future', 'aorist', 'perfect', 'pluperfect'];
-export const GNT_VOICES:  GNTVoice[]  = ['active', 'middle', 'passive'];
-export const GNT_MOODS:   GNTMood[]   = ['indicative', 'imperative', 'subjunctive', 'optative', 'infinitive', 'participle'];
+export const GNT_TENSES: GNTTense[] = [
+  'present',
+  'imperfect',
+  'future',
+  'aorist',
+  'perfect',
+  'pluperfect',
+];
+export const GNT_VOICES: GNTVoice[] = ['active', 'middle', 'passive'];
+export const GNT_MOODS: GNTMood[] = [
+  'indicative',
+  'imperative',
+  'subjunctive',
+  'optative',
+  'infinitive',
+  'participle',
+];
 export const GNT_PERSONS: GNTPerson[] = ['1st', '2nd', '3rd'];
 export const GNT_NUMBERS: GNTNumber[] = ['singular', 'plural'];
-export const GNT_CASES:   GNTCase[]   = ['nominative', 'genitive', 'dative', 'accusative', 'vocative'];
+export const GNT_CASES: GNTCase[] = ['nominative', 'genitive', 'dative', 'accusative', 'vocative'];
 export const GNT_GENDERS: GNTGender[] = ['masculine', 'feminine', 'neuter'];
 
-export const GNT_TENSE_LABELS:  Record<GNTTense,  string> = { present: 'Present', imperfect: 'Imperfect', future: 'Future', aorist: 'Aorist', perfect: 'Perfect', pluperfect: 'Pluperfect' };
-export const GNT_VOICE_LABELS:  Record<GNTVoice,  string> = { active: 'Active', middle: 'Middle', passive: 'Passive' };
-export const GNT_MOOD_LABELS:   Record<GNTMood,   string> = { indicative: 'Indicative', imperative: 'Imperative', subjunctive: 'Subjunctive', optative: 'Optative', infinitive: 'Infinitive', participle: 'Participle' };
-export const GNT_PERSON_LABELS: Record<GNTPerson, string> = { '1st': '1st', '2nd': '2nd', '3rd': '3rd' };
-export const GNT_NUMBER_LABELS: Record<GNTNumber, string> = { singular: 'Singular', plural: 'Plural' };
-export const GNT_CASE_LABELS:   Record<GNTCase,   string> = { nominative: 'Nominative', genitive: 'Genitive', dative: 'Dative', accusative: 'Accusative', vocative: 'Vocative' };
-export const GNT_GENDER_LABELS: Record<GNTGender, string> = { masculine: 'Masculine', feminine: 'Feminine', neuter: 'Neuter' };
+export const GNT_TENSE_LABELS: Record<GNTTense, string> = {
+  present: 'Present',
+  imperfect: 'Imperfect',
+  future: 'Future',
+  aorist: 'Aorist',
+  perfect: 'Perfect',
+  pluperfect: 'Pluperfect',
+};
+export const GNT_VOICE_LABELS: Record<GNTVoice, string> = {
+  active: 'Active',
+  middle: 'Middle',
+  passive: 'Passive',
+};
+export const GNT_MOOD_LABELS: Record<GNTMood, string> = {
+  indicative: 'Indicative',
+  imperative: 'Imperative',
+  subjunctive: 'Subjunctive',
+  optative: 'Optative',
+  infinitive: 'Infinitive',
+  participle: 'Participle',
+};
+export const GNT_PERSON_LABELS: Record<GNTPerson, string> = {
+  '1st': '1st',
+  '2nd': '2nd',
+  '3rd': '3rd',
+};
+export const GNT_NUMBER_LABELS: Record<GNTNumber, string> = {
+  singular: 'Singular',
+  plural: 'Plural',
+};
+export const GNT_CASE_LABELS: Record<GNTCase, string> = {
+  nominative: 'Nominative',
+  genitive: 'Genitive',
+  dative: 'Dative',
+  accusative: 'Accusative',
+  vocative: 'Vocative',
+};
+export const GNT_GENDER_LABELS: Record<GNTGender, string> = {
+  masculine: 'Masculine',
+  feminine: 'Feminine',
+  neuter: 'Neuter',
+};
 
 // Finite moods (have person + number)
 export const FINITE_MOODS: GNTMood[] = ['indicative', 'imperative', 'subjunctive', 'optative'];
@@ -53,11 +108,11 @@ export const FINITE_MOODS: GNTMood[] = ['indicative', 'imperative', 'subjunctive
 // ---------------------------------------------------------------------------
 
 interface BaseItem {
-  form: string;         // word as shown (punctuation stripped)
+  form: string; // word as shown (punctuation stripped)
   lemma: string;
-  verseRef: string;     // e.g. "John 3:16"
+  verseRef: string; // e.g. "John 3:16"
   verseWords: MorphWord[];
-  wordIndex: number;    // index of target verb within verseWords
+  wordIndex: number; // index of target verb within verseWords
   tense: GNTTense;
   voice: GNTVoice;
   mood: GNTMood;
@@ -87,15 +142,15 @@ export type GNTParseItem = GNTFiniteItem | GNTInfinitiveItem | GNTParticipleItem
 // ---------------------------------------------------------------------------
 
 export interface GNTParseAnswer {
-  tense:     GNTTense  | '';
-  voice:     GNTVoice  | '';
-  mood:      GNTMood   | '';
+  tense: GNTTense | '';
+  voice: GNTVoice | '';
+  mood: GNTMood | '';
   // finite-specific
-  person:    GNTPerson | '';
-  number:    GNTNumber | '';
+  person: GNTPerson | '';
+  number: GNTNumber | '';
   // participle-specific
-  parseCase: GNTCase   | '';
-  gender:    GNTGender | '';
+  parseCase: GNTCase | '';
+  gender: GNTGender | '';
 }
 
 export function emptyGNTAnswer(): GNTParseAnswer {
@@ -107,46 +162,61 @@ export function emptyGNTAnswer(): GNTParseAnswer {
 // ---------------------------------------------------------------------------
 
 export interface GNTParseResult {
-  tense:     boolean;
-  voice:     boolean;
-  mood:      boolean;
-  person:    boolean | null;    // null = not applicable for this verb type
-  number:    boolean | null;
+  tense: boolean;
+  voice: boolean;
+  mood: boolean;
+  person: boolean | null; // null = not applicable for this verb type
+  number: boolean | null;
   parseCase: boolean | null;
-  gender:    boolean | null;
+  gender: boolean | null;
   allCorrect: boolean;
 }
 
 export function gradeGNTAnswer(item: GNTParseItem, answer: GNTParseAnswer): GNTParseResult {
   const tense = answer.tense === item.tense;
   const voice = answer.voice === item.voice;
-  const mood  = answer.mood  === item.mood;
+  const mood = answer.mood === item.mood;
 
   if (item.type === 'finite') {
     const person = answer.person === item.person;
     const number = answer.number === item.number;
     return {
-      tense, voice, mood, person, number,
-      parseCase: null, gender: null,
+      tense,
+      voice,
+      mood,
+      person,
+      number,
+      parseCase: null,
+      gender: null,
       allCorrect: tense && voice && mood && person && number,
     };
   }
 
   if (item.type === 'infinitive') {
     return {
-      tense, voice, mood,
-      person: null, number: null, parseCase: null, gender: null,
+      tense,
+      voice,
+      mood,
+      person: null,
+      number: null,
+      parseCase: null,
+      gender: null,
       allCorrect: tense && voice && mood,
     };
   }
 
   // participle
   const parseCase = answer.parseCase === item.parseCase;
-  const number    = answer.number    === item.number;
-  const gender    = answer.gender    === item.gender;
+  const number = answer.number === item.number;
+  const gender = answer.gender === item.gender;
   return {
-    tense, voice, mood,
-    person: null, number, parseCase, gender,
+    tense,
+    voice,
+    mood,
+    person: null,
+    number,
+    parseCase,
+    gender,
     allCorrect: tense && voice && mood && parseCase && number && gender,
   };
 }
@@ -156,27 +226,46 @@ export function gradeGNTAnswer(item: GNTParseItem, answer: GNTParseAnswer): GNTP
 // ---------------------------------------------------------------------------
 
 const TENSE_MAP: Record<string, GNTTense> = {
-  P: 'present', I: 'imperfect', F: 'future',
-  A: 'aorist',  X: 'perfect',  Y: 'pluperfect',
+  P: 'present',
+  I: 'imperfect',
+  F: 'future',
+  A: 'aorist',
+  X: 'perfect',
+  Y: 'pluperfect',
 };
 const VOICE_MAP: Record<string, GNTVoice> = {
-  A: 'active', M: 'middle', P: 'passive',
+  A: 'active',
+  M: 'middle',
+  P: 'passive',
 };
 const MOOD_MAP: Record<string, GNTMood> = {
-  I: 'indicative', D: 'imperative', S: 'subjunctive',
-  O: 'optative',   N: 'infinitive', P: 'participle',
+  I: 'indicative',
+  D: 'imperative',
+  S: 'subjunctive',
+  O: 'optative',
+  N: 'infinitive',
+  P: 'participle',
 };
 const PERSON_MAP: Record<string, GNTPerson> = {
-  '1': '1st', '2': '2nd', '3': '3rd',
+  '1': '1st',
+  '2': '2nd',
+  '3': '3rd',
 };
 const NUMBER_MAP: Record<string, GNTNumber> = {
-  S: 'singular', P: 'plural',
+  S: 'singular',
+  P: 'plural',
 };
 const CASE_MAP: Record<string, GNTCase> = {
-  N: 'nominative', G: 'genitive', D: 'dative', A: 'accusative', V: 'vocative',
+  N: 'nominative',
+  G: 'genitive',
+  D: 'dative',
+  A: 'accusative',
+  V: 'vocative',
 };
 const GENDER_MAP: Record<string, GNTGender> = {
-  M: 'masculine', F: 'feminine', N: 'neuter',
+  M: 'masculine',
+  F: 'feminine',
+  N: 'neuter',
 };
 
 // ---------------------------------------------------------------------------
@@ -207,7 +296,7 @@ export function extractVerbs(
 
       const tense = TENSE_MAP[p2];
       const voice = VOICE_MAP[p3];
-      const mood  = MOOD_MAP[p4];
+      const mood = MOOD_MAP[p4];
       if (!tense || !voice || !mood) continue;
 
       const [form] = splitWordPunct(word.text);
@@ -218,7 +307,9 @@ export function extractVerbs(
         verseRef: `${bookName} ${chapter}:${verseNum}`,
         verseWords: words,
         wordIndex: i,
-        tense, voice, mood,
+        tense,
+        voice,
+        mood,
       };
 
       if (p4 === 'N') {
@@ -227,8 +318,8 @@ export function extractVerbs(
       } else if (p4 === 'P') {
         // Participle
         const parseCase = CASE_MAP[p5];
-        const number    = NUMBER_MAP[p6];
-        const gender    = GENDER_MAP[p7];
+        const number = NUMBER_MAP[p6];
+        const gender = GENDER_MAP[p7];
         if (!parseCase || !number || !gender) continue;
         items.push({ ...base, type: 'participle', parseCase, number, gender });
       } else {
@@ -278,9 +369,11 @@ export function loadGNTSettings(): GNTPassageSettings {
     if (!raw) return { ...DEFAULT_GNT_SETTINGS };
     const p = JSON.parse(raw) as Partial<GNTPassageSettings>;
     return {
-      book:          typeof p.book    === 'string' ? p.book    : 'JHN',
-      chapter:       typeof p.chapter === 'number' ? p.chapter : 1,
-      sessionLength: ([10, 20, 30, 'all'] as const).includes(p.sessionLength as 10 | 20 | 30 | 'all')
+      book: typeof p.book === 'string' ? p.book : 'JHN',
+      chapter: typeof p.chapter === 'number' ? p.chapter : 1,
+      sessionLength: ([10, 20, 30, 'all'] as const).includes(
+        p.sessionLength as 10 | 20 | 30 | 'all',
+      )
         ? (p.sessionLength as GNTPassageSettings['sessionLength'])
         : 20,
     };

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import AnnouncementTooltip from '../components/AnnouncementTooltip.astro';
 
 interface Props {
   title: string;
@@ -270,6 +271,13 @@ function isActive(href: string) {
       </div>
     </nav>
 
+    <AnnouncementTooltip
+      dismissKey="greek-tools-quiz-announcement-v1"
+      title="New in Quiz"
+      message="Verb parsing is here — drill λύω forms or parse verbs straight from GNT passages."
+      desktopAnchor='nav:not([aria-label]) a[href="/quiz"]'
+      mobileAnchor='nav[aria-label="Main navigation"] a[href="/quiz"]'
+    />
   </body>
 </html>
 

@@ -55,6 +55,16 @@ export const NUMBER_LABELS: Record<ParseNumber, string> = {
   plural: 'Plural',
 };
 
+/**
+ * Returns the available voice options for a given tense.
+ * Perfect tense only has Active and Middle/Passive (no distinct passive form),
+ * so 'mid-pass' replaces separate 'middle' and 'passive' options.
+ */
+export function voicesForTense(tense: ParseTense | ''): ParseVoice[] {
+  if (tense === 'perfect') return ['active', 'mid-pass'];
+  return ['active', 'middle', 'passive'];
+}
+
 /** A single verb form together with its full parse. */
 export interface ParseItem {
   form: string;

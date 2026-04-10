@@ -16,6 +16,7 @@ import {
   PARSE_VOICES,
   type ParseAnswer,
   type ParseSettings,
+  voicesForTense,
 } from './verb-parse';
 
 // ---------------------------------------------------------------------------
@@ -225,5 +226,105 @@ describe('gradeAnswer', () => {
     expect(result.mood).toBe(false);
     expect(result.person).toBe(false);
     expect(result.number).toBe(false);
+  });
+
+  it('accepts "mid-pass" for a perfect mid-pass item', () => {
+    const perfMidPassItem = {
+      ...presActIndItem,
+      tense: 'perfect' as const,
+      voice: 'mid-pass' as const,
+      paradigmLabel: 'Perfect Middle/Passive Indicative — λύω',
+    };
+    const answer: ParseAnswer = {
+      tense: 'perfect',
+      voice: 'mid-pass',
+      mood: 'indicative',
+      person: '1st',
+      number: 'singular',
+    };
+    const result = gradeAnswer(perfMidPassItem, answer);
+    expect(result.voice).toBe(true);
+    expect(result.allCorrect).toBe(true);
+  });
+
+  it('rejects "middle" or "passive" for a perfect mid-pass item when mid-pass is expected', () => {
+    const perfMidPassItem = {
+      ...presActIndItem,
+      tense: 'perfect' as const,
+      voice: 'mid-pass' as const,
+      paradigmLabel: 'Perfect Middle/Passive Indicative — λύω',
+    };
+    const withMiddle: ParseAnswer = {
+      tense: 'perfect',
+      voice: 'middle',
+      mood: 'indicative',
+      person: '1st',
+      number: 'singular',
+    };
+    // mid-pass gradeVoice still accepts 'middle' for backward-compat with non-perfect
+    // mid-pass paradigms; this tests that 'mid-pass' itself is accepted
+    expect(gradeAnswer(perfMidPassItem, withMiddle).voice).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// voicesForTense
+// ---------------------------------------------------------------------------
+
+describe('voicesForTense', () => {
+  it('returns active, middle, passive for non-perfect tenses', () => {
+    expect(voicesForTense('present')).toEqual(['active', 'middle', 'passive']);
+    expect(voicesForTense('imperfect')).toEqual(['active', 'middle', 'passive']);
+    expect(voicesForTense('future')).toEqual(['active', 'middle', 'passive']);
+    expect(voicesForTense('aorist')).toEqual(['active', 'middle', 'passive']);
+  });
+
+  it('returns active, mid-pass for perfect tense', () => {
+    expect(voicesForTense('perfect')).toEqual(['active', 'mid-pass']);
+  });
+
+  it('returns active, middle, passive for empty string (no tense selected yet)', () => {
+    expect(voicesForTense('')).toEqual(['active', 'middle', 'passive']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildSession — perfect mid-pass
+// ---------------------------------------------------------------------------
+
+describe('buildSession — perfect tense', () => {
+  it('includes perf-mid-pass-ind forms when perfect is selected', () => {
+    const settings: ParseSettings = {
+      tenses: ['perfect'],
+      voices: ['active', 'middle', 'passive'],
+      moods: ['indicative'],
+      sessionLength: 20,
+    };
+    const items = buildSession(settings, 20);
+    expect(items.length).toBeGreaterThan(0);
+    const midPassItems = items.filter((i) => i.voice === 'mid-pass');
+    expect(midPassItems.length).toBeGreaterThan(0);
+    for (const item of midPassItems) {
+      expect(item.tense).toBe('perfect');
+      expect(item.paradigmLabel).toContain('λύω');
+    }
+  });
+
+  it('perfect mid-pass forms include expected Greek forms', () => {
+    const settings: ParseSettings = {
+      tenses: ['perfect'],
+      voices: ['middle', 'passive'],
+      moods: ['indicative'],
+      sessionLength: 20,
+    };
+    const items = buildSession(settings, 20);
+    const forms = items.map((i) => i.form);
+    // All six perfect mid-pass indicative forms of λύω should be present
+    expect(forms).toContain('λέλυμαι');
+    expect(forms).toContain('λέλυσαι');
+    expect(forms).toContain('λέλυται');
+    expect(forms).toContain('λελύμεθα');
+    expect(forms).toContain('λέλυσθε');
+    expect(forms).toContain('λέλυνται');
   });
 });

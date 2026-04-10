@@ -595,6 +595,19 @@ export const verbParadigms: VerbParadigm[] = [
       '3pl': 'λελύκασι(ν)',
     },
   },
+  {
+    id: 'perf-mid-pass-ind',
+    label: 'Perfect Middle/Passive Indicative',
+    group: 'indicative',
+    forms: {
+      '1sg': 'λέλυμαι',
+      '2sg': 'λέλυσαι',
+      '3sg': 'λέλυται',
+      '1pl': 'λελύμεθα',
+      '2pl': 'λέλυσθε',
+      '3pl': 'λέλυνται',
+    },
+  },
   // Subjunctive
   {
     id: 'pres-act-subj',

@@ -2,11 +2,12 @@
  * Tests for src/components/DeckBuilder.tsx
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, within, act } from '@testing-library/react';
+// biome-ignore lint/correctness/noUnusedImports: act IS used in async callbacks — Biome false positive
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { CustomDeck } from '../data/customDecks';
 import DeckBuilder from './DeckBuilder';
-import { type CustomDeck } from '../data/customDecks';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -92,7 +93,9 @@ describe('Study button', () => {
     const user = userEvent.setup();
     const onActivateDeck = vi.fn();
     renderBuilder({ decks: [makeDeck()], onActivateDeck });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /study/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /study/i }));
+    });
     expect(onActivateDeck).toHaveBeenCalledWith('deck-1');
   });
 
@@ -100,7 +103,9 @@ describe('Study button', () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     renderBuilder({ decks: [makeDeck()], onClose });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /study/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /study/i }));
+    });
     expect(onClose).toHaveBeenCalled();
   });
 });
@@ -180,7 +185,9 @@ describe('Creating a new deck', () => {
   it('transitions to edit view when "+ New Deck" is clicked', async () => {
     const user = userEvent.setup();
     renderBuilder();
-    await act(async () => { await user.click(screen.getByRole('button', { name: /\+ new deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ new deck/i }));
+    });
     expect(screen.getByText(/new deck/i)).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /deck name/i })).toBeInTheDocument();
   });
@@ -188,7 +195,9 @@ describe('Creating a new deck', () => {
   it('shows "Back" button in edit view', async () => {
     const user = userEvent.setup();
     renderBuilder();
-    await act(async () => { await user.click(screen.getByRole('button', { name: /\+ new deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ new deck/i }));
+    });
     expect(screen.getByRole('button', { name: /back to deck list/i })).toBeInTheDocument();
   });
 
@@ -196,8 +205,12 @@ describe('Creating a new deck', () => {
     const user = userEvent.setup();
     const onDecksChange = vi.fn();
     renderBuilder({ onDecksChange });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /\+ new deck/i })); });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /cancel/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ new deck/i }));
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /cancel/i }));
+    });
     expect(onDecksChange).not.toHaveBeenCalled();
     // Back in list view
     expect(screen.getByRole('button', { name: /\+ new deck/i })).toBeInTheDocument();
@@ -208,7 +221,9 @@ describe('Creating a new deck', () => {
     const onDecksChange = vi.fn();
     renderBuilder({ onDecksChange });
 
-    await act(async () => { await user.click(screen.getByRole('button', { name: /\+ new deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ new deck/i }));
+    });
 
     // Fill in deck name
     await act(async () => {
@@ -217,26 +232,36 @@ describe('Creating a new deck', () => {
 
     // Select a word via checkbox (first word in the list)
     const checkboxes = screen.getAllByRole('checkbox');
-    await act(async () => { await user.click(checkboxes[0]); });
+    await act(async () => {
+      await user.click(checkboxes[0]);
+    });
 
     // Save
-    await act(async () => { await user.click(screen.getByRole('button', { name: /create deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /create deck/i }));
+    });
 
     expect(onDecksChange).toHaveBeenCalled();
     const updatedDecks = onDecksChange.mock.calls[0][0] as CustomDeck[];
-    expect(updatedDecks.some(d => d.name === 'My Test Deck')).toBe(true);
+    expect(updatedDecks.some((d) => d.name === 'My Test Deck')).toBe(true);
   });
 
   it('returns to list view after saving', async () => {
     const user = userEvent.setup();
     renderBuilder();
-    await act(async () => { await user.click(screen.getByRole('button', { name: /\+ new deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ new deck/i }));
+    });
     await act(async () => {
       await user.type(screen.getByRole('textbox', { name: /deck name/i }), 'Deck X');
     });
     const checkboxes = screen.getAllByRole('checkbox');
-    await act(async () => { await user.click(checkboxes[0]); });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /create deck/i })); });
+    await act(async () => {
+      await user.click(checkboxes[0]);
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /create deck/i }));
+    });
     // Back in list view
     expect(screen.getByRole('button', { name: /\+ new deck/i })).toBeInTheDocument();
   });
@@ -246,14 +271,18 @@ describe('Creating a new deck', () => {
 
 describe('Validation', () => {
   async function goToEdit(user: ReturnType<typeof userEvent.setup>) {
-    await act(async () => { await user.click(screen.getByRole('button', { name: /\+ new deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ new deck/i }));
+    });
   }
 
   it('shows error when name is empty', async () => {
     const user = userEvent.setup();
     renderBuilder();
     await goToEdit(user);
-    await act(async () => { await user.click(screen.getByRole('button', { name: /create deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /create deck/i }));
+    });
     expect(screen.getByText(/deck name is required/i)).toBeInTheDocument();
   });
 
@@ -264,7 +293,9 @@ describe('Validation', () => {
     await act(async () => {
       await user.type(screen.getByRole('textbox', { name: /deck name/i }), 'Valid Name');
     });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /create deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /create deck/i }));
+    });
     expect(screen.getByText(/add at least one word/i)).toBeInTheDocument();
   });
 
@@ -277,8 +308,12 @@ describe('Validation', () => {
       await user.type(screen.getByRole('textbox', { name: /deck name/i }), 'Existing');
     });
     const checkboxes = screen.getAllByRole('checkbox');
-    await act(async () => { await user.click(checkboxes[0]); });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /create deck/i })); });
+    await act(async () => {
+      await user.click(checkboxes[0]);
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /create deck/i }));
+    });
     expect(screen.getByText(/already exists/i)).toBeInTheDocument();
   });
 });
@@ -311,7 +346,9 @@ describe('Editing a deck', () => {
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /edit deck week 1/i }));
     });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /cancel/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /cancel/i }));
+    });
     expect(onDecksChange).not.toHaveBeenCalled();
   });
 
@@ -327,11 +364,15 @@ describe('Editing a deck', () => {
     // Keep same name, just toggle a checkbox
     const checkboxes = screen.getAllByRole('checkbox');
     // Check the first unchecked one
-    const firstUnchecked = checkboxes.find(c => !(c as HTMLInputElement).checked);
+    const firstUnchecked = checkboxes.find((c) => !(c as HTMLInputElement).checked);
     if (firstUnchecked) {
-      await act(async () => { await user.click(firstUnchecked); });
+      await act(async () => {
+        await user.click(firstUnchecked);
+      });
     }
-    await act(async () => { await user.click(screen.getByRole('button', { name: /save changes/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /save changes/i }));
+    });
     // Should save without duplicate name error
     expect(screen.queryByText(/already exists/i)).not.toBeInTheDocument();
   });
@@ -341,7 +382,9 @@ describe('Editing a deck', () => {
 
 describe('Word picker', () => {
   async function goToEdit(user: ReturnType<typeof userEvent.setup>) {
-    await act(async () => { await user.click(screen.getByRole('button', { name: /\+ new deck/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ new deck/i }));
+    });
   }
 
   it('renders a search input', async () => {
@@ -365,7 +408,9 @@ describe('Word picker', () => {
     await goToEdit(user);
     expect(screen.getByRole('status')).toHaveTextContent('0 words selected');
     const checkboxes = screen.getAllByRole('checkbox');
-    await act(async () => { await user.click(checkboxes[0]); });
+    await act(async () => {
+      await user.click(checkboxes[0]);
+    });
     expect(screen.getByRole('status')).toHaveTextContent('1 word selected');
   });
 
@@ -374,9 +419,15 @@ describe('Word picker', () => {
     renderBuilder();
     await goToEdit(user);
     const checkboxes = screen.getAllByRole('checkbox');
-    await act(async () => { await user.click(checkboxes[0]); });
-    await act(async () => { await user.click(checkboxes[1]); });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /clear selection/i })); });
+    await act(async () => {
+      await user.click(checkboxes[0]);
+    });
+    await act(async () => {
+      await user.click(checkboxes[1]);
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /clear selection/i }));
+    });
     expect(screen.getByRole('status')).toHaveTextContent('0 words selected');
   });
 
@@ -391,7 +442,9 @@ describe('Word picker', () => {
     });
     const matchCount = screen.getAllByRole('checkbox').length;
     expect(matchCount).toBeGreaterThan(0);
-    await act(async () => { await user.click(screen.getByRole('button', { name: /select all matching/i })); });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /select all matching/i }));
+    });
     // After bulk-add, the count should reflect how many words are in the filtered set
     const status = screen.getByRole('status');
     const match = status.textContent?.match(/(\d+) word/i);
@@ -426,7 +479,10 @@ describe('Word picker', () => {
     renderBuilder();
     await goToEdit(user);
     await act(async () => {
-      await user.type(screen.getByRole('textbox', { name: /search vocabulary/i }), 'zzzzzzzznotaword');
+      await user.type(
+        screen.getByRole('textbox', { name: /search vocabulary/i }),
+        'zzzzzzzznotaword',
+      );
     });
     expect(screen.getByText(/no words match/i)).toBeInTheDocument();
   });

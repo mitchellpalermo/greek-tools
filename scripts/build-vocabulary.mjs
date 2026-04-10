@@ -9,8 +9,8 @@
  * Force regen: node scripts/build-vocabulary.mjs --force
  */
 
-import { readFile, writeFile, access } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { access, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -24,28 +24,50 @@ const DODSON_URL =
   'https://raw.githubusercontent.com/biblicalhumanities/dodson-greek-lexicon/74f70358d4acfaf2f980bf2feb58ab7115cbbcbc/dodson.xml';
 
 const BOOK_CODES = [
-  'MAT', 'MRK', 'LUK', 'JHN', 'ACT', 'ROM',
-  '1CO', '2CO', 'GAL', 'EPH', 'PHP', 'COL',
-  '1TH', '2TH', '1TI', '2TI', 'TIT', 'PHM',
-  'HEB', 'JAS', '1PE', '2PE', '1JN', '2JN',
-  '3JN', 'JUD', 'REV',
+  'MAT',
+  'MRK',
+  'LUK',
+  'JHN',
+  'ACT',
+  'ROM',
+  '1CO',
+  '2CO',
+  'GAL',
+  'EPH',
+  'PHP',
+  'COL',
+  '1TH',
+  '2TH',
+  '1TI',
+  '2TI',
+  'TIT',
+  'PHM',
+  'HEB',
+  'JAS',
+  '1PE',
+  '2PE',
+  '1JN',
+  '2JN',
+  '3JN',
+  'JUD',
+  'REV',
 ];
 
 // MorphGNT 2-char POS code → our POS enum value
 const MORPHGNT_POS_MAP = {
   'N-': 'noun',
   'V-': 'verb',
-  'RA': 'article',
-  'RD': 'pronoun',   // demonstrative
-  'RI': 'pronoun',   // interrogative/indefinite
-  'RP': 'pronoun',   // personal
-  'RR': 'pronoun',   // relative
+  RA: 'article',
+  RD: 'pronoun', // demonstrative
+  RI: 'pronoun', // interrogative/indefinite
+  RP: 'pronoun', // personal
+  RR: 'pronoun', // relative
   'A-': 'adjective',
   'C-': 'conjunction',
   'D-': 'adverb',
   'P-': 'preposition',
-  'I-': 'particle',  // interjection
-  'X-': 'particle',  // indeclinable/other
+  'I-': 'particle', // interjection
+  'X-': 'particle', // indeclinable/other
 };
 
 /**
@@ -55,58 +77,61 @@ const MORPHGNT_POS_MAP = {
  */
 const OVERRIDES = new Map([
   // Multi-form display entries (MorphGNT lemma differs from display form)
-  ['ὁ',   { greek: 'ὁ, ἡ, τό',      gloss: 'the',                                    partOfSpeech: 'article' }],
-  ['οὐ',  { greek: 'οὐ, οὐκ, οὐχ',   gloss: 'not',                                    partOfSpeech: 'adverb' }],
-  ['ἐκ',  { greek: 'ἐκ, ἐξ',         gloss: 'from, out of (+ gen.)',                  partOfSpeech: 'preposition' }],
+  ['ὁ', { greek: 'ὁ, ἡ, τό', gloss: 'the', partOfSpeech: 'article' }],
+  ['οὐ', { greek: 'οὐ, οὐκ, οὐχ', gloss: 'not', partOfSpeech: 'adverb' }],
+  ['ἐκ', { greek: 'ἐκ, ἐξ', gloss: 'from, out of (+ gen.)', partOfSpeech: 'preposition' }],
 
   // Single-form overrides (same as MorphGNT lemma)
-  ['καί',      { greek: 'καί',      gloss: 'and, even, also',                          partOfSpeech: 'conjunction' }],
-  ['αὐτός',    { greek: 'αὐτός',    gloss: 'he, she, it; self, same',                  partOfSpeech: 'pronoun' }],
-  ['σύ',       { greek: 'σύ',       gloss: 'you (singular)',                            partOfSpeech: 'pronoun' }],
-  ['δέ',       { greek: 'δέ',       gloss: 'but, and, now',                             partOfSpeech: 'conjunction' }],
-  ['ἐν',       { greek: 'ἐν',       gloss: 'in, on, among (+ dat.)',                   partOfSpeech: 'preposition' }],
-  ['εἰμί',     { greek: 'εἰμί',     gloss: 'I am, exist',                              partOfSpeech: 'verb' }],
-  ['λέγω',     { greek: 'λέγω',     gloss: 'I say, speak',                             partOfSpeech: 'verb' }],
-  ['εἰς',      { greek: 'εἰς',      gloss: 'into, to, for (+ acc.)',                   partOfSpeech: 'preposition' }],
-  ['ἐγώ',      { greek: 'ἐγώ',      gloss: 'I',                                        partOfSpeech: 'pronoun' }],
-  ['οὗτος',    { greek: 'οὗτος',    gloss: 'this (one)',                                partOfSpeech: 'pronoun' }],
-  ['ὅτι',      { greek: 'ὅτι',      gloss: 'that, because',                             partOfSpeech: 'conjunction' }],
-  ['γάρ',      { greek: 'γάρ',      gloss: 'for, because',                             partOfSpeech: 'conjunction' }],
-  ['ἐπί',      { greek: 'ἐπί',      gloss: 'on, upon, over',                           partOfSpeech: 'preposition' }],
-  ['θεός',     { greek: 'θεός',     gloss: 'God, god',                                 partOfSpeech: 'noun' }],
-  ['κύριος',   { greek: 'κύριος',   gloss: 'Lord, master',                             partOfSpeech: 'noun' }],
-  ['Ἰησοῦς',  { greek: 'Ἰησοῦς',  gloss: 'Jesus, Joshua',                             partOfSpeech: 'noun' }],
-  ['Χριστός',  { greek: 'Χριστός',  gloss: 'Christ, Messiah, anointed one',            partOfSpeech: 'noun' }],
-  ['ἔχω',      { greek: 'ἔχω',      gloss: 'I have, hold',                             partOfSpeech: 'verb' }],
-  ['πρός',     { greek: 'πρός',     gloss: 'to, toward, with (+ acc.)',                partOfSpeech: 'preposition' }],
-  ['γίνομαι',  { greek: 'γίνομαι',  gloss: 'I become, am, happen',                    partOfSpeech: 'verb' }],
-  ['ἀλλά',     { greek: 'ἀλλά',     gloss: 'but, rather',                              partOfSpeech: 'conjunction' }],
-  ['ποιέω',    { greek: 'ποιέω',    gloss: 'I do, make',                               partOfSpeech: 'verb' }],
-  ['ἄνθρωπος', { greek: 'ἄνθρωπος', gloss: 'man, human being, person',               partOfSpeech: 'noun' }],
-  ['πᾶς',      { greek: 'πᾶς',      gloss: 'all, every, each',                        partOfSpeech: 'adjective' }],
-  ['ὅς',       { greek: 'ὅς',       gloss: 'who, which, that (relative)',              partOfSpeech: 'pronoun' }],
-  ['μή',       { greek: 'μή',       gloss: 'not, lest',                                partOfSpeech: 'adverb' }],
-  ['ἀπό',      { greek: 'ἀπό',      gloss: 'from, away from (+ gen.)',                 partOfSpeech: 'preposition' }],
-  ['διά',      { greek: 'διά',      gloss: 'through (+ gen.); because of (+ acc.)',   partOfSpeech: 'preposition' }],
-  ['ἵνα',      { greek: 'ἵνα',      gloss: 'in order that, so that',                  partOfSpeech: 'conjunction' }],
-  ['πίστις',   { greek: 'πίστις',   gloss: 'faith, trust, belief',                    partOfSpeech: 'noun' }],
-  ['ἀγάπη',    { greek: 'ἀγάπη',    gloss: 'love',                                     partOfSpeech: 'noun' }],
-  ['ἁμαρτία',  { greek: 'ἁμαρτία',  gloss: 'sin',                                      partOfSpeech: 'noun' }],
-  ['πνεῦμα',   { greek: 'πνεῦμα',   gloss: 'spirit, wind, breath',                    partOfSpeech: 'noun' }],
-  ['λόγος',    { greek: 'λόγος',    gloss: 'word, message, reason',                   partOfSpeech: 'noun' }],
-  ['ἀδελφός',  { greek: 'ἀδελφός',  gloss: 'brother',                                  partOfSpeech: 'noun' }],
-  ['οἶδα',     { greek: 'οἶδα',     gloss: 'I know, understand',                       partOfSpeech: 'verb' }],
-  ['βασιλεία', { greek: 'βασιλεία', gloss: 'kingdom, reign',                           partOfSpeech: 'noun' }],
-  ['δίδωμι',   { greek: 'δίδωμι',   gloss: 'I give, grant',                            partOfSpeech: 'verb' }],
-  ['ἔρχομαι',  { greek: 'ἔρχομαι',  gloss: 'I come, go',                               partOfSpeech: 'verb' }],
-  ['πατήρ',    { greek: 'πατήρ',    gloss: 'father',                                   partOfSpeech: 'noun' }],
-  ['γῆ',       { greek: 'γῆ',       gloss: 'earth, land, soil',                        partOfSpeech: 'noun' }],
-  ['οὐρανός',  { greek: 'οὐρανός',  gloss: 'heaven, sky',                              partOfSpeech: 'noun' }],
-  ['ἀκούω',    { greek: 'ἀκούω',    gloss: 'I hear, listen to',                        partOfSpeech: 'verb' }],
-  ['γράφω',    { greek: 'γράφω',    gloss: 'I write',                                  partOfSpeech: 'verb' }],
-  ['δύναμαι',  { greek: 'δύναμαι',  gloss: 'I am able, can',                           partOfSpeech: 'verb' }],
-  ['ζωή',      { greek: 'ζωή',      gloss: 'life',                                     partOfSpeech: 'noun' }],
-  ['ἐκκλησία', { greek: 'ἐκκλησία', gloss: 'church, assembly',                         partOfSpeech: 'noun' }],
+  ['καί', { greek: 'καί', gloss: 'and, even, also', partOfSpeech: 'conjunction' }],
+  ['αὐτός', { greek: 'αὐτός', gloss: 'he, she, it; self, same', partOfSpeech: 'pronoun' }],
+  ['σύ', { greek: 'σύ', gloss: 'you (singular)', partOfSpeech: 'pronoun' }],
+  ['δέ', { greek: 'δέ', gloss: 'but, and, now', partOfSpeech: 'conjunction' }],
+  ['ἐν', { greek: 'ἐν', gloss: 'in, on, among (+ dat.)', partOfSpeech: 'preposition' }],
+  ['εἰμί', { greek: 'εἰμί', gloss: 'I am, exist', partOfSpeech: 'verb' }],
+  ['λέγω', { greek: 'λέγω', gloss: 'I say, speak', partOfSpeech: 'verb' }],
+  ['εἰς', { greek: 'εἰς', gloss: 'into, to, for (+ acc.)', partOfSpeech: 'preposition' }],
+  ['ἐγώ', { greek: 'ἐγώ', gloss: 'I', partOfSpeech: 'pronoun' }],
+  ['οὗτος', { greek: 'οὗτος', gloss: 'this (one)', partOfSpeech: 'pronoun' }],
+  ['ὅτι', { greek: 'ὅτι', gloss: 'that, because', partOfSpeech: 'conjunction' }],
+  ['γάρ', { greek: 'γάρ', gloss: 'for, because', partOfSpeech: 'conjunction' }],
+  ['ἐπί', { greek: 'ἐπί', gloss: 'on, upon, over', partOfSpeech: 'preposition' }],
+  ['θεός', { greek: 'θεός', gloss: 'God, god', partOfSpeech: 'noun' }],
+  ['κύριος', { greek: 'κύριος', gloss: 'Lord, master', partOfSpeech: 'noun' }],
+  ['Ἰησοῦς', { greek: 'Ἰησοῦς', gloss: 'Jesus, Joshua', partOfSpeech: 'noun' }],
+  ['Χριστός', { greek: 'Χριστός', gloss: 'Christ, Messiah, anointed one', partOfSpeech: 'noun' }],
+  ['ἔχω', { greek: 'ἔχω', gloss: 'I have, hold', partOfSpeech: 'verb' }],
+  ['πρός', { greek: 'πρός', gloss: 'to, toward, with (+ acc.)', partOfSpeech: 'preposition' }],
+  ['γίνομαι', { greek: 'γίνομαι', gloss: 'I become, am, happen', partOfSpeech: 'verb' }],
+  ['ἀλλά', { greek: 'ἀλλά', gloss: 'but, rather', partOfSpeech: 'conjunction' }],
+  ['ποιέω', { greek: 'ποιέω', gloss: 'I do, make', partOfSpeech: 'verb' }],
+  ['ἄνθρωπος', { greek: 'ἄνθρωπος', gloss: 'man, human being, person', partOfSpeech: 'noun' }],
+  ['πᾶς', { greek: 'πᾶς', gloss: 'all, every, each', partOfSpeech: 'adjective' }],
+  ['ὅς', { greek: 'ὅς', gloss: 'who, which, that (relative)', partOfSpeech: 'pronoun' }],
+  ['μή', { greek: 'μή', gloss: 'not, lest', partOfSpeech: 'adverb' }],
+  ['ἀπό', { greek: 'ἀπό', gloss: 'from, away from (+ gen.)', partOfSpeech: 'preposition' }],
+  [
+    'διά',
+    { greek: 'διά', gloss: 'through (+ gen.); because of (+ acc.)', partOfSpeech: 'preposition' },
+  ],
+  ['ἵνα', { greek: 'ἵνα', gloss: 'in order that, so that', partOfSpeech: 'conjunction' }],
+  ['πίστις', { greek: 'πίστις', gloss: 'faith, trust, belief', partOfSpeech: 'noun' }],
+  ['ἀγάπη', { greek: 'ἀγάπη', gloss: 'love', partOfSpeech: 'noun' }],
+  ['ἁμαρτία', { greek: 'ἁμαρτία', gloss: 'sin', partOfSpeech: 'noun' }],
+  ['πνεῦμα', { greek: 'πνεῦμα', gloss: 'spirit, wind, breath', partOfSpeech: 'noun' }],
+  ['λόγος', { greek: 'λόγος', gloss: 'word, message, reason', partOfSpeech: 'noun' }],
+  ['ἀδελφός', { greek: 'ἀδελφός', gloss: 'brother', partOfSpeech: 'noun' }],
+  ['οἶδα', { greek: 'οἶδα', gloss: 'I know, understand', partOfSpeech: 'verb' }],
+  ['βασιλεία', { greek: 'βασιλεία', gloss: 'kingdom, reign', partOfSpeech: 'noun' }],
+  ['δίδωμι', { greek: 'δίδωμι', gloss: 'I give, grant', partOfSpeech: 'verb' }],
+  ['ἔρχομαι', { greek: 'ἔρχομαι', gloss: 'I come, go', partOfSpeech: 'verb' }],
+  ['πατήρ', { greek: 'πατήρ', gloss: 'father', partOfSpeech: 'noun' }],
+  ['γῆ', { greek: 'γῆ', gloss: 'earth, land, soil', partOfSpeech: 'noun' }],
+  ['οὐρανός', { greek: 'οὐρανός', gloss: 'heaven, sky', partOfSpeech: 'noun' }],
+  ['ἀκούω', { greek: 'ἀκούω', gloss: 'I hear, listen to', partOfSpeech: 'verb' }],
+  ['γράφω', { greek: 'γράφω', gloss: 'I write', partOfSpeech: 'verb' }],
+  ['δύναμαι', { greek: 'δύναμαι', gloss: 'I am able, can', partOfSpeech: 'verb' }],
+  ['ζωή', { greek: 'ζωή', gloss: 'life', partOfSpeech: 'noun' }],
+  ['ἐκκλησία', { greek: 'ἐκκλησία', gloss: 'church, assembly', partOfSpeech: 'noun' }],
 ]);
 
 async function fileExists(path) {
@@ -125,14 +150,13 @@ async function fileExists(path) {
 async function buildFrequencyAndPos() {
   const frequencyMap = {};
   const posCountMap = {};
-  let totalWords = 0;
+  let _totalWords = 0;
 
   for (const code of BOOK_CODES) {
     const path = join(MORPHGNT_DIR, `${code}.json`);
-    if (!await fileExists(path)) {
+    if (!(await fileExists(path))) {
       throw new Error(
-        `MorphGNT file not found: ${path}\n` +
-        `Run "node scripts/build-morphgnt.mjs" first.`
+        `MorphGNT file not found: ${path}\nRun "node scripts/build-morphgnt.mjs" first.`,
       );
     }
 
@@ -146,13 +170,11 @@ async function buildFrequencyAndPos() {
           frequencyMap[lemma] = (frequencyMap[lemma] || 0) + 1;
           if (!posCountMap[lemma]) posCountMap[lemma] = {};
           posCountMap[lemma][pos] = (posCountMap[lemma][pos] || 0) + 1;
-          totalWords++;
+          _totalWords++;
         }
       }
     }
   }
-
-  console.log(`  Scanned ${totalWords.toLocaleString()} word tokens across ${BOOK_CODES.length} books`);
   return { frequencyMap, posCountMap };
 }
 
@@ -177,7 +199,6 @@ function derivePOS(posCountEntry) {
  * Returns a Map from the primary lemma form (first word of <orth>) → brief gloss.
  */
 async function fetchDodsonGlosses() {
-  console.log(`  Fetching Dodson lexicon from GitHub…`);
   const res = await fetch(DODSON_URL);
   if (!res.ok) {
     throw new Error(`HTTP ${res.status} fetching Dodson XML: ${DODSON_URL}`);
@@ -191,8 +212,9 @@ async function fetchDodsonGlosses() {
 
   const glossMap = new Map();
   let match;
-  let parsed = 0;
+  let _parsed = 0;
 
+  // biome-ignore lint/suspicious/noAssignInExpressions: standard regex exec loop pattern
   while ((match = entryRe.exec(xml)) !== null) {
     const body = match[1];
     const orthMatch = orthRe.exec(body);
@@ -209,11 +231,9 @@ async function fetchDodsonGlosses() {
       if (!glossMap.has(primaryLemma)) {
         glossMap.set(primaryLemma, gloss);
       }
-      parsed++;
+      _parsed++;
     }
   }
-
-  console.log(`  Parsed ${parsed} Dodson entries (${glossMap.size} unique primary lemmas)`);
   return glossMap;
 }
 
@@ -223,8 +243,8 @@ async function fetchDodsonGlosses() {
  */
 function escapeStr(s) {
   return s
-    .replace(/[\r\n\t]+/g, ' ')   // collapse newlines/tabs to space
-    .replace(/\s{2,}/g, ' ')       // collapse multiple spaces
+    .replace(/[\r\n\t]+/g, ' ') // collapse newlines/tabs to space
+    .replace(/\s{2,}/g, ' ') // collapse multiple spaces
     .trim()
     .replace(/\\/g, '\\\\')
     .replace(/'/g, "\\'");
@@ -234,8 +254,9 @@ function escapeStr(s) {
  * Serialize the vocabulary array as a TypeScript source file.
  */
 function serializeVocabulary(entries) {
-  const lines = entries.map(({ greek, gloss, frequency, partOfSpeech }) =>
-    `  { greek: '${escapeStr(greek)}', gloss: '${escapeStr(gloss)}', frequency: ${frequency}, partOfSpeech: '${partOfSpeech}' },`
+  const lines = entries.map(
+    ({ greek, gloss, frequency, partOfSpeech }) =>
+      `  { greek: '${escapeStr(greek)}', gloss: '${escapeStr(gloss)}', frequency: ${frequency}, partOfSpeech: '${partOfSpeech}' },`,
   );
 
   return [
@@ -259,26 +280,12 @@ function serializeVocabulary(entries) {
 }
 
 async function main() {
-  console.log('Building vocabulary data…\n');
-
-  if (!FORCE && await fileExists(OUT_FILE)) {
-    console.log('  vocabulary.ts already exists. Use --force to regenerate.\n  Done.');
+  if (!FORCE && (await fileExists(OUT_FILE))) {
     return;
   }
-
-  // Step 1: Compute per-lemma frequency + POS from MorphGNT
-  console.log('Step 1: Computing lemma frequencies from MorphGNT…');
   const { frequencyMap, posCountMap } = await buildFrequencyAndPos();
-  const lemmaCount = Object.keys(frequencyMap).length;
-  console.log(`  Found ${lemmaCount} unique lemmas\n`);
-
-  // Step 2: Fetch Dodson glosses
-  console.log('Step 2: Fetching Dodson lexicon…');
+  const _lemmaCount = Object.keys(frequencyMap).length;
   const dodsonMap = await fetchDodsonGlosses();
-  console.log();
-
-  // Step 3: Build vocabulary entries
-  console.log('Step 3: Joining lemmas with glosses…');
   const entries = [];
   const unmatched = [];
 
@@ -298,8 +305,8 @@ async function main() {
     if (!gloss) {
       const parenMatch = /^(.+)\((.+)\)$/.exec(lemma);
       if (parenMatch) {
-        const withSuffix = parenMatch[1] + parenMatch[2];  // οὕτως
-        const withoutSuffix = parenMatch[1];                 // οὕτω
+        const withSuffix = parenMatch[1] + parenMatch[2]; // οὕτως
+        const withoutSuffix = parenMatch[1]; // οὕτω
         gloss = dodsonMap.get(withSuffix) ?? dodsonMap.get(withoutSuffix);
         if (gloss) resolvedLemma = withSuffix;
       }
@@ -324,7 +331,6 @@ async function main() {
   }
   const uniqueEntries = [...deduped.values()];
   if (uniqueEntries.length < entries.length) {
-    console.log(`  Deduplicated ${entries.length - uniqueEntries.length} duplicate greek key(s)`);
   }
   entries.length = 0;
   entries.push(...uniqueEntries);
@@ -332,28 +338,16 @@ async function main() {
   // Sort by frequency descending
   entries.sort((a, b) => b.frequency - a.frequency);
 
-  console.log(`  Generated ${entries.length} vocabulary entries`);
-
   if (unmatched.length > 0) {
     // Sort unmatched by frequency so the most critical are surfaced first
     unmatched.sort((a, b) => b.frequency - a.frequency);
-    console.log(`\n  WARNING: ${unmatched.length} MorphGNT lemma(s) with no Dodson match:`);
-    for (const { lemma, frequency } of unmatched) {
-      console.warn(`    [freq=${frequency}] ${lemma}`);
+    for (const { lemma: _lemma, frequency: _frequency } of unmatched) {
     }
   }
-
-  console.log();
-
-  // Step 4: Write output
-  console.log('Step 4: Writing src/data/vocabulary.ts…');
   const source = serializeVocabulary(entries);
   await writeFile(OUT_FILE, source, 'utf-8');
-  console.log(`  Wrote ${entries.length} entries (${unmatched.length} unmatched lemmas skipped)\n`);
-  console.log('Done.');
 }
 
-main().catch(err => {
-  console.error(err);
+main().catch((_err) => {
   process.exit(1);
 });

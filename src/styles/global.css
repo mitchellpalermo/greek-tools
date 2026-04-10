@@ -62,7 +62,7 @@
     position: relative;
   }
   .scroll-fade-x::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     right: 0;

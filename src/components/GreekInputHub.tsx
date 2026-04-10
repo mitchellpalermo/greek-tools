@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import GreekKeyboard from './GreekKeyboard';
 import Transliteration from './Transliteration';
 
 type Tab = 'keyboard' | 'transliteration';
 
-export default function GreekInputHub() {
+function GreekInputHubInner() {
   const [activeTab, setActiveTab] = useState<Tab>('keyboard');
 
   return (
@@ -15,10 +16,12 @@ export default function GreekInputHub() {
         role="tablist"
         aria-label="Greek input mode"
       >
-        {([
-          { id: 'keyboard',        label: 'Keyboard',        icon: '⌨' },
-          { id: 'transliteration', label: 'Transliteration', icon: 'Aa' },
-        ] as const).map(({ id, label, icon }) => (
+        {(
+          [
+            { id: 'keyboard', label: 'Keyboard', icon: '⌨' },
+            { id: 'transliteration', label: 'Transliteration', icon: 'Aa' },
+          ] as const
+        ).map(({ id, label, icon }) => (
           <button
             key={id}
             role="tab"
@@ -38,11 +41,20 @@ export default function GreekInputHub() {
       </div>
 
       <div role="tabpanel">
-        {activeTab === 'keyboard'
-          ? <GreekKeyboard key="keyboard" />
-          : <Transliteration key="transliteration" />
-        }
+        {activeTab === 'keyboard' ? (
+          <GreekKeyboard key="keyboard" />
+        ) : (
+          <Transliteration key="transliteration" />
+        )}
       </div>
     </div>
+  );
+}
+
+export default function GreekInputHub() {
+  return (
+    <ErrorBoundary component="GreekInputHub">
+      <GreekInputHubInner />
+    </ErrorBoundary>
   );
 }

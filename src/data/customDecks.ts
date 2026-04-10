@@ -5,10 +5,10 @@
 // SRS store), so SRS progress is shared across all decks and built-in presets.
 
 export interface CustomDeck {
-  id: string;         // crypto.randomUUID()
-  name: string;       // user-provided, max 60 chars
+  id: string; // crypto.randomUUID()
+  name: string; // user-provided, max 60 chars
   wordKeys: string[]; // normalizeKey() values from vocabulary
-  createdAt: string;  // ISO date string
+  createdAt: string; // ISO date string
 }
 
 export const CUSTOM_DECKS_KEY = 'greek-tools-custom-decks-v1';
@@ -44,8 +44,10 @@ export function updateCustomDeck(
   patch: Partial<Pick<CustomDeck, 'name' | 'wordKeys'>>,
 ): CustomDeck[] {
   const decks = loadCustomDecks();
-  const updated = decks.map(d =>
-    d.id === id ? { ...d, ...patch, name: patch.name !== undefined ? patch.name.trim() : d.name } : d,
+  const updated = decks.map((d) =>
+    d.id === id
+      ? { ...d, ...patch, name: patch.name !== undefined ? patch.name.trim() : d.name }
+      : d,
   );
   saveCustomDecks(updated);
   return updated;
@@ -53,7 +55,7 @@ export function updateCustomDeck(
 
 export function deleteCustomDeck(id: string): CustomDeck[] {
   const decks = loadCustomDecks();
-  const updated = decks.filter(d => d.id !== id);
+  const updated = decks.filter((d) => d.id !== id);
   saveCustomDecks(updated);
   return updated;
 }

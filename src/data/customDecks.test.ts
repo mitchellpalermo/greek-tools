@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  loadCustomDecks,
-  saveCustomDecks,
-  createCustomDeck,
-  updateCustomDeck,
-  deleteCustomDeck,
   CUSTOM_DECKS_KEY,
   type CustomDeck,
+  createCustomDeck,
+  deleteCustomDeck,
+  loadCustomDecks,
+  saveCustomDecks,
+  updateCustomDeck,
 } from './customDecks';
 
 beforeEach(() => {
@@ -121,20 +121,20 @@ describe('updateCustomDeck', () => {
   it('updates the name of an existing deck', () => {
     const deck = createCustomDeck('Original', ['καί']);
     const result = updateCustomDeck(deck.id, { name: 'Renamed' });
-    expect(result.find(d => d.id === deck.id)?.name).toBe('Renamed');
+    expect(result.find((d) => d.id === deck.id)?.name).toBe('Renamed');
   });
 
   it('trims whitespace from updated name', () => {
     const deck = createCustomDeck('Original', ['καί']);
     updateCustomDeck(deck.id, { name: '  Trimmed  ' });
-    expect(loadCustomDecks().find(d => d.id === deck.id)?.name).toBe('Trimmed');
+    expect(loadCustomDecks().find((d) => d.id === deck.id)?.name).toBe('Trimmed');
   });
 
   it('updates wordKeys of an existing deck', () => {
     const deck = createCustomDeck('Deck', ['καί']);
     const newKeys = ['ὁ', 'εἰμί', 'λόγος'];
     updateCustomDeck(deck.id, { wordKeys: newKeys });
-    expect(loadCustomDecks().find(d => d.id === deck.id)?.wordKeys).toEqual(newKeys);
+    expect(loadCustomDecks().find((d) => d.id === deck.id)?.wordKeys).toEqual(newKeys);
   });
 
   it('is a no-op for an unknown id', () => {
@@ -149,20 +149,20 @@ describe('updateCustomDeck', () => {
     const d2 = createCustomDeck('Deck 2', ['ὁ']);
     updateCustomDeck(d1.id, { name: 'Updated 1' });
     const stored = loadCustomDecks();
-    expect(stored.find(d => d.id === d2.id)?.name).toBe('Deck 2');
+    expect(stored.find((d) => d.id === d2.id)?.name).toBe('Deck 2');
   });
 
   it('persists the update to localStorage', () => {
     const deck = createCustomDeck('Before', ['καί']);
     updateCustomDeck(deck.id, { name: 'After' });
-    expect(loadCustomDecks().find(d => d.id === deck.id)?.name).toBe('After');
+    expect(loadCustomDecks().find((d) => d.id === deck.id)?.name).toBe('After');
   });
 
   it('returns the updated deck list', () => {
     const deck = createCustomDeck('Deck', ['καί']);
     const result = updateCustomDeck(deck.id, { name: 'NewName' });
     expect(result).toBeInstanceOf(Array);
-    expect(result.find(d => d.id === deck.id)?.name).toBe('NewName');
+    expect(result.find((d) => d.id === deck.id)?.name).toBe('NewName');
   });
 });
 

@@ -285,11 +285,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '1st',
     gender: 'feminine',
     forms: {
-      nom: { sg: { full: 'ἡμέρα',  ending: 'α'   }, pl: { full: 'ἡμέραι',  ending: 'αι'  } },
-      gen: { sg: { full: 'ἡμέρας', ending: 'ας'  }, pl: { full: 'ἡμερῶν', ending: 'ων'  } },
-      dat: { sg: { full: 'ἡμέρᾳ', ending: 'ᾳ'   }, pl: { full: 'ἡμέραις', ending: 'αις' } },
-      acc: { sg: { full: 'ἡμέραν', ending: 'αν'  }, pl: { full: 'ἡμέρας',  ending: 'ας'  } },
-      voc: { sg: { full: 'ἡμέρα',  ending: 'α'   }, pl: { full: 'ἡμέραι',  ending: 'αι'  } },
+      nom: { sg: { full: 'ἡμέρα', ending: 'α' }, pl: { full: 'ἡμέραι', ending: 'αι' } },
+      gen: { sg: { full: 'ἡμέρας', ending: 'ας' }, pl: { full: 'ἡμερῶν', ending: 'ων' } },
+      dat: { sg: { full: 'ἡμέρᾳ', ending: 'ᾳ' }, pl: { full: 'ἡμέραις', ending: 'αις' } },
+      acc: { sg: { full: 'ἡμέραν', ending: 'αν' }, pl: { full: 'ἡμέρας', ending: 'ας' } },
+      voc: { sg: { full: 'ἡμέρα', ending: 'α' }, pl: { full: 'ἡμέραι', ending: 'αι' } },
     },
   },
   {
@@ -298,11 +298,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '1st',
     gender: 'feminine',
     forms: {
-      nom: { sg: { full: 'δόξα',  ending: 'α'   }, pl: { full: 'δόξαι',  ending: 'αι'  } },
-      gen: { sg: { full: 'δόξης', ending: 'ης'  }, pl: { full: 'δοξῶν', ending: 'ων'  } },
-      dat: { sg: { full: 'δόξῃ',  ending: 'ῃ'   }, pl: { full: 'δόξαις', ending: 'αις' } },
-      acc: { sg: { full: 'δόξαν', ending: 'αν'  }, pl: { full: 'δόξας',  ending: 'ας'  } },
-      voc: { sg: { full: 'δόξα',  ending: 'α'   }, pl: { full: 'δόξαι',  ending: 'αι'  } },
+      nom: { sg: { full: 'δόξα', ending: 'α' }, pl: { full: 'δόξαι', ending: 'αι' } },
+      gen: { sg: { full: 'δόξης', ending: 'ης' }, pl: { full: 'δοξῶν', ending: 'ων' } },
+      dat: { sg: { full: 'δόξῃ', ending: 'ῃ' }, pl: { full: 'δόξαις', ending: 'αις' } },
+      acc: { sg: { full: 'δόξαν', ending: 'αν' }, pl: { full: 'δόξας', ending: 'ας' } },
+      voc: { sg: { full: 'δόξα', ending: 'α' }, pl: { full: 'δόξαι', ending: 'αι' } },
     },
   },
   {
@@ -311,11 +311,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '1st',
     gender: 'masculine',
     forms: {
-      nom: { sg: { full: 'νεανίας',  ending: 'ας' }, pl: { full: 'νεανίαι',  ending: 'αι'  } },
-      gen: { sg: { full: 'νεανίου',  ending: 'ου' }, pl: { full: 'νεανιῶν', ending: 'ων'  } },
-      dat: { sg: { full: 'νεανίᾳ',  ending: 'ᾳ'  }, pl: { full: 'νεανίαις', ending: 'αις' } },
-      acc: { sg: { full: 'νεανίαν',  ending: 'αν' }, pl: { full: 'νεανίας',  ending: 'ας'  } },
-      voc: { sg: { full: 'νεανία',   ending: 'α'  }, pl: { full: 'νεανίαι',  ending: 'αι'  } },
+      nom: { sg: { full: 'νεανίας', ending: 'ας' }, pl: { full: 'νεανίαι', ending: 'αι' } },
+      gen: { sg: { full: 'νεανίου', ending: 'ου' }, pl: { full: 'νεανιῶν', ending: 'ων' } },
+      dat: { sg: { full: 'νεανίᾳ', ending: 'ᾳ' }, pl: { full: 'νεανίαις', ending: 'αις' } },
+      acc: { sg: { full: 'νεανίαν', ending: 'αν' }, pl: { full: 'νεανίας', ending: 'ας' } },
+      voc: { sg: { full: 'νεανία', ending: 'α' }, pl: { full: 'νεανίαι', ending: 'αι' } },
     },
   },
   {
@@ -324,11 +324,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '2nd',
     gender: 'masculine',
     forms: {
-      nom: { sg: { full: 'λόγος', ending: 'ος'  }, pl: { full: 'λόγοι',  ending: 'οι'  } },
-      gen: { sg: { full: 'λόγου', ending: 'ου'  }, pl: { full: 'λόγων',  ending: 'ων'  } },
-      dat: { sg: { full: 'λόγῳ',  ending: 'ῳ'   }, pl: { full: 'λόγοις', ending: 'οις' } },
-      acc: { sg: { full: 'λόγον', ending: 'ον'  }, pl: { full: 'λόγους', ending: 'ους' } },
-      voc: { sg: { full: 'λόγε',  ending: 'ε'   }, pl: { full: 'λόγοι',  ending: 'οι'  } },
+      nom: { sg: { full: 'λόγος', ending: 'ος' }, pl: { full: 'λόγοι', ending: 'οι' } },
+      gen: { sg: { full: 'λόγου', ending: 'ου' }, pl: { full: 'λόγων', ending: 'ων' } },
+      dat: { sg: { full: 'λόγῳ', ending: 'ῳ' }, pl: { full: 'λόγοις', ending: 'οις' } },
+      acc: { sg: { full: 'λόγον', ending: 'ον' }, pl: { full: 'λόγους', ending: 'ους' } },
+      voc: { sg: { full: 'λόγε', ending: 'ε' }, pl: { full: 'λόγοι', ending: 'οι' } },
     },
   },
   {
@@ -337,11 +337,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '2nd',
     gender: 'neuter',
     forms: {
-      nom: { sg: { full: 'ἔργον', ending: 'ον' }, pl: { full: 'ἔργα',   ending: 'α'   } },
-      gen: { sg: { full: 'ἔργου', ending: 'ου' }, pl: { full: 'ἔργων',  ending: 'ων'  } },
-      dat: { sg: { full: 'ἔργῳ',  ending: 'ῳ'  }, pl: { full: 'ἔργοις', ending: 'οις' } },
-      acc: { sg: { full: 'ἔργον', ending: 'ον' }, pl: { full: 'ἔργα',   ending: 'α'   } },
-      voc: { sg: { full: 'ἔργον', ending: 'ον' }, pl: { full: 'ἔργα',   ending: 'α'   } },
+      nom: { sg: { full: 'ἔργον', ending: 'ον' }, pl: { full: 'ἔργα', ending: 'α' } },
+      gen: { sg: { full: 'ἔργου', ending: 'ου' }, pl: { full: 'ἔργων', ending: 'ων' } },
+      dat: { sg: { full: 'ἔργῳ', ending: 'ῳ' }, pl: { full: 'ἔργοις', ending: 'οις' } },
+      acc: { sg: { full: 'ἔργον', ending: 'ον' }, pl: { full: 'ἔργα', ending: 'α' } },
+      voc: { sg: { full: 'ἔργον', ending: 'ον' }, pl: { full: 'ἔργα', ending: 'α' } },
     },
   },
   {
@@ -350,11 +350,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '3rd',
     gender: 'feminine',
     forms: {
-      nom: { sg: { full: 'σάρξ',     ending: 'ξ'     }, pl: { full: 'σάρκες',    ending: 'ες'     } },
-      gen: { sg: { full: 'σαρκός',   ending: 'ός'    }, pl: { full: 'σαρκῶν',   ending: 'ῶν'     } },
-      dat: { sg: { full: 'σαρκί',    ending: 'ί'     }, pl: { full: 'σαρξί(ν)', ending: 'σί(ν)'  } },
-      acc: { sg: { full: 'σάρκα',    ending: 'α'     }, pl: { full: 'σάρκας',   ending: 'ας'     } },
-      voc: { sg: { full: 'σάρξ',     ending: 'ξ'     }, pl: { full: 'σάρκες',   ending: 'ες'     } },
+      nom: { sg: { full: 'σάρξ', ending: 'ξ' }, pl: { full: 'σάρκες', ending: 'ες' } },
+      gen: { sg: { full: 'σαρκός', ending: 'ός' }, pl: { full: 'σαρκῶν', ending: 'ῶν' } },
+      dat: { sg: { full: 'σαρκί', ending: 'ί' }, pl: { full: 'σαρξί(ν)', ending: 'σί(ν)' } },
+      acc: { sg: { full: 'σάρκα', ending: 'α' }, pl: { full: 'σάρκας', ending: 'ας' } },
+      voc: { sg: { full: 'σάρξ', ending: 'ξ' }, pl: { full: 'σάρκες', ending: 'ες' } },
     },
   },
   {
@@ -363,11 +363,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '3rd',
     gender: 'feminine',
     forms: {
-      nom: { sg: { full: 'πίστις',    ending: 'ις'    }, pl: { full: 'πίστεις',    ending: 'εις'    } },
-      gen: { sg: { full: 'πίστεως',   ending: 'εως'   }, pl: { full: 'πίστεων',   ending: 'εων'    } },
-      dat: { sg: { full: 'πίστει',    ending: 'ει'    }, pl: { full: 'πίστεσι(ν)', ending: 'εσι(ν)' } },
-      acc: { sg: { full: 'πίστιν',    ending: 'ιν'    }, pl: { full: 'πίστεις',   ending: 'εις'    } },
-      voc: { sg: { full: 'πίστι',     ending: 'ι'     }, pl: { full: 'πίστεις',   ending: 'εις'    } },
+      nom: { sg: { full: 'πίστις', ending: 'ις' }, pl: { full: 'πίστεις', ending: 'εις' } },
+      gen: { sg: { full: 'πίστεως', ending: 'εως' }, pl: { full: 'πίστεων', ending: 'εων' } },
+      dat: { sg: { full: 'πίστει', ending: 'ει' }, pl: { full: 'πίστεσι(ν)', ending: 'εσι(ν)' } },
+      acc: { sg: { full: 'πίστιν', ending: 'ιν' }, pl: { full: 'πίστεις', ending: 'εις' } },
+      voc: { sg: { full: 'πίστι', ending: 'ι' }, pl: { full: 'πίστεις', ending: 'εις' } },
     },
   },
   {
@@ -376,11 +376,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '3rd',
     gender: 'masculine',
     forms: {
-      nom: { sg: { full: 'βασιλεύς',    ending: 'ς'     }, pl: { full: 'βασιλεῖς',    ending: 'εῖς'    } },
-      gen: { sg: { full: 'βασιλέως',    ending: 'ως'    }, pl: { full: 'βασιλέων',   ending: 'ων'     } },
-      dat: { sg: { full: 'βασιλεῖ',     ending: 'ῖ'     }, pl: { full: 'βασιλεῦσι(ν)', ending: 'σι(ν)' } },
-      acc: { sg: { full: 'βασιλέα',     ending: 'α'     }, pl: { full: 'βασιλεῖς',   ending: 'εῖς'    } },
-      voc: { sg: { full: 'βασιλεῦ',     ending: 'ῦ'     }, pl: { full: 'βασιλεῖς',   ending: 'εῖς'    } },
+      nom: { sg: { full: 'βασιλεύς', ending: 'ς' }, pl: { full: 'βασιλεῖς', ending: 'εῖς' } },
+      gen: { sg: { full: 'βασιλέως', ending: 'ως' }, pl: { full: 'βασιλέων', ending: 'ων' } },
+      dat: { sg: { full: 'βασιλεῖ', ending: 'ῖ' }, pl: { full: 'βασιλεῦσι(ν)', ending: 'σι(ν)' } },
+      acc: { sg: { full: 'βασιλέα', ending: 'α' }, pl: { full: 'βασιλεῖς', ending: 'εῖς' } },
+      voc: { sg: { full: 'βασιλεῦ', ending: 'ῦ' }, pl: { full: 'βασιλεῖς', ending: 'εῖς' } },
     },
   },
   {
@@ -389,11 +389,11 @@ export const nounParadigms: NounParadigm[] = [
     declension: '3rd',
     gender: 'neuter',
     forms: {
-      nom: { sg: { full: 'γένος',  ending: 'ος'  }, pl: { full: 'γένη',     ending: 'η'      } },
-      gen: { sg: { full: 'γένους', ending: 'ους' }, pl: { full: 'γενῶν',   ending: 'ῶν'     } },
-      dat: { sg: { full: 'γένει',  ending: 'ει'  }, pl: { full: 'γένεσι(ν)', ending: 'εσι(ν)' } },
-      acc: { sg: { full: 'γένος',  ending: 'ος'  }, pl: { full: 'γένη',     ending: 'η'      } },
-      voc: { sg: { full: 'γένος',  ending: 'ος'  }, pl: { full: 'γένη',     ending: 'η'      } },
+      nom: { sg: { full: 'γένος', ending: 'ος' }, pl: { full: 'γένη', ending: 'η' } },
+      gen: { sg: { full: 'γένους', ending: 'ους' }, pl: { full: 'γενῶν', ending: 'ῶν' } },
+      dat: { sg: { full: 'γένει', ending: 'ει' }, pl: { full: 'γένεσι(ν)', ending: 'εσι(ν)' } },
+      acc: { sg: { full: 'γένος', ending: 'ος' }, pl: { full: 'γένη', ending: 'η' } },
+      voc: { sg: { full: 'γένος', ending: 'ος' }, pl: { full: 'γένη', ending: 'η' } },
     },
   },
 ];
@@ -409,24 +409,24 @@ export const adjParadigms: AdjParadigm[] = [
     type: '2-1-2',
     forms: {
       nom: {
-        sg: { m: 'ἀγαθός', f: 'ἀγαθή',  n: 'ἀγαθόν' },
-        pl: { m: 'ἀγαθοί', f: 'ἀγαθαί', n: 'ἀγαθά'  },
+        sg: { m: 'ἀγαθός', f: 'ἀγαθή', n: 'ἀγαθόν' },
+        pl: { m: 'ἀγαθοί', f: 'ἀγαθαί', n: 'ἀγαθά' },
       },
       gen: {
         sg: { m: 'ἀγαθοῦ', f: 'ἀγαθῆς', n: 'ἀγαθοῦ' },
         pl: { m: 'ἀγαθῶν', f: 'ἀγαθῶν', n: 'ἀγαθῶν' },
       },
       dat: {
-        sg: { m: 'ἀγαθῷ',  f: 'ἀγαθῇ',  n: 'ἀγαθῷ'  },
+        sg: { m: 'ἀγαθῷ', f: 'ἀγαθῇ', n: 'ἀγαθῷ' },
         pl: { m: 'ἀγαθοῖς', f: 'ἀγαθαῖς', n: 'ἀγαθοῖς' },
       },
       acc: {
         sg: { m: 'ἀγαθόν', f: 'ἀγαθήν', n: 'ἀγαθόν' },
-        pl: { m: 'ἀγαθούς', f: 'ἀγαθάς', n: 'ἀγαθά'  },
+        pl: { m: 'ἀγαθούς', f: 'ἀγαθάς', n: 'ἀγαθά' },
       },
       voc: {
-        sg: { m: 'ἀγαθέ',  f: 'ἀγαθή',  n: 'ἀγαθόν' },
-        pl: { m: 'ἀγαθοί', f: 'ἀγαθαί', n: 'ἀγαθά'  },
+        sg: { m: 'ἀγαθέ', f: 'ἀγαθή', n: 'ἀγαθόν' },
+        pl: { m: 'ἀγαθοί', f: 'ἀγαθαί', n: 'ἀγαθά' },
       },
     },
   },
@@ -436,23 +436,23 @@ export const adjParadigms: AdjParadigm[] = [
     type: '3-1-3',
     forms: {
       nom: {
-        sg: { m: 'πᾶς',    f: 'πᾶσα',  n: 'πᾶν'    },
-        pl: { m: 'πάντες', f: 'πᾶσαι', n: 'πάντα'  },
+        sg: { m: 'πᾶς', f: 'πᾶσα', n: 'πᾶν' },
+        pl: { m: 'πάντες', f: 'πᾶσαι', n: 'πάντα' },
       },
       gen: {
         sg: { m: 'παντός', f: 'πάσης', n: 'παντός' },
         pl: { m: 'πάντων', f: 'πασῶν', n: 'πάντων' },
       },
       dat: {
-        sg: { m: 'παντί',    f: 'πάσῃ',   n: 'παντί'    },
+        sg: { m: 'παντί', f: 'πάσῃ', n: 'παντί' },
         pl: { m: 'πᾶσι(ν)', f: 'πάσαις', n: 'πᾶσι(ν)' },
       },
       acc: {
-        sg: { m: 'πάντα',  f: 'πᾶσαν', n: 'πᾶν'   },
-        pl: { m: 'πάντας', f: 'πάσας',  n: 'πάντα' },
+        sg: { m: 'πάντα', f: 'πᾶσαν', n: 'πᾶν' },
+        pl: { m: 'πάντας', f: 'πάσας', n: 'πάντα' },
       },
       voc: {
-        sg: { m: 'πᾶς',    f: 'πᾶσα',  n: 'πᾶν'   },
+        sg: { m: 'πᾶς', f: 'πᾶσα', n: 'πᾶν' },
         pl: { m: 'πάντες', f: 'πᾶσαι', n: 'πάντα' },
       },
     },
@@ -469,86 +469,184 @@ export const verbParadigms: VerbParadigm[] = [
     id: 'pres-act-ind',
     label: 'Present Active Indicative',
     group: 'indicative',
-    forms: { '1sg': 'λύω', '2sg': 'λύεις', '3sg': 'λύει', '1pl': 'λύομεν', '2pl': 'λύετε', '3pl': 'λύουσι(ν)' },
+    forms: {
+      '1sg': 'λύω',
+      '2sg': 'λύεις',
+      '3sg': 'λύει',
+      '1pl': 'λύομεν',
+      '2pl': 'λύετε',
+      '3pl': 'λύουσι(ν)',
+    },
   },
   {
     id: 'pres-mid-ind',
     label: 'Present Middle/Passive Indicative',
     group: 'indicative',
-    forms: { '1sg': 'λύομαι', '2sg': 'λύῃ', '3sg': 'λύεται', '1pl': 'λυόμεθα', '2pl': 'λύεσθε', '3pl': 'λύονται' },
+    forms: {
+      '1sg': 'λύομαι',
+      '2sg': 'λύῃ',
+      '3sg': 'λύεται',
+      '1pl': 'λυόμεθα',
+      '2pl': 'λύεσθε',
+      '3pl': 'λύονται',
+    },
   },
   {
     id: 'impf-act-ind',
     label: 'Imperfect Active Indicative',
     group: 'indicative',
-    forms: { '1sg': 'ἔλυον', '2sg': 'ἔλυες', '3sg': 'ἔλυε(ν)', '1pl': 'ἐλύομεν', '2pl': 'ἐλύετε', '3pl': 'ἔλυον' },
+    forms: {
+      '1sg': 'ἔλυον',
+      '2sg': 'ἔλυες',
+      '3sg': 'ἔλυε(ν)',
+      '1pl': 'ἐλύομεν',
+      '2pl': 'ἐλύετε',
+      '3pl': 'ἔλυον',
+    },
   },
   {
     id: 'impf-mid-ind',
     label: 'Imperfect Middle/Passive Indicative',
     group: 'indicative',
-    forms: { '1sg': 'ἐλυόμην', '2sg': 'ἐλύου', '3sg': 'ἐλύετο', '1pl': 'ἐλυόμεθα', '2pl': 'ἐλύεσθε', '3pl': 'ἐλύοντο' },
+    forms: {
+      '1sg': 'ἐλυόμην',
+      '2sg': 'ἐλύου',
+      '3sg': 'ἐλύετο',
+      '1pl': 'ἐλυόμεθα',
+      '2pl': 'ἐλύεσθε',
+      '3pl': 'ἐλύοντο',
+    },
   },
   {
     id: 'fut-act-ind',
     label: 'Future Active Indicative',
     group: 'indicative',
-    forms: { '1sg': 'λύσω', '2sg': 'λύσεις', '3sg': 'λύσει', '1pl': 'λύσομεν', '2pl': 'λύσετε', '3pl': 'λύσουσι(ν)' },
+    forms: {
+      '1sg': 'λύσω',
+      '2sg': 'λύσεις',
+      '3sg': 'λύσει',
+      '1pl': 'λύσομεν',
+      '2pl': 'λύσετε',
+      '3pl': 'λύσουσι(ν)',
+    },
   },
   {
     id: 'fut-mid-ind',
     label: 'Future Middle Indicative',
     group: 'indicative',
-    forms: { '1sg': 'λύσομαι', '2sg': 'λύσῃ', '3sg': 'λύσεται', '1pl': 'λυσόμεθα', '2pl': 'λύσεσθε', '3pl': 'λύσονται' },
+    forms: {
+      '1sg': 'λύσομαι',
+      '2sg': 'λύσῃ',
+      '3sg': 'λύσεται',
+      '1pl': 'λυσόμεθα',
+      '2pl': 'λύσεσθε',
+      '3pl': 'λύσονται',
+    },
   },
   {
     id: 'aor-act-ind',
     label: 'Aorist Active Indicative',
     group: 'indicative',
-    forms: { '1sg': 'ἔλυσα', '2sg': 'ἔλυσας', '3sg': 'ἔλυσε(ν)', '1pl': 'ἐλύσαμεν', '2pl': 'ἐλύσατε', '3pl': 'ἔλυσαν' },
+    forms: {
+      '1sg': 'ἔλυσα',
+      '2sg': 'ἔλυσας',
+      '3sg': 'ἔλυσε(ν)',
+      '1pl': 'ἐλύσαμεν',
+      '2pl': 'ἐλύσατε',
+      '3pl': 'ἔλυσαν',
+    },
   },
   {
     id: 'aor-mid-ind',
     label: 'Aorist Middle Indicative',
     group: 'indicative',
-    forms: { '1sg': 'ἐλυσάμην', '2sg': 'ἐλύσω', '3sg': 'ἐλύσατο', '1pl': 'ἐλυσάμεθα', '2pl': 'ἐλύσασθε', '3pl': 'ἐλύσαντο' },
+    forms: {
+      '1sg': 'ἐλυσάμην',
+      '2sg': 'ἐλύσω',
+      '3sg': 'ἐλύσατο',
+      '1pl': 'ἐλυσάμεθα',
+      '2pl': 'ἐλύσασθε',
+      '3pl': 'ἐλύσαντο',
+    },
   },
   {
     id: 'aor-pass-ind',
     label: 'Aorist Passive Indicative',
     group: 'indicative',
-    forms: { '1sg': 'ἐλύθην', '2sg': 'ἐλύθης', '3sg': 'ἐλύθη', '1pl': 'ἐλύθημεν', '2pl': 'ἐλύθητε', '3pl': 'ἐλύθησαν' },
+    forms: {
+      '1sg': 'ἐλύθην',
+      '2sg': 'ἐλύθης',
+      '3sg': 'ἐλύθη',
+      '1pl': 'ἐλύθημεν',
+      '2pl': 'ἐλύθητε',
+      '3pl': 'ἐλύθησαν',
+    },
   },
   {
     id: 'perf-act-ind',
     label: 'Perfect Active Indicative',
     group: 'indicative',
-    forms: { '1sg': 'λέλυκα', '2sg': 'λέλυκας', '3sg': 'λέλυκε(ν)', '1pl': 'λελύκαμεν', '2pl': 'λελύκατε', '3pl': 'λελύκασι(ν)' },
+    forms: {
+      '1sg': 'λέλυκα',
+      '2sg': 'λέλυκας',
+      '3sg': 'λέλυκε(ν)',
+      '1pl': 'λελύκαμεν',
+      '2pl': 'λελύκατε',
+      '3pl': 'λελύκασι(ν)',
+    },
   },
   // Subjunctive
   {
     id: 'pres-act-subj',
     label: 'Present Active Subjunctive',
     group: 'subjunctive',
-    forms: { '1sg': 'λύω', '2sg': 'λύῃς', '3sg': 'λύῃ', '1pl': 'λύωμεν', '2pl': 'λύητε', '3pl': 'λύωσι(ν)' },
+    forms: {
+      '1sg': 'λύω',
+      '2sg': 'λύῃς',
+      '3sg': 'λύῃ',
+      '1pl': 'λύωμεν',
+      '2pl': 'λύητε',
+      '3pl': 'λύωσι(ν)',
+    },
   },
   {
     id: 'pres-pass-subj',
     label: 'Present Passive Subjunctive',
     group: 'subjunctive',
-    forms: { '1sg': 'λύωμαι', '2sg': 'λύῃ', '3sg': 'λύηται', '1pl': 'λυώμεθα', '2pl': 'λύησθε', '3pl': 'λύωνται' },
+    forms: {
+      '1sg': 'λύωμαι',
+      '2sg': 'λύῃ',
+      '3sg': 'λύηται',
+      '1pl': 'λυώμεθα',
+      '2pl': 'λύησθε',
+      '3pl': 'λύωνται',
+    },
   },
   {
     id: 'aor-act-subj',
     label: 'Aorist Active Subjunctive',
     group: 'subjunctive',
-    forms: { '1sg': 'λύσω', '2sg': 'λύσῃς', '3sg': 'λύσῃ', '1pl': 'λύσωμεν', '2pl': 'λύσητε', '3pl': 'λύσωσι(ν)' },
+    forms: {
+      '1sg': 'λύσω',
+      '2sg': 'λύσῃς',
+      '3sg': 'λύσῃ',
+      '1pl': 'λύσωμεν',
+      '2pl': 'λύσητε',
+      '3pl': 'λύσωσι(ν)',
+    },
   },
   {
     id: 'aor-pass-subj',
     label: 'Aorist Passive Subjunctive',
     group: 'subjunctive',
-    forms: { '1sg': 'λυθῶ', '2sg': 'λυθῇς', '3sg': 'λυθῇ', '1pl': 'λυθῶμεν', '2pl': 'λυθῆτε', '3pl': 'λυθῶσι(ν)' },
+    forms: {
+      '1sg': 'λυθῶ',
+      '2sg': 'λυθῇς',
+      '3sg': 'λυθῇ',
+      '1pl': 'λυθῶμεν',
+      '2pl': 'λυθῆτε',
+      '3pl': 'λυθῶσι(ν)',
+    },
   },
   // Imperative — no 1st person forms
   {
@@ -578,31 +676,31 @@ export const verbParadigms: VerbParadigm[] = [
 ];
 
 export const infinitiveForms: InfinitivePair[] = [
-  { label: 'Present Active',        form: 'λύειν'     },
-  { label: 'Present Mid./Pass.',    form: 'λύεσθαι'   },
-  { label: 'Future Active',         form: 'λύσειν'    },
-  { label: 'Future Middle',         form: 'λύσεσθαι'  },
-  { label: 'Aorist Active',         form: 'λῦσαι'     },
-  { label: 'Aorist Middle',         form: 'λύσασθαι'  },
-  { label: 'Aorist Passive',        form: 'λυθῆναι'   },
-  { label: 'Perfect Active',        form: 'λελυκέναι' },
+  { label: 'Present Active', form: 'λύειν' },
+  { label: 'Present Mid./Pass.', form: 'λύεσθαι' },
+  { label: 'Future Active', form: 'λύσειν' },
+  { label: 'Future Middle', form: 'λύσεσθαι' },
+  { label: 'Aorist Active', form: 'λῦσαι' },
+  { label: 'Aorist Middle', form: 'λύσασθαι' },
+  { label: 'Aorist Passive', form: 'λυθῆναι' },
+  { label: 'Perfect Active', form: 'λελυκέναι' },
 ];
 
 export const participleRows: ParticipleRow[] = [
   // Present
-  { label: 'Present Active',      m: 'λύων',        f: 'λύουσα',    n: 'λῦον'        },
-  { label: 'Present Mid./Pass.',  m: 'λυόμενος',    f: 'λυομένη',   n: 'λυόμενον'    },
+  { label: 'Present Active', m: 'λύων', f: 'λύουσα', n: 'λῦον' },
+  { label: 'Present Mid./Pass.', m: 'λυόμενος', f: 'λυομένη', n: 'λυόμενον' },
   // Future
-  { label: 'Future Active',       m: 'λύσων',       f: 'λύσουσα',   n: 'λῦσον'       },
-  { label: 'Future Middle',       m: 'λυσόμενος',   f: 'λυσομένη',  n: 'λυσόμενον'   },
-  { label: 'Future Passive',      m: 'λυθησόμενος', f: 'λυθησομένη', n: 'λυθησόμενον' },
+  { label: 'Future Active', m: 'λύσων', f: 'λύσουσα', n: 'λῦσον' },
+  { label: 'Future Middle', m: 'λυσόμενος', f: 'λυσομένη', n: 'λυσόμενον' },
+  { label: 'Future Passive', m: 'λυθησόμενος', f: 'λυθησομένη', n: 'λυθησόμενον' },
   // Aorist
-  { label: 'Aorist Active',       m: 'λύσας',       f: 'λύσασα',    n: 'λῦσαν'       },
-  { label: 'Aorist Middle',       m: 'λυσάμενος',   f: 'λυσαμένη',  n: 'λυσάμενον'   },
-  { label: 'Aorist Passive',      m: 'λυθείς',      f: 'λυθεῖσα',   n: 'λυθέν'       },
+  { label: 'Aorist Active', m: 'λύσας', f: 'λύσασα', n: 'λῦσαν' },
+  { label: 'Aorist Middle', m: 'λυσάμενος', f: 'λυσαμένη', n: 'λυσάμενον' },
+  { label: 'Aorist Passive', m: 'λυθείς', f: 'λυθεῖσα', n: 'λυθέν' },
   // Perfect
-  { label: 'Perfect Active',      m: 'λελυκώς',     f: 'λελυκυῖα',  n: 'λελυκός'     },
-  { label: 'Perfect Mid./Pass.',  m: 'λελυμένος',   f: 'λελυμένη',  n: 'λελυμένον'   },
+  { label: 'Perfect Active', m: 'λελυκώς', f: 'λελυκυῖα', n: 'λελυκός' },
+  { label: 'Perfect Mid./Pass.', m: 'λελυμένος', f: 'λελυμένη', n: 'λελυμένον' },
 ];
 
 export const participleParadigms: ParticipleParadigm[] = [
@@ -614,11 +712,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'active',
     declensionNote: 'Masc./Neut.: 3rd declension (ντ-stem); Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λύων',    f: 'λύουσα',    n: 'λῦον'      }, pl: { m: 'λύοντες',    f: 'λύουσαι',    n: 'λύοντα'      } },
-      gen: { sg: { m: 'λύοντος', f: 'λυούσης',   n: 'λύοντος'   }, pl: { m: 'λυόντων',   f: 'λυουσῶν',   n: 'λυόντων'    } },
-      dat: { sg: { m: 'λύοντι',  f: 'λυούσῃ',    n: 'λύοντι'    }, pl: { m: 'λύουσι(ν)', f: 'λυούσαις',  n: 'λύουσι(ν)'  } },
-      acc: { sg: { m: 'λύοντα',  f: 'λύουσαν',   n: 'λῦον'      }, pl: { m: 'λύοντας',   f: 'λυούσας',   n: 'λύοντα'      } },
-      voc: { sg: { m: 'λύων',    f: 'λύουσα',    n: 'λῦον'      }, pl: { m: 'λύοντες',   f: 'λύουσαι',   n: 'λύοντα'      } },
+      nom: {
+        sg: { m: 'λύων', f: 'λύουσα', n: 'λῦον' },
+        pl: { m: 'λύοντες', f: 'λύουσαι', n: 'λύοντα' },
+      },
+      gen: {
+        sg: { m: 'λύοντος', f: 'λυούσης', n: 'λύοντος' },
+        pl: { m: 'λυόντων', f: 'λυουσῶν', n: 'λυόντων' },
+      },
+      dat: {
+        sg: { m: 'λύοντι', f: 'λυούσῃ', n: 'λύοντι' },
+        pl: { m: 'λύουσι(ν)', f: 'λυούσαις', n: 'λύουσι(ν)' },
+      },
+      acc: {
+        sg: { m: 'λύοντα', f: 'λύουσαν', n: 'λῦον' },
+        pl: { m: 'λύοντας', f: 'λυούσας', n: 'λύοντα' },
+      },
+      voc: {
+        sg: { m: 'λύων', f: 'λύουσα', n: 'λῦον' },
+        pl: { m: 'λύοντες', f: 'λύουσαι', n: 'λύοντα' },
+      },
     },
   },
   {
@@ -628,11 +741,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'mid-pass',
     declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λυόμενος',  f: 'λυομένη',   n: 'λυόμενον'  }, pl: { m: 'λυόμενοι',  f: 'λυόμεναι',  n: 'λυόμενα'   } },
-      gen: { sg: { m: 'λυομένου',  f: 'λυομένης',  n: 'λυομένου'  }, pl: { m: 'λυομένων',  f: 'λυομένων',  n: 'λυομένων'  } },
-      dat: { sg: { m: 'λυομένῳ',   f: 'λυομένῃ',   n: 'λυομένῳ'   }, pl: { m: 'λυομένοις', f: 'λυομέναις', n: 'λυομένοις' } },
-      acc: { sg: { m: 'λυόμενον',  f: 'λυομένην',  n: 'λυόμενον'  }, pl: { m: 'λυομένους', f: 'λυομένας',  n: 'λυόμενα'   } },
-      voc: { sg: { m: 'λυόμενε',   f: 'λυομένη',   n: 'λυόμενον'  }, pl: { m: 'λυόμενοι',  f: 'λυόμεναι',  n: 'λυόμενα'   } },
+      nom: {
+        sg: { m: 'λυόμενος', f: 'λυομένη', n: 'λυόμενον' },
+        pl: { m: 'λυόμενοι', f: 'λυόμεναι', n: 'λυόμενα' },
+      },
+      gen: {
+        sg: { m: 'λυομένου', f: 'λυομένης', n: 'λυομένου' },
+        pl: { m: 'λυομένων', f: 'λυομένων', n: 'λυομένων' },
+      },
+      dat: {
+        sg: { m: 'λυομένῳ', f: 'λυομένῃ', n: 'λυομένῳ' },
+        pl: { m: 'λυομένοις', f: 'λυομέναις', n: 'λυομένοις' },
+      },
+      acc: {
+        sg: { m: 'λυόμενον', f: 'λυομένην', n: 'λυόμενον' },
+        pl: { m: 'λυομένους', f: 'λυομένας', n: 'λυόμενα' },
+      },
+      voc: {
+        sg: { m: 'λυόμενε', f: 'λυομένη', n: 'λυόμενον' },
+        pl: { m: 'λυόμενοι', f: 'λυόμεναι', n: 'λυόμενα' },
+      },
     },
   },
   // ── Future ────────────────────────────────────────────────────────────────
@@ -643,11 +771,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'active',
     declensionNote: 'Masc./Neut.: 3rd declension (ντ-stem); Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λύσων',    f: 'λύσουσα',   n: 'λῦσον'     }, pl: { m: 'λύσοντες',    f: 'λύσουσαι',   n: 'λύσοντα'     } },
-      gen: { sg: { m: 'λύσοντος', f: 'λυσούσης',  n: 'λύσοντος'  }, pl: { m: 'λυσόντων',   f: 'λυσουσῶν',  n: 'λυσόντων'   } },
-      dat: { sg: { m: 'λύσοντι',  f: 'λυσούσῃ',   n: 'λύσοντι'   }, pl: { m: 'λύσουσι(ν)', f: 'λυσούσαις', n: 'λύσουσι(ν)' } },
-      acc: { sg: { m: 'λύσοντα',  f: 'λύσουσαν',  n: 'λῦσον'     }, pl: { m: 'λύσοντας',   f: 'λυσούσας',  n: 'λύσοντα'     } },
-      voc: { sg: { m: 'λύσων',    f: 'λύσουσα',   n: 'λῦσον'     }, pl: { m: 'λύσοντες',   f: 'λύσουσαι',  n: 'λύσοντα'     } },
+      nom: {
+        sg: { m: 'λύσων', f: 'λύσουσα', n: 'λῦσον' },
+        pl: { m: 'λύσοντες', f: 'λύσουσαι', n: 'λύσοντα' },
+      },
+      gen: {
+        sg: { m: 'λύσοντος', f: 'λυσούσης', n: 'λύσοντος' },
+        pl: { m: 'λυσόντων', f: 'λυσουσῶν', n: 'λυσόντων' },
+      },
+      dat: {
+        sg: { m: 'λύσοντι', f: 'λυσούσῃ', n: 'λύσοντι' },
+        pl: { m: 'λύσουσι(ν)', f: 'λυσούσαις', n: 'λύσουσι(ν)' },
+      },
+      acc: {
+        sg: { m: 'λύσοντα', f: 'λύσουσαν', n: 'λῦσον' },
+        pl: { m: 'λύσοντας', f: 'λυσούσας', n: 'λύσοντα' },
+      },
+      voc: {
+        sg: { m: 'λύσων', f: 'λύσουσα', n: 'λῦσον' },
+        pl: { m: 'λύσοντες', f: 'λύσουσαι', n: 'λύσοντα' },
+      },
     },
   },
   {
@@ -657,11 +800,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'middle',
     declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λυσόμενος',  f: 'λυσομένη',   n: 'λυσόμενον'  }, pl: { m: 'λυσόμενοι',  f: 'λυσόμεναι',  n: 'λυσόμενα'   } },
-      gen: { sg: { m: 'λυσομένου',  f: 'λυσομένης',  n: 'λυσομένου'  }, pl: { m: 'λυσομένων',  f: 'λυσομένων',  n: 'λυσομένων'  } },
-      dat: { sg: { m: 'λυσομένῳ',   f: 'λυσομένῃ',   n: 'λυσομένῳ'   }, pl: { m: 'λυσομένοις', f: 'λυσομέναις', n: 'λυσομένοις' } },
-      acc: { sg: { m: 'λυσόμενον',  f: 'λυσομένην',  n: 'λυσόμενον'  }, pl: { m: 'λυσομένους', f: 'λυσομένας',  n: 'λυσόμενα'   } },
-      voc: { sg: { m: 'λυσόμενε',   f: 'λυσομένη',   n: 'λυσόμενον'  }, pl: { m: 'λυσόμενοι',  f: 'λυσόμεναι',  n: 'λυσόμενα'   } },
+      nom: {
+        sg: { m: 'λυσόμενος', f: 'λυσομένη', n: 'λυσόμενον' },
+        pl: { m: 'λυσόμενοι', f: 'λυσόμεναι', n: 'λυσόμενα' },
+      },
+      gen: {
+        sg: { m: 'λυσομένου', f: 'λυσομένης', n: 'λυσομένου' },
+        pl: { m: 'λυσομένων', f: 'λυσομένων', n: 'λυσομένων' },
+      },
+      dat: {
+        sg: { m: 'λυσομένῳ', f: 'λυσομένῃ', n: 'λυσομένῳ' },
+        pl: { m: 'λυσομένοις', f: 'λυσομέναις', n: 'λυσομένοις' },
+      },
+      acc: {
+        sg: { m: 'λυσόμενον', f: 'λυσομένην', n: 'λυσόμενον' },
+        pl: { m: 'λυσομένους', f: 'λυσομένας', n: 'λυσόμενα' },
+      },
+      voc: {
+        sg: { m: 'λυσόμενε', f: 'λυσομένη', n: 'λυσόμενον' },
+        pl: { m: 'λυσόμενοι', f: 'λυσόμεναι', n: 'λυσόμενα' },
+      },
     },
   },
   {
@@ -671,11 +829,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'passive',
     declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λυθησόμενος',  f: 'λυθησομένη',   n: 'λυθησόμενον'  }, pl: { m: 'λυθησόμενοι',  f: 'λυθησόμεναι',  n: 'λυθησόμενα'   } },
-      gen: { sg: { m: 'λυθησομένου',  f: 'λυθησομένης',  n: 'λυθησομένου'  }, pl: { m: 'λυθησομένων',  f: 'λυθησομένων',  n: 'λυθησομένων'  } },
-      dat: { sg: { m: 'λυθησομένῳ',   f: 'λυθησομένῃ',   n: 'λυθησομένῳ'   }, pl: { m: 'λυθησομένοις', f: 'λυθησομέναις', n: 'λυθησομένοις' } },
-      acc: { sg: { m: 'λυθησόμενον',  f: 'λυθησομένην',  n: 'λυθησόμενον'  }, pl: { m: 'λυθησομένους', f: 'λυθησομένας',  n: 'λυθησόμενα'   } },
-      voc: { sg: { m: 'λυθησόμενε',   f: 'λυθησομένη',   n: 'λυθησόμενον'  }, pl: { m: 'λυθησόμενοι',  f: 'λυθησόμεναι',  n: 'λυθησόμενα'   } },
+      nom: {
+        sg: { m: 'λυθησόμενος', f: 'λυθησομένη', n: 'λυθησόμενον' },
+        pl: { m: 'λυθησόμενοι', f: 'λυθησόμεναι', n: 'λυθησόμενα' },
+      },
+      gen: {
+        sg: { m: 'λυθησομένου', f: 'λυθησομένης', n: 'λυθησομένου' },
+        pl: { m: 'λυθησομένων', f: 'λυθησομένων', n: 'λυθησομένων' },
+      },
+      dat: {
+        sg: { m: 'λυθησομένῳ', f: 'λυθησομένῃ', n: 'λυθησομένῳ' },
+        pl: { m: 'λυθησομένοις', f: 'λυθησομέναις', n: 'λυθησομένοις' },
+      },
+      acc: {
+        sg: { m: 'λυθησόμενον', f: 'λυθησομένην', n: 'λυθησόμενον' },
+        pl: { m: 'λυθησομένους', f: 'λυθησομένας', n: 'λυθησόμενα' },
+      },
+      voc: {
+        sg: { m: 'λυθησόμενε', f: 'λυθησομένη', n: 'λυθησόμενον' },
+        pl: { m: 'λυθησόμενοι', f: 'λυθησόμεναι', n: 'λυθησόμενα' },
+      },
     },
   },
   // ── Aorist ────────────────────────────────────────────────────────────────
@@ -686,11 +859,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'active',
     declensionNote: 'Masc./Neut.: 3rd declension (αντ-stem); Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λύσας',    f: 'λύσασα',    n: 'λῦσαν'     }, pl: { m: 'λύσαντες',    f: 'λύσασαι',    n: 'λύσαντα'     } },
-      gen: { sg: { m: 'λύσαντος', f: 'λυσάσης',   n: 'λύσαντος'  }, pl: { m: 'λυσάντων',   f: 'λυσασῶν',   n: 'λυσάντων'   } },
-      dat: { sg: { m: 'λύσαντι',  f: 'λυσάσῃ',    n: 'λύσαντι'   }, pl: { m: 'λύσασι(ν)',  f: 'λυσάσαις',  n: 'λύσασι(ν)'  } },
-      acc: { sg: { m: 'λύσαντα',  f: 'λύσασαν',   n: 'λῦσαν'     }, pl: { m: 'λύσαντας',   f: 'λυσάσας',   n: 'λύσαντα'     } },
-      voc: { sg: { m: 'λύσας',    f: 'λύσασα',    n: 'λῦσαν'     }, pl: { m: 'λύσαντες',   f: 'λύσασαι',   n: 'λύσαντα'     } },
+      nom: {
+        sg: { m: 'λύσας', f: 'λύσασα', n: 'λῦσαν' },
+        pl: { m: 'λύσαντες', f: 'λύσασαι', n: 'λύσαντα' },
+      },
+      gen: {
+        sg: { m: 'λύσαντος', f: 'λυσάσης', n: 'λύσαντος' },
+        pl: { m: 'λυσάντων', f: 'λυσασῶν', n: 'λυσάντων' },
+      },
+      dat: {
+        sg: { m: 'λύσαντι', f: 'λυσάσῃ', n: 'λύσαντι' },
+        pl: { m: 'λύσασι(ν)', f: 'λυσάσαις', n: 'λύσασι(ν)' },
+      },
+      acc: {
+        sg: { m: 'λύσαντα', f: 'λύσασαν', n: 'λῦσαν' },
+        pl: { m: 'λύσαντας', f: 'λυσάσας', n: 'λύσαντα' },
+      },
+      voc: {
+        sg: { m: 'λύσας', f: 'λύσασα', n: 'λῦσαν' },
+        pl: { m: 'λύσαντες', f: 'λύσασαι', n: 'λύσαντα' },
+      },
     },
   },
   {
@@ -700,11 +888,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'middle',
     declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λυσάμενος',  f: 'λυσαμένη',   n: 'λυσάμενον'  }, pl: { m: 'λυσάμενοι',  f: 'λυσάμεναι',  n: 'λυσάμενα'   } },
-      gen: { sg: { m: 'λυσαμένου',  f: 'λυσαμένης',  n: 'λυσαμένου'  }, pl: { m: 'λυσαμένων',  f: 'λυσαμένων',  n: 'λυσαμένων'  } },
-      dat: { sg: { m: 'λυσαμένῳ',   f: 'λυσαμένῃ',   n: 'λυσαμένῳ'   }, pl: { m: 'λυσαμένοις', f: 'λυσαμέναις', n: 'λυσαμένοις' } },
-      acc: { sg: { m: 'λυσάμενον',  f: 'λυσαμένην',  n: 'λυσάμενον'  }, pl: { m: 'λυσαμένους', f: 'λυσαμένας',  n: 'λυσάμενα'   } },
-      voc: { sg: { m: 'λυσάμενε',   f: 'λυσαμένη',   n: 'λυσάμενον'  }, pl: { m: 'λυσάμενοι',  f: 'λυσάμεναι',  n: 'λυσάμενα'   } },
+      nom: {
+        sg: { m: 'λυσάμενος', f: 'λυσαμένη', n: 'λυσάμενον' },
+        pl: { m: 'λυσάμενοι', f: 'λυσάμεναι', n: 'λυσάμενα' },
+      },
+      gen: {
+        sg: { m: 'λυσαμένου', f: 'λυσαμένης', n: 'λυσαμένου' },
+        pl: { m: 'λυσαμένων', f: 'λυσαμένων', n: 'λυσαμένων' },
+      },
+      dat: {
+        sg: { m: 'λυσαμένῳ', f: 'λυσαμένῃ', n: 'λυσαμένῳ' },
+        pl: { m: 'λυσαμένοις', f: 'λυσαμέναις', n: 'λυσαμένοις' },
+      },
+      acc: {
+        sg: { m: 'λυσάμενον', f: 'λυσαμένην', n: 'λυσάμενον' },
+        pl: { m: 'λυσαμένους', f: 'λυσαμένας', n: 'λυσάμενα' },
+      },
+      voc: {
+        sg: { m: 'λυσάμενε', f: 'λυσαμένη', n: 'λυσάμενον' },
+        pl: { m: 'λυσάμενοι', f: 'λυσάμεναι', n: 'λυσάμενα' },
+      },
     },
   },
   {
@@ -714,11 +917,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'passive',
     declensionNote: 'Masc./Neut.: 3rd declension (εντ-stem); Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λυθείς',    f: 'λυθεῖσα',   n: 'λυθέν'     }, pl: { m: 'λυθέντες',    f: 'λυθεῖσαι',   n: 'λυθέντα'     } },
-      gen: { sg: { m: 'λυθέντος',  f: 'λυθείσης',  n: 'λυθέντος'  }, pl: { m: 'λυθέντων',   f: 'λυθεισῶν',  n: 'λυθέντων'   } },
-      dat: { sg: { m: 'λυθέντι',   f: 'λυθείσῃ',   n: 'λυθέντι'   }, pl: { m: 'λυθεῖσι(ν)', f: 'λυθείσαις', n: 'λυθεῖσι(ν)' } },
-      acc: { sg: { m: 'λυθέντα',   f: 'λυθεῖσαν',  n: 'λυθέν'     }, pl: { m: 'λυθέντας',   f: 'λυθείσας',  n: 'λυθέντα'     } },
-      voc: { sg: { m: 'λυθείς',    f: 'λυθεῖσα',   n: 'λυθέν'     }, pl: { m: 'λυθέντες',   f: 'λυθεῖσαι',  n: 'λυθέντα'     } },
+      nom: {
+        sg: { m: 'λυθείς', f: 'λυθεῖσα', n: 'λυθέν' },
+        pl: { m: 'λυθέντες', f: 'λυθεῖσαι', n: 'λυθέντα' },
+      },
+      gen: {
+        sg: { m: 'λυθέντος', f: 'λυθείσης', n: 'λυθέντος' },
+        pl: { m: 'λυθέντων', f: 'λυθεισῶν', n: 'λυθέντων' },
+      },
+      dat: {
+        sg: { m: 'λυθέντι', f: 'λυθείσῃ', n: 'λυθέντι' },
+        pl: { m: 'λυθεῖσι(ν)', f: 'λυθείσαις', n: 'λυθεῖσι(ν)' },
+      },
+      acc: {
+        sg: { m: 'λυθέντα', f: 'λυθεῖσαν', n: 'λυθέν' },
+        pl: { m: 'λυθέντας', f: 'λυθείσας', n: 'λυθέντα' },
+      },
+      voc: {
+        sg: { m: 'λυθείς', f: 'λυθεῖσα', n: 'λυθέν' },
+        pl: { m: 'λυθέντες', f: 'λυθεῖσαι', n: 'λυθέντα' },
+      },
     },
   },
   // ── Perfect ───────────────────────────────────────────────────────────────
@@ -729,11 +947,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'active',
     declensionNote: 'Masc./Neut.: 3rd declension (οτ-stem); Fem.: 1st declension (υι-stem)',
     forms: {
-      nom: { sg: { m: 'λελυκώς',    f: 'λελυκυῖα',   n: 'λελυκός'    }, pl: { m: 'λελυκότες',    f: 'λελυκυῖαι',   n: 'λελυκότα'    } },
-      gen: { sg: { m: 'λελυκότος',  f: 'λελυκυίας',  n: 'λελυκότος'  }, pl: { m: 'λελυκότων',   f: 'λελυκυιῶν',  n: 'λελυκότων'  } },
-      dat: { sg: { m: 'λελυκότι',   f: 'λελυκυίᾳ',   n: 'λελυκότι'   }, pl: { m: 'λελυκόσι(ν)', f: 'λελυκυίαις', n: 'λελυκόσι(ν)' } },
-      acc: { sg: { m: 'λελυκότα',   f: 'λελυκυῖαν',  n: 'λελυκός'    }, pl: { m: 'λελυκότας',   f: 'λελυκυίας',  n: 'λελυκότα'    } },
-      voc: { sg: { m: 'λελυκώς',    f: 'λελυκυῖα',   n: 'λελυκός'    }, pl: { m: 'λελυκότες',   f: 'λελυκυῖαι',  n: 'λελυκότα'    } },
+      nom: {
+        sg: { m: 'λελυκώς', f: 'λελυκυῖα', n: 'λελυκός' },
+        pl: { m: 'λελυκότες', f: 'λελυκυῖαι', n: 'λελυκότα' },
+      },
+      gen: {
+        sg: { m: 'λελυκότος', f: 'λελυκυίας', n: 'λελυκότος' },
+        pl: { m: 'λελυκότων', f: 'λελυκυιῶν', n: 'λελυκότων' },
+      },
+      dat: {
+        sg: { m: 'λελυκότι', f: 'λελυκυίᾳ', n: 'λελυκότι' },
+        pl: { m: 'λελυκόσι(ν)', f: 'λελυκυίαις', n: 'λελυκόσι(ν)' },
+      },
+      acc: {
+        sg: { m: 'λελυκότα', f: 'λελυκυῖαν', n: 'λελυκός' },
+        pl: { m: 'λελυκότας', f: 'λελυκυίας', n: 'λελυκότα' },
+      },
+      voc: {
+        sg: { m: 'λελυκώς', f: 'λελυκυῖα', n: 'λελυκός' },
+        pl: { m: 'λελυκότες', f: 'λελυκυῖαι', n: 'λελυκότα' },
+      },
     },
   },
   {
@@ -743,11 +976,26 @@ export const participleParadigms: ParticipleParadigm[] = [
     voice: 'mid-pass',
     declensionNote: 'Masc./Neut.: 2nd declension; Fem.: 1st declension',
     forms: {
-      nom: { sg: { m: 'λελυμένος',  f: 'λελυμένη',   n: 'λελυμένον'  }, pl: { m: 'λελυμένοι',  f: 'λελυμέναι',  n: 'λελυμένα'   } },
-      gen: { sg: { m: 'λελυμένου',  f: 'λελυμένης',  n: 'λελυμένου'  }, pl: { m: 'λελυμένων',  f: 'λελυμένων',  n: 'λελυμένων'  } },
-      dat: { sg: { m: 'λελυμένῳ',   f: 'λελυμένῃ',   n: 'λελυμένῳ'   }, pl: { m: 'λελυμένοις', f: 'λελυμέναις', n: 'λελυμένοις' } },
-      acc: { sg: { m: 'λελυμένον',  f: 'λελυμένην',  n: 'λελυμένον'  }, pl: { m: 'λελυμένους', f: 'λελυμένας',  n: 'λελυμένα'   } },
-      voc: { sg: { m: 'λελυμένε',   f: 'λελυμένη',   n: 'λελυμένον'  }, pl: { m: 'λελυμένοι',  f: 'λελυμέναι',  n: 'λελυμένα'   } },
+      nom: {
+        sg: { m: 'λελυμένος', f: 'λελυμένη', n: 'λελυμένον' },
+        pl: { m: 'λελυμένοι', f: 'λελυμέναι', n: 'λελυμένα' },
+      },
+      gen: {
+        sg: { m: 'λελυμένου', f: 'λελυμένης', n: 'λελυμένου' },
+        pl: { m: 'λελυμένων', f: 'λελυμένων', n: 'λελυμένων' },
+      },
+      dat: {
+        sg: { m: 'λελυμένῳ', f: 'λελυμένῃ', n: 'λελυμένῳ' },
+        pl: { m: 'λελυμένοις', f: 'λελυμέναις', n: 'λελυμένοις' },
+      },
+      acc: {
+        sg: { m: 'λελυμένον', f: 'λελυμένην', n: 'λελυμένον' },
+        pl: { m: 'λελυμένους', f: 'λελυμένας', n: 'λελυμένα' },
+      },
+      voc: {
+        sg: { m: 'λελυμένε', f: 'λελυμένη', n: 'λελυμένον' },
+        pl: { m: 'λελυμένοι', f: 'λελυμέναι', n: 'λελυμένα' },
+      },
     },
   },
 ];
@@ -762,8 +1010,8 @@ export const personalPronouns12: PersonalPronoun12[] = [
     name: 'ἐγώ — 1st Person',
     kind: '1st',
     forms: {
-      sg: { nom: 'ἐγώ',        gen: 'ἐμοῦ / μου', dat: 'ἐμοί / μοι', acc: 'ἐμέ / με' },
-      pl: { nom: 'ἡμεῖς',      gen: 'ἡμῶν',       dat: 'ἡμῖν',       acc: 'ἡμᾶς'      },
+      sg: { nom: 'ἐγώ', gen: 'ἐμοῦ / μου', dat: 'ἐμοί / μοι', acc: 'ἐμέ / με' },
+      pl: { nom: 'ἡμεῖς', gen: 'ἡμῶν', dat: 'ἡμῖν', acc: 'ἡμᾶς' },
     },
   },
   {
@@ -771,8 +1019,8 @@ export const personalPronouns12: PersonalPronoun12[] = [
     name: 'σύ — 2nd Person',
     kind: '2nd',
     forms: {
-      sg: { nom: 'σύ',         gen: 'σοῦ / σου', dat: 'σοί / σοι', acc: 'σέ / σε' },
-      pl: { nom: 'ὑμεῖς',      gen: 'ὑμῶν',       dat: 'ὑμῖν',       acc: 'ὑμᾶς'    },
+      sg: { nom: 'σύ', gen: 'σοῦ / σου', dat: 'σοί / σοι', acc: 'σέ / σε' },
+      pl: { nom: 'ὑμεῖς', gen: 'ὑμῶν', dat: 'ὑμῖν', acc: 'ὑμᾶς' },
     },
   },
 ];
@@ -783,10 +1031,19 @@ export const genderedPronouns: GenderedPronoun[] = [
     name: 'αὐτός — 3rd Person / Intensive',
     kind: '3rd-personal',
     forms: {
-      nom: { sg: { m: 'αὐτός', f: 'αὐτή',  n: 'αὐτό'  }, pl: { m: 'αὐτοί',  f: 'αὐταί',  n: 'αὐτά'  } },
-      gen: { sg: { m: 'αὐτοῦ', f: 'αὐτῆς', n: 'αὐτοῦ' }, pl: { m: 'αὐτῶν',  f: 'αὐτῶν',  n: 'αὐτῶν' } },
-      dat: { sg: { m: 'αὐτῷ',  f: 'αὐτῇ',  n: 'αὐτῷ'  }, pl: { m: 'αὐτοῖς', f: 'αὐταῖς', n: 'αὐτοῖς' } },
-      acc: { sg: { m: 'αὐτόν', f: 'αὐτήν', n: 'αὐτό'  }, pl: { m: 'αὐτούς', f: 'αὐτάς',  n: 'αὐτά'  } },
+      nom: { sg: { m: 'αὐτός', f: 'αὐτή', n: 'αὐτό' }, pl: { m: 'αὐτοί', f: 'αὐταί', n: 'αὐτά' } },
+      gen: {
+        sg: { m: 'αὐτοῦ', f: 'αὐτῆς', n: 'αὐτοῦ' },
+        pl: { m: 'αὐτῶν', f: 'αὐτῶν', n: 'αὐτῶν' },
+      },
+      dat: {
+        sg: { m: 'αὐτῷ', f: 'αὐτῇ', n: 'αὐτῷ' },
+        pl: { m: 'αὐτοῖς', f: 'αὐταῖς', n: 'αὐτοῖς' },
+      },
+      acc: {
+        sg: { m: 'αὐτόν', f: 'αὐτήν', n: 'αὐτό' },
+        pl: { m: 'αὐτούς', f: 'αὐτάς', n: 'αὐτά' },
+      },
     },
   },
   {
@@ -794,10 +1051,22 @@ export const genderedPronouns: GenderedPronoun[] = [
     name: 'οὗτος — Near Demonstrative (this)',
     kind: 'demonstrative',
     forms: {
-      nom: { sg: { m: 'οὗτος', f: 'αὕτη',   n: 'τοῦτο'  }, pl: { m: 'οὗτοι',  f: 'αὗται',   n: 'ταῦτα'  } },
-      gen: { sg: { m: 'τούτου', f: 'ταύτης', n: 'τούτου' }, pl: { m: 'τούτων', f: 'τούτων',  n: 'τούτων' } },
-      dat: { sg: { m: 'τούτῳ', f: 'ταύτῃ',  n: 'τούτῳ'  }, pl: { m: 'τούτοις', f: 'ταύταις', n: 'τούτοις' } },
-      acc: { sg: { m: 'τοῦτον', f: 'ταύτην', n: 'τοῦτο' }, pl: { m: 'τούτους', f: 'ταύτας',  n: 'ταῦτα'  } },
+      nom: {
+        sg: { m: 'οὗτος', f: 'αὕτη', n: 'τοῦτο' },
+        pl: { m: 'οὗτοι', f: 'αὗται', n: 'ταῦτα' },
+      },
+      gen: {
+        sg: { m: 'τούτου', f: 'ταύτης', n: 'τούτου' },
+        pl: { m: 'τούτων', f: 'τούτων', n: 'τούτων' },
+      },
+      dat: {
+        sg: { m: 'τούτῳ', f: 'ταύτῃ', n: 'τούτῳ' },
+        pl: { m: 'τούτοις', f: 'ταύταις', n: 'τούτοις' },
+      },
+      acc: {
+        sg: { m: 'τοῦτον', f: 'ταύτην', n: 'τοῦτο' },
+        pl: { m: 'τούτους', f: 'ταύτας', n: 'ταῦτα' },
+      },
     },
   },
   {
@@ -805,10 +1074,22 @@ export const genderedPronouns: GenderedPronoun[] = [
     name: 'ἐκεῖνος — Far Demonstrative (that)',
     kind: 'demonstrative',
     forms: {
-      nom: { sg: { m: 'ἐκεῖνος', f: 'ἐκείνη',  n: 'ἐκεῖνο'  }, pl: { m: 'ἐκεῖνοι', f: 'ἐκεῖναι', n: 'ἐκεῖνα'  } },
-      gen: { sg: { m: 'ἐκείνου', f: 'ἐκείνης', n: 'ἐκείνου' }, pl: { m: 'ἐκείνων', f: 'ἐκείνων', n: 'ἐκείνων' } },
-      dat: { sg: { m: 'ἐκείνῳ',  f: 'ἐκείνῃ',  n: 'ἐκείνῳ'  }, pl: { m: 'ἐκείνοις', f: 'ἐκείναις', n: 'ἐκείνοις' } },
-      acc: { sg: { m: 'ἐκεῖνον', f: 'ἐκείνην', n: 'ἐκεῖνο'  }, pl: { m: 'ἐκείνους', f: 'ἐκείνας', n: 'ἐκεῖνα'  } },
+      nom: {
+        sg: { m: 'ἐκεῖνος', f: 'ἐκείνη', n: 'ἐκεῖνο' },
+        pl: { m: 'ἐκεῖνοι', f: 'ἐκεῖναι', n: 'ἐκεῖνα' },
+      },
+      gen: {
+        sg: { m: 'ἐκείνου', f: 'ἐκείνης', n: 'ἐκείνου' },
+        pl: { m: 'ἐκείνων', f: 'ἐκείνων', n: 'ἐκείνων' },
+      },
+      dat: {
+        sg: { m: 'ἐκείνῳ', f: 'ἐκείνῃ', n: 'ἐκείνῳ' },
+        pl: { m: 'ἐκείνοις', f: 'ἐκείναις', n: 'ἐκείνοις' },
+      },
+      acc: {
+        sg: { m: 'ἐκεῖνον', f: 'ἐκείνην', n: 'ἐκεῖνο' },
+        pl: { m: 'ἐκείνους', f: 'ἐκείνας', n: 'ἐκεῖνα' },
+      },
     },
   },
   {
@@ -816,10 +1097,10 @@ export const genderedPronouns: GenderedPronoun[] = [
     name: 'ὅς — Relative Pronoun (who, which, that)',
     kind: 'relative',
     forms: {
-      nom: { sg: { m: 'ὅς', f: 'ἥ',  n: 'ὅ'  }, pl: { m: 'οἵ', f: 'αἵ', n: 'ἅ'  } },
+      nom: { sg: { m: 'ὅς', f: 'ἥ', n: 'ὅ' }, pl: { m: 'οἵ', f: 'αἵ', n: 'ἅ' } },
       gen: { sg: { m: 'οὗ', f: 'ἧς', n: 'οὗ' }, pl: { m: 'ὧν', f: 'ὧν', n: 'ὧν' } },
-      dat: { sg: { m: 'ᾧ',  f: 'ᾗ',  n: 'ᾧ'  }, pl: { m: 'οἷς', f: 'αἷς', n: 'οἷς' } },
-      acc: { sg: { m: 'ὅν', f: 'ἥν', n: 'ὅ'  }, pl: { m: 'οὕς', f: 'ἅς', n: 'ἅ'  } },
+      dat: { sg: { m: 'ᾧ', f: 'ᾗ', n: 'ᾧ' }, pl: { m: 'οἷς', f: 'αἷς', n: 'οἷς' } },
+      acc: { sg: { m: 'ὅν', f: 'ἥν', n: 'ὅ' }, pl: { m: 'οὕς', f: 'ἅς', n: 'ἅ' } },
     },
   },
   {
@@ -827,10 +1108,22 @@ export const genderedPronouns: GenderedPronoun[] = [
     name: 'τίς / τις — Interrogative / Indefinite',
     kind: 'interrogative',
     forms: {
-      nom: { sg: { m: 'τίς / τις',  f: 'τίς / τις',  n: 'τί / τι'    }, pl: { m: 'τίνες / τινές',  f: 'τίνες / τινές',  n: 'τίνα / τινά'  } },
-      gen: { sg: { m: 'τίνος / τινός', f: 'τίνος / τινός', n: 'τίνος / τινός' }, pl: { m: 'τίνων / τινῶν', f: 'τίνων / τινῶν', n: 'τίνων / τινῶν' } },
-      dat: { sg: { m: 'τίνι / τινί',   f: 'τίνι / τινί',   n: 'τίνι / τινί'   }, pl: { m: 'τίσι(ν)',       f: 'τίσι(ν)',       n: 'τίσι(ν)'       } },
-      acc: { sg: { m: 'τίνα / τινά',   f: 'τίνα / τινά',   n: 'τί / τι'       }, pl: { m: 'τίνας / τινάς', f: 'τίνας / τινάς', n: 'τίνα / τινά'   } },
+      nom: {
+        sg: { m: 'τίς / τις', f: 'τίς / τις', n: 'τί / τι' },
+        pl: { m: 'τίνες / τινές', f: 'τίνες / τινές', n: 'τίνα / τινά' },
+      },
+      gen: {
+        sg: { m: 'τίνος / τινός', f: 'τίνος / τινός', n: 'τίνος / τινός' },
+        pl: { m: 'τίνων / τινῶν', f: 'τίνων / τινῶν', n: 'τίνων / τινῶν' },
+      },
+      dat: {
+        sg: { m: 'τίνι / τινί', f: 'τίνι / τινί', n: 'τίνι / τινί' },
+        pl: { m: 'τίσι(ν)', f: 'τίσι(ν)', n: 'τίσι(ν)' },
+      },
+      acc: {
+        sg: { m: 'τίνα / τινά', f: 'τίνα / τινά', n: 'τί / τι' },
+        pl: { m: 'τίνας / τινάς', f: 'τίνας / τινάς', n: 'τίνα / τινά' },
+      },
     },
   },
 ];
@@ -841,27 +1134,63 @@ export const genderedPronouns: GenderedPronoun[] = [
 
 export const prepositions: PrepEntry[] = [
   // Genitive only
-  { greek: 'ἀντί',   cases: ['gen'],         glosses: { gen: 'instead of, in place of' } },
-  { greek: 'ἀπό',    cases: ['gen'],         glosses: { gen: 'from, away from' } },
-  { greek: 'ἐκ / ἐξ', cases: ['gen'],       glosses: { gen: 'from, out of' } },
-  { greek: 'πρό',    cases: ['gen'],         glosses: { gen: 'before, in front of' } },
+  { greek: 'ἀντί', cases: ['gen'], glosses: { gen: 'instead of, in place of' } },
+  { greek: 'ἀπό', cases: ['gen'], glosses: { gen: 'from, away from' } },
+  { greek: 'ἐκ / ἐξ', cases: ['gen'], glosses: { gen: 'from, out of' } },
+  { greek: 'πρό', cases: ['gen'], glosses: { gen: 'before, in front of' } },
   // Dative only
-  { greek: 'ἐν',     cases: ['dat'],         glosses: { dat: 'in, by, among, with' } },
-  { greek: 'σύν',    cases: ['dat'],         glosses: { dat: 'with, together with' } },
+  { greek: 'ἐν', cases: ['dat'], glosses: { dat: 'in, by, among, with' } },
+  { greek: 'σύν', cases: ['dat'], glosses: { dat: 'with, together with' } },
   // Accusative only
-  { greek: 'ἀνά',    cases: ['acc'],         glosses: { acc: 'up, each, in turn' } },
-  { greek: 'εἰς',    cases: ['acc'],         glosses: { acc: 'into, to, for, in order to' } },
+  { greek: 'ἀνά', cases: ['acc'], glosses: { acc: 'up, each, in turn' } },
+  { greek: 'εἰς', cases: ['acc'], glosses: { acc: 'into, to, for, in order to' } },
   // Genitive or accusative
-  { greek: 'διά',    cases: ['gen', 'acc'],  glosses: { gen: 'through', acc: 'because of, on account of' } },
-  { greek: 'κατά',   cases: ['gen', 'acc'],  glosses: { gen: 'against, down from', acc: 'according to, throughout, during' } },
-  { greek: 'μετά',   cases: ['gen', 'acc'],  glosses: { gen: 'with', acc: 'after, behind' } },
-  { greek: 'περί',   cases: ['gen', 'acc'],  glosses: { gen: 'concerning, about', acc: 'around, about' } },
-  { greek: 'ὑπέρ',   cases: ['gen', 'acc'],  glosses: { gen: 'on behalf of, for', acc: 'above, over, more than' } },
-  { greek: 'ὑπό',    cases: ['gen', 'acc'],  glosses: { gen: 'by (agent)', acc: 'under' } },
+  {
+    greek: 'διά',
+    cases: ['gen', 'acc'],
+    glosses: { gen: 'through', acc: 'because of, on account of' },
+  },
+  {
+    greek: 'κατά',
+    cases: ['gen', 'acc'],
+    glosses: { gen: 'against, down from', acc: 'according to, throughout, during' },
+  },
+  { greek: 'μετά', cases: ['gen', 'acc'], glosses: { gen: 'with', acc: 'after, behind' } },
+  {
+    greek: 'περί',
+    cases: ['gen', 'acc'],
+    glosses: { gen: 'concerning, about', acc: 'around, about' },
+  },
+  {
+    greek: 'ὑπέρ',
+    cases: ['gen', 'acc'],
+    glosses: { gen: 'on behalf of, for', acc: 'above, over, more than' },
+  },
+  { greek: 'ὑπό', cases: ['gen', 'acc'], glosses: { gen: 'by (agent)', acc: 'under' } },
   // Genitive, dative, or accusative
-  { greek: 'ἐπί',    cases: ['gen', 'dat', 'acc'], glosses: { gen: 'on, over, at the time of', dat: 'on the basis of, at', acc: 'on, to, against' } },
-  { greek: 'παρά',   cases: ['gen', 'dat', 'acc'], glosses: { gen: 'from beside, from', dat: 'beside, with, in the presence of', acc: 'alongside, contrary to' } },
-  { greek: 'πρός',   cases: ['gen', 'dat', 'acc'], glosses: { gen: 'for the benefit of', dat: 'near, at', acc: 'to, toward, with' } },
+  {
+    greek: 'ἐπί',
+    cases: ['gen', 'dat', 'acc'],
+    glosses: {
+      gen: 'on, over, at the time of',
+      dat: 'on the basis of, at',
+      acc: 'on, to, against',
+    },
+  },
+  {
+    greek: 'παρά',
+    cases: ['gen', 'dat', 'acc'],
+    glosses: {
+      gen: 'from beside, from',
+      dat: 'beside, with, in the presence of',
+      acc: 'alongside, contrary to',
+    },
+  },
+  {
+    greek: 'πρός',
+    cases: ['gen', 'dat', 'acc'],
+    glosses: { gen: 'for the benefit of', dat: 'near, at', acc: 'to, toward, with' },
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -874,24 +1203,24 @@ export const prepositions: PrepEntry[] = [
  */
 export const articleForms: Record<CaseKey, Record<NumKey, Record<GenderKey, string | null>>> = {
   nom: {
-    sg: { m: 'ὁ',    f: 'ἡ',    n: 'τό'   },
-    pl: { m: 'οἱ',   f: 'αἱ',   n: 'τά'   },
+    sg: { m: 'ὁ', f: 'ἡ', n: 'τό' },
+    pl: { m: 'οἱ', f: 'αἱ', n: 'τά' },
   },
   gen: {
-    sg: { m: 'τοῦ',  f: 'τῆς',  n: 'τοῦ'  },
-    pl: { m: 'τῶν',  f: 'τῶν',  n: 'τῶν'  },
+    sg: { m: 'τοῦ', f: 'τῆς', n: 'τοῦ' },
+    pl: { m: 'τῶν', f: 'τῶν', n: 'τῶν' },
   },
   dat: {
-    sg: { m: 'τῷ',   f: 'τῇ',   n: 'τῷ'   },
+    sg: { m: 'τῷ', f: 'τῇ', n: 'τῷ' },
     pl: { m: 'τοῖς', f: 'ταῖς', n: 'τοῖς' },
   },
   acc: {
-    sg: { m: 'τόν',  f: 'τήν',  n: 'τό'   },
-    pl: { m: 'τούς', f: 'τάς',  n: 'τά'   },
+    sg: { m: 'τόν', f: 'τήν', n: 'τό' },
+    pl: { m: 'τούς', f: 'τάς', n: 'τά' },
   },
   voc: {
-    sg: { m: null,   f: null,   n: null   },
-    pl: { m: null,   f: null,   n: null   },
+    sg: { m: null, f: null, n: null },
+    pl: { m: null, f: null, n: null },
   },
 };
 
@@ -921,13 +1250,13 @@ export function getArticle(
 // ---------------------------------------------------------------------------
 
 export const contractionRules: ContractionRule[] = [
-  { following: '+ ε',  alpha: 'ᾱ (α)', epsilon: 'ει', omicron: 'ου' },
-  { following: '+ ει', alpha: 'ᾳ',     epsilon: 'ει', omicron: 'οι' },
-  { following: '+ η',  alpha: 'ᾱ (α)', epsilon: 'η',  omicron: 'ω'  },
-  { following: '+ ο',  alpha: 'ω',     epsilon: 'ου', omicron: 'ου' },
-  { following: '+ οι', alpha: 'ῳ',     epsilon: 'οι', omicron: 'οι' },
-  { following: '+ ου', alpha: 'ω',     epsilon: 'ου', omicron: 'ου' },
-  { following: '+ ω',  alpha: 'ω',     epsilon: 'ω',  omicron: 'ω'  },
+  { following: '+ ε', alpha: 'ᾱ (α)', epsilon: 'ει', omicron: 'ου' },
+  { following: '+ ει', alpha: 'ᾳ', epsilon: 'ει', omicron: 'οι' },
+  { following: '+ η', alpha: 'ᾱ (α)', epsilon: 'η', omicron: 'ω' },
+  { following: '+ ο', alpha: 'ω', epsilon: 'ου', omicron: 'ου' },
+  { following: '+ οι', alpha: 'ῳ', epsilon: 'οι', omicron: 'οι' },
+  { following: '+ ου', alpha: 'ω', epsilon: 'ου', omicron: 'ου' },
+  { following: '+ ω', alpha: 'ω', epsilon: 'ω', omicron: 'ω' },
 ];
 
 export const contractVerbParadigms: ContractVerbParadigm[] = [
@@ -939,32 +1268,88 @@ export const contractVerbParadigms: ContractVerbParadigm[] = [
     label: 'Present Active Indicative',
     contractType: 'alpha',
     group: 'indicative',
-    forms:       { '1sg': 'ἀγαπῶ',      '2sg': 'ἀγαπᾷς',     '3sg': 'ἀγαπᾷ',     '1pl': 'ἀγαπῶμεν',  '2pl': 'ἀγαπᾶτε',   '3pl': 'ἀγαπῶσι(ν)' },
-    uncontracted:{ '1sg': 'ἀγαπάω',     '2sg': 'ἀγαπάεις',   '3sg': 'ἀγαπάει',   '1pl': 'ἀγαπάομεν', '2pl': 'ἀγαπάετε',  '3pl': 'ἀγαπάουσι(ν)' },
+    forms: {
+      '1sg': 'ἀγαπῶ',
+      '2sg': 'ἀγαπᾷς',
+      '3sg': 'ἀγαπᾷ',
+      '1pl': 'ἀγαπῶμεν',
+      '2pl': 'ἀγαπᾶτε',
+      '3pl': 'ἀγαπῶσι(ν)',
+    },
+    uncontracted: {
+      '1sg': 'ἀγαπάω',
+      '2sg': 'ἀγαπάεις',
+      '3sg': 'ἀγαπάει',
+      '1pl': 'ἀγαπάομεν',
+      '2pl': 'ἀγαπάετε',
+      '3pl': 'ἀγαπάουσι(ν)',
+    },
   },
   {
     id: 'alpha-pres-mid-ind',
     label: 'Present Middle/Passive Indicative',
     contractType: 'alpha',
     group: 'indicative',
-    forms:       { '1sg': 'ἀγαπῶμαι',   '2sg': 'ἀγαπᾷ',      '3sg': 'ἀγαπᾶται',  '1pl': 'ἀγαπώμεθα', '2pl': 'ἀγαπᾶσθε',  '3pl': 'ἀγαπῶνται' },
-    uncontracted:{ '1sg': 'ἀγαπάομαι',  '2sg': 'ἀγαπάεσαι',  '3sg': 'ἀγαπάεται', '1pl': 'ἀγαπαόμεθα','2pl': 'ἀγαπάεσθε', '3pl': 'ἀγαπάονται' },
+    forms: {
+      '1sg': 'ἀγαπῶμαι',
+      '2sg': 'ἀγαπᾷ',
+      '3sg': 'ἀγαπᾶται',
+      '1pl': 'ἀγαπώμεθα',
+      '2pl': 'ἀγαπᾶσθε',
+      '3pl': 'ἀγαπῶνται',
+    },
+    uncontracted: {
+      '1sg': 'ἀγαπάομαι',
+      '2sg': 'ἀγαπάεσαι',
+      '3sg': 'ἀγαπάεται',
+      '1pl': 'ἀγαπαόμεθα',
+      '2pl': 'ἀγαπάεσθε',
+      '3pl': 'ἀγαπάονται',
+    },
   },
   {
     id: 'alpha-impf-act-ind',
     label: 'Imperfect Active Indicative',
     contractType: 'alpha',
     group: 'indicative',
-    forms:       { '1sg': 'ἠγάπων',     '2sg': 'ἠγάπας',     '3sg': 'ἠγάπα',     '1pl': 'ἠγαπῶμεν',  '2pl': 'ἠγαπᾶτε',   '3pl': 'ἠγάπων' },
-    uncontracted:{ '1sg': 'ἠγάπαον',    '2sg': 'ἠγάπαες',    '3sg': 'ἠγάπαε',    '1pl': 'ἠγαπάομεν', '2pl': 'ἠγαπάετε',  '3pl': 'ἠγάπαον' },
+    forms: {
+      '1sg': 'ἠγάπων',
+      '2sg': 'ἠγάπας',
+      '3sg': 'ἠγάπα',
+      '1pl': 'ἠγαπῶμεν',
+      '2pl': 'ἠγαπᾶτε',
+      '3pl': 'ἠγάπων',
+    },
+    uncontracted: {
+      '1sg': 'ἠγάπαον',
+      '2sg': 'ἠγάπαες',
+      '3sg': 'ἠγάπαε',
+      '1pl': 'ἠγαπάομεν',
+      '2pl': 'ἠγαπάετε',
+      '3pl': 'ἠγάπαον',
+    },
   },
   {
     id: 'alpha-impf-mid-ind',
     label: 'Imperfect Middle/Passive Indicative',
     contractType: 'alpha',
     group: 'indicative',
-    forms:       { '1sg': 'ἠγαπώμην',   '2sg': 'ἠγαπῶ',      '3sg': 'ἠγαπᾶτο',   '1pl': 'ἠγαπώμεθα', '2pl': 'ἠγαπᾶσθε',  '3pl': 'ἠγαπῶντο' },
-    uncontracted:{ '1sg': 'ἠγαπαόμην',  '2sg': 'ἠγαπάου',    '3sg': 'ἠγαπάετο',  '1pl': 'ἠγαπαόμεθα','2pl': 'ἠγαπάεσθε', '3pl': 'ἠγαπάοντο' },
+    forms: {
+      '1sg': 'ἠγαπώμην',
+      '2sg': 'ἠγαπῶ',
+      '3sg': 'ἠγαπᾶτο',
+      '1pl': 'ἠγαπώμεθα',
+      '2pl': 'ἠγαπᾶσθε',
+      '3pl': 'ἠγαπῶντο',
+    },
+    uncontracted: {
+      '1sg': 'ἠγαπαόμην',
+      '2sg': 'ἠγαπάου',
+      '3sg': 'ἠγαπάετο',
+      '1pl': 'ἠγαπαόμεθα',
+      '2pl': 'ἠγαπάεσθε',
+      '3pl': 'ἠγαπάοντο',
+    },
   },
 
   // -------------------------------------------------------------------------
@@ -975,32 +1360,88 @@ export const contractVerbParadigms: ContractVerbParadigm[] = [
     label: 'Present Active Indicative',
     contractType: 'epsilon',
     group: 'indicative',
-    forms:       { '1sg': 'ποιῶ',       '2sg': 'ποιεῖς',     '3sg': 'ποιεῖ',      '1pl': 'ποιοῦμεν',   '2pl': 'ποιεῖτε',    '3pl': 'ποιοῦσι(ν)' },
-    uncontracted:{ '1sg': 'ποιέω',      '2sg': 'ποιέεις',    '3sg': 'ποιέει',     '1pl': 'ποιέομεν',   '2pl': 'ποιέετε',    '3pl': 'ποιέουσι(ν)' },
+    forms: {
+      '1sg': 'ποιῶ',
+      '2sg': 'ποιεῖς',
+      '3sg': 'ποιεῖ',
+      '1pl': 'ποιοῦμεν',
+      '2pl': 'ποιεῖτε',
+      '3pl': 'ποιοῦσι(ν)',
+    },
+    uncontracted: {
+      '1sg': 'ποιέω',
+      '2sg': 'ποιέεις',
+      '3sg': 'ποιέει',
+      '1pl': 'ποιέομεν',
+      '2pl': 'ποιέετε',
+      '3pl': 'ποιέουσι(ν)',
+    },
   },
   {
     id: 'epsilon-pres-mid-ind',
     label: 'Present Middle/Passive Indicative',
     contractType: 'epsilon',
     group: 'indicative',
-    forms:       { '1sg': 'ποιοῦμαι',   '2sg': 'ποιῇ',       '3sg': 'ποιεῖται',   '1pl': 'ποιούμεθα',  '2pl': 'ποιεῖσθε',   '3pl': 'ποιοῦνται' },
-    uncontracted:{ '1sg': 'ποιέομαι',   '2sg': 'ποιέεσαι',   '3sg': 'ποιέεται',   '1pl': 'ποιεόμεθα',  '2pl': 'ποιέεσθε',   '3pl': 'ποιέονται' },
+    forms: {
+      '1sg': 'ποιοῦμαι',
+      '2sg': 'ποιῇ',
+      '3sg': 'ποιεῖται',
+      '1pl': 'ποιούμεθα',
+      '2pl': 'ποιεῖσθε',
+      '3pl': 'ποιοῦνται',
+    },
+    uncontracted: {
+      '1sg': 'ποιέομαι',
+      '2sg': 'ποιέεσαι',
+      '3sg': 'ποιέεται',
+      '1pl': 'ποιεόμεθα',
+      '2pl': 'ποιέεσθε',
+      '3pl': 'ποιέονται',
+    },
   },
   {
     id: 'epsilon-impf-act-ind',
     label: 'Imperfect Active Indicative',
     contractType: 'epsilon',
     group: 'indicative',
-    forms:       { '1sg': 'ἐποίουν',    '2sg': 'ἐποίεις',    '3sg': 'ἐποίει',     '1pl': 'ἐποιοῦμεν',  '2pl': 'ἐποιεῖτε',   '3pl': 'ἐποίουν' },
-    uncontracted:{ '1sg': 'ἐποίεον',    '2sg': 'ἐποίεες',    '3sg': 'ἐποίεε',     '1pl': 'ἐποιέομεν',  '2pl': 'ἐποιέετε',   '3pl': 'ἐποίεον' },
+    forms: {
+      '1sg': 'ἐποίουν',
+      '2sg': 'ἐποίεις',
+      '3sg': 'ἐποίει',
+      '1pl': 'ἐποιοῦμεν',
+      '2pl': 'ἐποιεῖτε',
+      '3pl': 'ἐποίουν',
+    },
+    uncontracted: {
+      '1sg': 'ἐποίεον',
+      '2sg': 'ἐποίεες',
+      '3sg': 'ἐποίεε',
+      '1pl': 'ἐποιέομεν',
+      '2pl': 'ἐποιέετε',
+      '3pl': 'ἐποίεον',
+    },
   },
   {
     id: 'epsilon-impf-mid-ind',
     label: 'Imperfect Middle/Passive Indicative',
     contractType: 'epsilon',
     group: 'indicative',
-    forms:       { '1sg': 'ἐποιούμην',  '2sg': 'ἐποιοῦ',     '3sg': 'ἐποιεῖτο',   '1pl': 'ἐποιούμεθα', '2pl': 'ἐποιεῖσθε',  '3pl': 'ἐποιοῦντο' },
-    uncontracted:{ '1sg': 'ἐποιεόμην',  '2sg': 'ἐποιέου',    '3sg': 'ἐποιέετο',   '1pl': 'ἐποιεόμεθα', '2pl': 'ἐποιέεσθε',  '3pl': 'ἐποιέοντο' },
+    forms: {
+      '1sg': 'ἐποιούμην',
+      '2sg': 'ἐποιοῦ',
+      '3sg': 'ἐποιεῖτο',
+      '1pl': 'ἐποιούμεθα',
+      '2pl': 'ἐποιεῖσθε',
+      '3pl': 'ἐποιοῦντο',
+    },
+    uncontracted: {
+      '1sg': 'ἐποιεόμην',
+      '2sg': 'ἐποιέου',
+      '3sg': 'ἐποιέετο',
+      '1pl': 'ἐποιεόμεθα',
+      '2pl': 'ἐποιέεσθε',
+      '3pl': 'ἐποιέοντο',
+    },
   },
 
   // -------------------------------------------------------------------------
@@ -1011,60 +1452,116 @@ export const contractVerbParadigms: ContractVerbParadigm[] = [
     label: 'Present Active Indicative',
     contractType: 'omicron',
     group: 'indicative',
-    forms:       { '1sg': 'πληρῶ',      '2sg': 'πληροῖς',    '3sg': 'πληροῖ',     '1pl': 'πληροῦμεν',  '2pl': 'πληροῦτε',   '3pl': 'πληροῦσι(ν)' },
-    uncontracted:{ '1sg': 'πληρόω',     '2sg': 'πληρόεις',   '3sg': 'πληρόει',    '1pl': 'πληρόομεν',  '2pl': 'πληρόετε',   '3pl': 'πληρόουσι(ν)' },
+    forms: {
+      '1sg': 'πληρῶ',
+      '2sg': 'πληροῖς',
+      '3sg': 'πληροῖ',
+      '1pl': 'πληροῦμεν',
+      '2pl': 'πληροῦτε',
+      '3pl': 'πληροῦσι(ν)',
+    },
+    uncontracted: {
+      '1sg': 'πληρόω',
+      '2sg': 'πληρόεις',
+      '3sg': 'πληρόει',
+      '1pl': 'πληρόομεν',
+      '2pl': 'πληρόετε',
+      '3pl': 'πληρόουσι(ν)',
+    },
   },
   {
     id: 'omicron-pres-mid-ind',
     label: 'Present Middle/Passive Indicative',
     contractType: 'omicron',
     group: 'indicative',
-    forms:       { '1sg': 'πληροῦμαι',  '2sg': 'πληροῖ',     '3sg': 'πληροῦται',  '1pl': 'πληρούμεθα', '2pl': 'πληροῦσθε',  '3pl': 'πληροῦνται' },
-    uncontracted:{ '1sg': 'πληρόομαι',  '2sg': 'πληρόεσαι',  '3sg': 'πληρόεται',  '1pl': 'πληροόμεθα', '2pl': 'πληρόεσθε',  '3pl': 'πληρόονται' },
+    forms: {
+      '1sg': 'πληροῦμαι',
+      '2sg': 'πληροῖ',
+      '3sg': 'πληροῦται',
+      '1pl': 'πληρούμεθα',
+      '2pl': 'πληροῦσθε',
+      '3pl': 'πληροῦνται',
+    },
+    uncontracted: {
+      '1sg': 'πληρόομαι',
+      '2sg': 'πληρόεσαι',
+      '3sg': 'πληρόεται',
+      '1pl': 'πληροόμεθα',
+      '2pl': 'πληρόεσθε',
+      '3pl': 'πληρόονται',
+    },
   },
   {
     id: 'omicron-impf-act-ind',
     label: 'Imperfect Active Indicative',
     contractType: 'omicron',
     group: 'indicative',
-    forms:       { '1sg': 'ἐπλήρουν',   '2sg': 'ἐπλήρους',   '3sg': 'ἐπλήρου',    '1pl': 'ἐπληροῦμεν', '2pl': 'ἐπληροῦτε',  '3pl': 'ἐπλήρουν' },
-    uncontracted:{ '1sg': 'ἐπλήρόον',   '2sg': 'ἐπλήρόες',   '3sg': 'ἐπλήρόε',    '1pl': 'ἐπληρόομεν', '2pl': 'ἐπληρόετε',  '3pl': 'ἐπλήρόον' },
+    forms: {
+      '1sg': 'ἐπλήρουν',
+      '2sg': 'ἐπλήρους',
+      '3sg': 'ἐπλήρου',
+      '1pl': 'ἐπληροῦμεν',
+      '2pl': 'ἐπληροῦτε',
+      '3pl': 'ἐπλήρουν',
+    },
+    uncontracted: {
+      '1sg': 'ἐπλήρόον',
+      '2sg': 'ἐπλήρόες',
+      '3sg': 'ἐπλήρόε',
+      '1pl': 'ἐπληρόομεν',
+      '2pl': 'ἐπληρόετε',
+      '3pl': 'ἐπλήρόον',
+    },
   },
   {
     id: 'omicron-impf-mid-ind',
     label: 'Imperfect Middle/Passive Indicative',
     contractType: 'omicron',
     group: 'indicative',
-    forms:       { '1sg': 'ἐπληρούμην', '2sg': 'ἐπληροῦ',    '3sg': 'ἐπληροῦτο',  '1pl': 'ἐπληρούμεθα','2pl': 'ἐπληροῦσθε', '3pl': 'ἐπληροῦντο' },
-    uncontracted:{ '1sg': 'ἐπληροόμην', '2sg': 'ἐπληρόου',   '3sg': 'ἐπληρόετο',  '1pl': 'ἐπληροόμεθα','2pl': 'ἐπληρόεσθε', '3pl': 'ἐπληρόοντο' },
+    forms: {
+      '1sg': 'ἐπληρούμην',
+      '2sg': 'ἐπληροῦ',
+      '3sg': 'ἐπληροῦτο',
+      '1pl': 'ἐπληρούμεθα',
+      '2pl': 'ἐπληροῦσθε',
+      '3pl': 'ἐπληροῦντο',
+    },
+    uncontracted: {
+      '1sg': 'ἐπληροόμην',
+      '2sg': 'ἐπληρόου',
+      '3sg': 'ἐπληρόετο',
+      '1pl': 'ἐπληροόμεθα',
+      '2pl': 'ἐπληρόεσθε',
+      '3pl': 'ἐπληρόοντο',
+    },
   },
 ];
 
 export const commonContractVerbs: CommonContractVerb[] = [
   // α-contracts
-  { greek: 'ἀγαπάω',   type: 'alpha',   gloss: 'I love'              },
-  { greek: 'ὁράω',     type: 'alpha',   gloss: 'I see'               },
-  { greek: 'ἐρωτάω',   type: 'alpha',   gloss: 'I ask'               },
-  { greek: 'νικάω',    type: 'alpha',   gloss: 'I conquer'           },
-  { greek: 'τιμάω',    type: 'alpha',   gloss: 'I honor'             },
-  { greek: 'γεννάω',   type: 'alpha',   gloss: 'I beget, give birth' },
-  { greek: 'πλανάω',   type: 'alpha',   gloss: 'I lead astray'       },
+  { greek: 'ἀγαπάω', type: 'alpha', gloss: 'I love' },
+  { greek: 'ὁράω', type: 'alpha', gloss: 'I see' },
+  { greek: 'ἐρωτάω', type: 'alpha', gloss: 'I ask' },
+  { greek: 'νικάω', type: 'alpha', gloss: 'I conquer' },
+  { greek: 'τιμάω', type: 'alpha', gloss: 'I honor' },
+  { greek: 'γεννάω', type: 'alpha', gloss: 'I beget, give birth' },
+  { greek: 'πλανάω', type: 'alpha', gloss: 'I lead astray' },
   // ε-contracts
-  { greek: 'ποιέω',    type: 'epsilon', gloss: 'I do, make'          },
-  { greek: 'λαλέω',    type: 'epsilon', gloss: 'I speak'             },
-  { greek: 'καλέω',    type: 'epsilon', gloss: 'I call'              },
-  { greek: 'ζητέω',    type: 'epsilon', gloss: 'I seek'              },
-  { greek: 'θεωρέω',   type: 'epsilon', gloss: 'I see, observe'      },
-  { greek: 'τηρέω',    type: 'epsilon', gloss: 'I keep, guard'       },
-  { greek: 'μαρτυρέω', type: 'epsilon', gloss: 'I bear witness'      },
-  { greek: 'ἀκολουθέω',type: 'epsilon', gloss: 'I follow'            },
-  { greek: 'προσκυνέω',type: 'epsilon', gloss: 'I worship'           },
+  { greek: 'ποιέω', type: 'epsilon', gloss: 'I do, make' },
+  { greek: 'λαλέω', type: 'epsilon', gloss: 'I speak' },
+  { greek: 'καλέω', type: 'epsilon', gloss: 'I call' },
+  { greek: 'ζητέω', type: 'epsilon', gloss: 'I seek' },
+  { greek: 'θεωρέω', type: 'epsilon', gloss: 'I see, observe' },
+  { greek: 'τηρέω', type: 'epsilon', gloss: 'I keep, guard' },
+  { greek: 'μαρτυρέω', type: 'epsilon', gloss: 'I bear witness' },
+  { greek: 'ἀκολουθέω', type: 'epsilon', gloss: 'I follow' },
+  { greek: 'προσκυνέω', type: 'epsilon', gloss: 'I worship' },
   // ο-contracts
-  { greek: 'πληρόω',   type: 'omicron', gloss: 'I fill, fulfill'     },
-  { greek: 'δικαιόω',  type: 'omicron', gloss: 'I justify'           },
-  { greek: 'σταυρόω',  type: 'omicron', gloss: 'I crucify'           },
-  { greek: 'φανερόω',  type: 'omicron', gloss: 'I reveal, manifest'  },
-  { greek: 'ἐλευθερόω',type: 'omicron', gloss: 'I set free'          },
+  { greek: 'πληρόω', type: 'omicron', gloss: 'I fill, fulfill' },
+  { greek: 'δικαιόω', type: 'omicron', gloss: 'I justify' },
+  { greek: 'σταυρόω', type: 'omicron', gloss: 'I crucify' },
+  { greek: 'φανερόω', type: 'omicron', gloss: 'I reveal, manifest' },
+  { greek: 'ἐλευθερόω', type: 'omicron', gloss: 'I set free' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -1072,11 +1569,11 @@ export const commonContractVerbs: CommonContractVerb[] = [
 // ---------------------------------------------------------------------------
 
 export const liquidFutureComparison: LiquidFutureRow[] = [
-  { person: '1sg', standard: 'λύσω',        liquid: 'βαλῶ'        },
-  { person: '2sg', standard: 'λύσεις',      liquid: 'βαλεῖς'      },
-  { person: '3sg', standard: 'λύσει',       liquid: 'βαλεῖ'       },
-  { person: '1pl', standard: 'λύσομεν',     liquid: 'βαλοῦμεν'    },
-  { person: '2pl', standard: 'λύσετε',      liquid: 'βαλεῖτε'     },
+  { person: '1sg', standard: 'λύσω', liquid: 'βαλῶ' },
+  { person: '2sg', standard: 'λύσεις', liquid: 'βαλεῖς' },
+  { person: '3sg', standard: 'λύσει', liquid: 'βαλεῖ' },
+  { person: '1pl', standard: 'λύσομεν', liquid: 'βαλοῦμεν' },
+  { person: '2pl', standard: 'λύσετε', liquid: 'βαλεῖτε' },
   { person: '3pl', standard: 'λύσουσι(ν)', liquid: 'βαλοῦσι(ν)' },
 ];
 

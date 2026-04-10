@@ -1,13 +1,13 @@
-import { useState, useMemo } from 'react';
-import { vocabulary } from '../data/vocabulary';
+import { useMemo, useState } from 'react';
 import {
-  loadCustomDecks,
-  createCustomDeck,
-  updateCustomDeck,
-  deleteCustomDeck,
   type CustomDeck,
+  createCustomDeck,
+  deleteCustomDeck,
+  loadCustomDecks,
+  updateCustomDeck,
 } from '../data/customDecks';
 import { normalizeKey } from '../data/srs';
+import { vocabulary } from '../data/vocabulary';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -86,7 +86,7 @@ export default function DeckBuilder({
       return;
     }
     const duplicate = decks.find(
-      d => d.name.trim().toLowerCase() === trimmed.toLowerCase() && d.id !== editingDeckId,
+      (d) => d.name.trim().toLowerCase() === trimmed.toLowerCase() && d.id !== editingDeckId,
     );
     if (duplicate) {
       setNameError('A deck with that name already exists.');
@@ -117,7 +117,7 @@ export default function DeckBuilder({
   }
 
   function toggleWord(key: string) {
-    setDraftWordKeys(prev => {
+    setDraftWordKeys((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
       else next.add(key);
@@ -131,14 +131,12 @@ export default function DeckBuilder({
     const q = wordSearch.trim().toLowerCase();
     if (!q) return vocabulary;
     return vocabulary.filter(
-      w =>
-        w.greek.toLowerCase().includes(q) ||
-        w.gloss.toLowerCase().includes(q),
+      (w) => w.greek.toLowerCase().includes(q) || w.gloss.toLowerCase().includes(q),
     );
   }, [wordSearch]);
 
   function selectAllFiltered() {
-    setDraftWordKeys(prev => {
+    setDraftWordKeys((prev) => {
       const next = new Set(prev);
       for (const w of filteredWords) next.add(normalizeKey(w.greek));
       return next;
@@ -171,18 +169,25 @@ export default function DeckBuilder({
           </p>
         ) : (
           <ul className="space-y-2" role="list">
-            {decks.map(deck => (
+            {decks.map((deck) => (
               <li
                 key={deck.id}
                 className="flex items-center justify-between gap-3 bg-white border border-indigo-100 rounded-xl px-4 py-3"
               >
                 <div className="min-w-0">
-                  <span className="font-semibold text-text text-sm truncate block">{deck.name}</span>
-                  <span className="text-xs text-text-muted">{deck.wordKeys.length} word{deck.wordKeys.length !== 1 ? 's' : ''}</span>
+                  <span className="font-semibold text-text text-sm truncate block">
+                    {deck.name}
+                  </span>
+                  <span className="text-xs text-text-muted">
+                    {deck.wordKeys.length} word{deck.wordKeys.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={() => { onActivateDeck(deck.id); onClose(); }}
+                    onClick={() => {
+                      onActivateDeck(deck.id);
+                      onClose();
+                    }}
                     className="px-3 py-1.5 bg-grape text-white rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity"
                   >
                     Study
@@ -237,14 +242,20 @@ export default function DeckBuilder({
 
       {/* Deck name */}
       <div>
-        <label htmlFor="deck-name" className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1.5">
+        <label
+          htmlFor="deck-name"
+          className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1.5"
+        >
           Deck Name
         </label>
         <input
           id="deck-name"
           type="text"
           value={draftName}
-          onChange={e => { setDraftName(e.target.value); setNameError(''); }}
+          onChange={(e) => {
+            setDraftName(e.target.value);
+            setNameError('');
+          }}
           placeholder="e.g. Week 1 Passage Words"
           maxLength={60}
           className={`w-full px-3 py-2 border-2 rounded-xl text-sm focus:outline-none transition-colors ${
@@ -253,27 +264,21 @@ export default function DeckBuilder({
           autoComplete="off"
         />
         <div className="flex justify-between mt-1">
-          {nameError ? (
-            <p className="text-xs text-coral">{nameError}</p>
-          ) : (
-            <span />
-          )}
+          {nameError ? <p className="text-xs text-coral">{nameError}</p> : <span />}
           <span className="text-xs text-text-muted ml-auto">{draftName.length}/60</span>
         </div>
       </div>
 
       {/* Word picker */}
       <div>
-        <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
-          Add Words
-        </p>
+        <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Add Words</p>
 
         {/* Search + bulk actions */}
         <div className="flex gap-2 mb-2">
           <input
             type="text"
             value={wordSearch}
-            onChange={e => setWordSearch(e.target.value)}
+            onChange={(e) => setWordSearch(e.target.value)}
             placeholder="Search for English definition…"
             className="flex-1 px-3 py-2 border-2 border-indigo-100 rounded-xl text-sm focus:border-grape focus:outline-none"
             autoComplete="off"
@@ -307,7 +312,7 @@ export default function DeckBuilder({
           {filteredWords.length === 0 ? (
             <p className="text-text-muted text-sm text-center py-6">No words match your search.</p>
           ) : (
-            filteredWords.slice(0, 200).map(w => {
+            filteredWords.slice(0, 200).map((w) => {
               const key = normalizeKey(w.greek);
               const checked = draftWordKeys.has(key);
               return (
@@ -332,7 +337,9 @@ export default function DeckBuilder({
                     {w.greek}
                   </span>
                   <span className="text-text-muted text-xs truncate flex-1">{w.gloss}</span>
-                  <span className="text-text-muted text-xs shrink-0">{w.frequency.toLocaleString()}×</span>
+                  <span className="text-text-muted text-xs shrink-0">
+                    {w.frequency.toLocaleString()}×
+                  </span>
                 </label>
               );
             })
@@ -346,7 +353,8 @@ export default function DeckBuilder({
 
         {/* Selection footer */}
         <p className="text-sm text-text-muted mt-2" role="status" aria-label="word count">
-          <strong className="text-text">{draftWordKeys.size}</strong> word{draftWordKeys.size !== 1 ? 's' : ''} selected
+          <strong className="text-text">{draftWordKeys.size}</strong> word
+          {draftWordKeys.size !== 1 ? 's' : ''} selected
         </p>
         {saveError && <p className="text-xs text-coral mt-1">{saveError}</p>}
       </div>

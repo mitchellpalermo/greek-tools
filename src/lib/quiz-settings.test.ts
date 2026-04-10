@@ -5,7 +5,7 @@
  * with validation and fallback to defaults.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { loadQuizSettings, saveQuizSettings } from './quiz-settings';
 
 beforeEach(() => {
@@ -58,10 +58,7 @@ describe('loadQuizSettings', () => {
   });
 
   it('handles partial saved data — fills missing fields with defaults', () => {
-    localStorage.setItem(
-      'greek-tools-quiz-settings-v1',
-      JSON.stringify({ density: 'hard' }),
-    );
+    localStorage.setItem('greek-tools-quiz-settings-v1', JSON.stringify({ density: 'hard' }));
     const settings = loadQuizSettings();
     expect(settings).toEqual({ accentStrict: false, density: 'hard' });
   });

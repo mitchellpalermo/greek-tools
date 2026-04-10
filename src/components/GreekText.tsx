@@ -2,14 +2,17 @@
  * Shared Greek text rendering components.
  * Used by GNTReader and DailyVerse so word-popup behavior stays in sync.
  */
-import { useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { type MorphWord, formatParse, splitWordPunct } from '../data/morphgnt';
+import { formatParse, type MorphWord, splitWordPunct } from '../data/morphgnt';
 import { vocabulary } from '../data/vocabulary';
 
 // ─── Vocabulary lookup ────────────────────────────────────────────────────────
 
-export interface VocabEntry { gloss: string; frequency: number }
+export interface VocabEntry {
+  gloss: string;
+  frequency: number;
+}
 
 export function buildVocabLookup(): Map<string, VocabEntry> {
   const map = new Map<string, VocabEntry>();
@@ -25,7 +28,10 @@ export const vocabLookup = buildVocabLookup();
 
 // ─── WordPopup ────────────────────────────────────────────────────────────────
 
-export interface ActiveWord { word: MorphWord; rect: DOMRect }
+export interface ActiveWord {
+  word: MorphWord;
+  rect: DOMRect;
+}
 
 export function WordPopup({ active, onClose }: { active: ActiveWord; onClose: () => void }) {
   const { word, rect } = active;
@@ -38,7 +44,9 @@ export function WordPopup({ active, onClose }: { active: ActiveWord; onClose: ()
 
   // Dismiss on Escape
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
@@ -56,13 +64,10 @@ export function WordPopup({ active, onClose }: { active: ActiveWord; onClose: ()
       aria-label={`Word info: ${word.lemma}`}
       style={{ position: 'absolute', top, left, zIndex: 50, width: 272 }}
       className="bg-bg-card border border-gray-200 rounded-xl shadow-xl p-4 text-sm"
-      onClick={e => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
-        <span
-          className="font-greek text-2xl leading-tight"
-          style={{ color: 'var(--color-greek)' }}
-        >
+        <span className="font-greek text-2xl leading-tight" style={{ color: 'var(--color-greek)' }}>
           {word.lemma}
         </span>
         <button
@@ -83,9 +88,7 @@ export function WordPopup({ active, onClose }: { active: ActiveWord; onClose: ()
       <p className="text-text-muted text-xs">{parse}</p>
 
       {vocab && (
-        <p className="text-text-muted text-xs mt-1">
-          {vocab.frequency.toLocaleString()}× in GNT
-        </p>
+        <p className="text-text-muted text-xs mt-1">{vocab.frequency.toLocaleString()}× in GNT</p>
       )}
 
       <a
@@ -116,10 +119,13 @@ export function WordToken({
   const [wordText, punct] = splitWordPunct(word.text);
   const spanRef = useRef<HTMLSpanElement>(null);
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (spanRef.current) onActivate(word, spanRef.current.getBoundingClientRect());
-  }, [word, onActivate]);
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (spanRef.current) onActivate(word, spanRef.current.getBoundingClientRect());
+    },
+    [word, onActivate],
+  );
 
   return (
     // inline-flex column so gloss stacks below the word without breaking flow

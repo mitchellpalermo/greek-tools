@@ -50,9 +50,12 @@ export default function Transliteration() {
             onChange={handleGreekChange}
             placeholder="Paste or type Greek text…"
             className={textareaClass}
-            style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)', fontSize: '1.25rem' }}
+            style={{
+              color: 'var(--color-greek)',
+              fontFamily: 'var(--font-greek)',
+              fontSize: '1.25rem',
+            }}
             spellCheck={false}
-            autoFocus
           />
           <button
             onClick={copyGreek}
@@ -84,20 +87,29 @@ export default function Transliteration() {
       </div>
 
       <p className="text-xs text-text-muted">
-        Editing either side updates the other in real time.
-        Reverse direction (transliteration → Greek) produces unaccented Greek.
+        Editing either side updates the other in real time. Reverse direction (transliteration →
+        Greek) produces unaccented Greek.
       </p>
 
       <details className="bg-bg-card rounded-lg border border-gray-200 p-4">
-        <summary className="font-semibold cursor-pointer text-primary">SBL Scheme Reference</summary>
+        <summary className="font-semibold cursor-pointer text-primary">
+          SBL Scheme Reference
+        </summary>
         <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-1 text-sm">
           <div className="font-bold col-span-full mt-2 mb-1 text-text-muted">Vowels</div>
           {[
-            ['α', 'a'], ['ε', 'e'], ['η', 'ē'], ['ι', 'i'],
-            ['ο', 'o'], ['υ', 'y'], ['ω', 'ō'],
+            ['α', 'a'],
+            ['ε', 'e'],
+            ['η', 'ē'],
+            ['ι', 'i'],
+            ['ο', 'o'],
+            ['υ', 'y'],
+            ['ω', 'ō'],
           ].map(([grk, lat]) => (
             <div key={grk} className="flex gap-2 items-center">
-              <span className="font-greek text-lg" style={{ color: 'var(--color-greek)' }}>{grk}</span>
+              <span className="font-greek text-lg" style={{ color: 'var(--color-greek)' }}>
+                {grk}
+              </span>
               <span className="text-text-muted">→</span>
               <span className="font-mono">{lat}</span>
             </div>
@@ -105,14 +117,28 @@ export default function Transliteration() {
 
           <div className="font-bold col-span-full mt-4 mb-1 text-text-muted">Consonants</div>
           {[
-            ['θ', 'th'], ['φ', 'ph'], ['χ', 'ch'], ['ψ', 'ps'],
-            ['β', 'b'],  ['γ', 'g'],  ['δ', 'd'],  ['ζ', 'z'],
-            ['κ', 'k'],  ['λ', 'l'],  ['μ', 'm'],  ['ν', 'n'],
-            ['ξ', 'x'],  ['π', 'p'],  ['ρ', 'r'],  ['σ', 's'],
+            ['θ', 'th'],
+            ['φ', 'ph'],
+            ['χ', 'ch'],
+            ['ψ', 'ps'],
+            ['β', 'b'],
+            ['γ', 'g'],
+            ['δ', 'd'],
+            ['ζ', 'z'],
+            ['κ', 'k'],
+            ['λ', 'l'],
+            ['μ', 'm'],
+            ['ν', 'n'],
+            ['ξ', 'x'],
+            ['π', 'p'],
+            ['ρ', 'r'],
+            ['σ', 's'],
             ['τ', 't'],
           ].map(([grk, lat]) => (
             <div key={grk} className="flex gap-2 items-center">
-              <span className="font-greek text-lg" style={{ color: 'var(--color-greek)' }}>{grk}</span>
+              <span className="font-greek text-lg" style={{ color: 'var(--color-greek)' }}>
+                {grk}
+              </span>
               <span className="text-text-muted">→</span>
               <span className="font-mono">{lat}</span>
             </div>
@@ -121,12 +147,20 @@ export default function Transliteration() {
           <div className="font-bold col-span-full mt-4 mb-1 text-text-muted">Special cases</div>
           <div className="col-span-full grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-1">
             {[
-              ['γγ', 'ng'],  ['γκ', 'nk'],  ['γξ', 'nx'],  ['γχ', 'nch'],
-              ['ῥ', 'rh'],   ['ᾳ', 'ai'],   ['ῃ', 'ēi'],   ['ῳ', 'ōi'],
+              ['γγ', 'ng'],
+              ['γκ', 'nk'],
+              ['γξ', 'nx'],
+              ['γχ', 'nch'],
+              ['ῥ', 'rh'],
+              ['ᾳ', 'ai'],
+              ['ῃ', 'ēi'],
+              ['ῳ', 'ōi'],
               ['rough breathing', 'h (prefixed)'],
             ].map(([grk, lat]) => (
               <div key={grk} className="flex gap-2 items-center">
-                <span className="font-greek" style={{ color: 'var(--color-greek)' }}>{grk}</span>
+                <span className="font-greek" style={{ color: 'var(--color-greek)' }}>
+                  {grk}
+                </span>
                 <span className="text-text-muted">→</span>
                 <span className="font-mono">{lat}</span>
               </div>

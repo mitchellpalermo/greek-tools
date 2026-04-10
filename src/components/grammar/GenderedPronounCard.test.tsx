@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import GenderedPronounCard from './GenderedPronounCard';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import type { GenderedPronoun } from '../../data/grammar';
+import GenderedPronounCard from './GenderedPronounCard';
 
 const pronoun: GenderedPronoun = {
   id: 'autos',

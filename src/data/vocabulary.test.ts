@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { vocabulary, type VocabWord } from './vocabulary';
+import { describe, expect, it } from 'vitest';
+import { type VocabWord, vocabulary } from './vocabulary';
 
 describe('vocabulary data', () => {
   it('is a non-empty array', () => {
@@ -43,18 +43,28 @@ describe('vocabulary data', () => {
 
   it('contains only known parts of speech', () => {
     const validPOS = new Set([
-      'noun', 'verb', 'pronoun', 'adjective', 'adverb',
-      'preposition', 'conjunction', 'article', 'particle',
+      'noun',
+      'verb',
+      'pronoun',
+      'adjective',
+      'adverb',
+      'preposition',
+      'conjunction',
+      'article',
+      'particle',
     ]);
     vocabulary.forEach((word) => {
-      expect(validPOS.has(word.partOfSpeech), `Unknown POS: ${word.partOfSpeech} for ${word.greek}`).toBe(true);
+      expect(
+        validPOS.has(word.partOfSpeech),
+        `Unknown POS: ${word.partOfSpeech} for ${word.greek}`,
+      ).toBe(true);
     });
   });
 
   it('includes high-frequency words like ὁ/ἡ/τό (the)', () => {
     const article = vocabulary.find((w) => w.greek === 'ὁ, ἡ, τό');
     expect(article).toBeDefined();
-    expect(article!.frequency).toBeGreaterThan(10000);
+    expect(article?.frequency).toBeGreaterThan(10000);
   });
 
   it('includes theological key terms', () => {
@@ -67,7 +77,7 @@ describe('vocabulary data', () => {
   it('VocabWord shape has all required fields', () => {
     const word: VocabWord = vocabulary[0];
     expect(Object.keys(word)).toEqual(
-      expect.arrayContaining(['greek', 'gloss', 'frequency', 'partOfSpeech'])
+      expect.arrayContaining(['greek', 'gloss', 'frequency', 'partOfSpeech']),
     );
   });
 });

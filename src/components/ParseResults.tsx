@@ -1,4 +1,3 @@
-import React from 'react';
 import type { ParseResult } from '../lib/verb-parse';
 
 export interface SessionResults {
@@ -15,16 +14,16 @@ interface Props {
 type PropertyKey = 'tense' | 'voice' | 'mood' | 'person' | 'number';
 
 const PROPERTIES: { key: PropertyKey; label: string }[] = [
-  { key: 'tense',  label: 'Tense'  },
-  { key: 'voice',  label: 'Voice'  },
-  { key: 'mood',   label: 'Mood'   },
+  { key: 'tense', label: 'Tense' },
+  { key: 'voice', label: 'Voice' },
+  { key: 'mood', label: 'Mood' },
   { key: 'person', label: 'Person' },
   { key: 'number', label: 'Number' },
 ];
 
 export default function ParseResults({ sessionResults, onRetry, onChangeSettings }: Props) {
   const { results, total } = sessionResults;
-  const correct = results.filter(r => r.allCorrect).length;
+  const correct = results.filter((r) => r.allCorrect).length;
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
 
   return (
@@ -32,10 +31,7 @@ export default function ParseResults({ sessionResults, onRetry, onChangeSettings
       {/* ── Score hero ──────────────────────────────────────────────────── */}
       <div className="text-center py-8 bg-bg-card rounded-2xl">
         <p className="text-xs uppercase tracking-widest text-text-muted mb-2">Session Score</p>
-        <p
-          className="text-6xl font-extrabold mb-1"
-          style={{ color: scoreColor(pct) }}
-        >
+        <p className="text-6xl font-extrabold mb-1" style={{ color: scoreColor(pct) }}>
           {correct}/{total}
         </p>
         <p className="text-lg text-text-muted">{pct}% correct</p>
@@ -48,7 +44,7 @@ export default function ParseResults({ sessionResults, onRetry, onChangeSettings
         </h2>
         <div className="space-y-2">
           {PROPERTIES.map(({ key, label }) => {
-            const propertyCorrect = results.filter(r => r[key]).length;
+            const propertyCorrect = results.filter((r) => r[key]).length;
             const propertyPct = total > 0 ? Math.round((propertyCorrect / total) * 100) : 0;
             return (
               <div key={key} className="flex items-center gap-3">
@@ -93,5 +89,5 @@ export default function ParseResults({ sessionResults, onRetry, onChangeSettings
 function scoreColor(pct: number): string {
   if (pct >= 80) return '#16a34a'; // green-600
   if (pct >= 60) return '#d97706'; // amber-600
-  return '#dc2626';                 // red-600
+  return '#dc2626'; // red-600
 }

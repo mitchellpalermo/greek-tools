@@ -9,11 +9,11 @@
  * - Default preset is "Top 100" (500+ occurrences)
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within, act } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Flashcards, { FREQ_PRESETS, DEFAULT_FREQ_PRESET } from './Flashcards';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { vocabulary } from '../data/vocabulary';
+import Flashcards, { DEFAULT_FREQ_PRESET, FREQ_PRESETS } from './Flashcards';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -32,7 +32,7 @@ function renderFlashcards() {
   return render(<Flashcards />);
 }
 
-function getPresetButton(label: string) {
+function _getPresetButton(label: string) {
   // Preset buttons are in the preset row; find by accessible name (label text)
   return screen.getByRole('button', { name: new RegExp(label, 'i') });
 }
@@ -45,16 +45,16 @@ function getFiltersToggle() {
 
 describe('FREQ_PRESETS', () => {
   it('exports five presets: All, Top 100, 101–300, 301–500, 500+', () => {
-    const labels = FREQ_PRESETS.map(p => p.label);
+    const labels = FREQ_PRESETS.map((p) => p.label);
     expect(labels).toEqual(['All', 'Top 100', '101–300', '301–500', '500+']);
   });
 
   it('maps preset labels to the correct FreqFilter values', () => {
-    expect(FREQ_PRESETS.find(p => p.label === 'All')!.filter).toBe('all');
-    expect(FREQ_PRESETS.find(p => p.label === 'Top 100')!.filter).toBe('500+');
-    expect(FREQ_PRESETS.find(p => p.label === '101–300')!.filter).toBe('100-499');
-    expect(FREQ_PRESETS.find(p => p.label === '301–500')!.filter).toBe('50-99');
-    expect(FREQ_PRESETS.find(p => p.label === '500+')!.filter).toBe('<50');
+    expect(FREQ_PRESETS.find((p) => p.label === 'All')?.filter).toBe('all');
+    expect(FREQ_PRESETS.find((p) => p.label === 'Top 100')?.filter).toBe('500+');
+    expect(FREQ_PRESETS.find((p) => p.label === '101–300')?.filter).toBe('100-499');
+    expect(FREQ_PRESETS.find((p) => p.label === '301–500')?.filter).toBe('50-99');
+    expect(FREQ_PRESETS.find((p) => p.label === '500+')?.filter).toBe('<50');
   });
 
   it('DEFAULT_FREQ_PRESET is Top 100 (500+ occurrences)', () => {
@@ -86,9 +86,9 @@ describe('Preset selector', () => {
     renderFlashcards();
     // Find all preset buttons and check aria-pressed
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const topBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.includes('Top 100'),
-    );
+    const topBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Top 100'));
     expect(topBtn).toBeDefined();
     expect(topBtn).toHaveAttribute('aria-pressed', 'true');
   });
@@ -96,9 +96,9 @@ describe('Preset selector', () => {
   it('marks non-active presets as aria-pressed=false', () => {
     renderFlashcards();
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const allBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.trim() === 'All',
-    );
+    const allBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'All');
     expect(allBtn).toHaveAttribute('aria-pressed', 'false');
   });
 });
@@ -110,7 +110,7 @@ describe('Default preset behavior', () => {
     renderFlashcards();
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
     const buttons = within(presetSection).getAllByRole('button');
-    const active = buttons.filter(b => b.getAttribute('aria-pressed') === 'true');
+    const active = buttons.filter((b) => b.getAttribute('aria-pressed') === 'true');
     expect(active).toHaveLength(1);
     expect(active[0].textContent).toContain('Top 100');
   });
@@ -130,17 +130,19 @@ describe('Selecting a preset', () => {
     renderFlashcards();
 
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const allBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.trim() === 'All',
-    )!;
+    const allBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'All')!;
 
-    await act(async () => { await user.click(allBtn); });
+    await act(async () => {
+      await user.click(allBtn);
+    });
 
     expect(allBtn).toHaveAttribute('aria-pressed', 'true');
 
-    const topBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.includes('Top 100'),
-    )!;
+    const topBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Top 100'))!;
     expect(topBtn).toHaveAttribute('aria-pressed', 'false');
   });
 
@@ -149,11 +151,13 @@ describe('Selecting a preset', () => {
     renderFlashcards();
 
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const midBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.includes('101–300'),
-    )!;
+    const midBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('101–300'))!;
 
-    await act(async () => { await user.click(midBtn); });
+    await act(async () => {
+      await user.click(midBtn);
+    });
 
     const badge = getFiltersToggle();
     expect(badge.textContent).toContain('101–300');
@@ -164,11 +168,13 @@ describe('Selecting a preset', () => {
     renderFlashcards();
 
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const allBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.trim() === 'All',
-    )!;
+    const allBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'All')!;
 
-    await act(async () => { await user.click(allBtn); });
+    await act(async () => {
+      await user.click(allBtn);
+    });
 
     const badge = getFiltersToggle();
     expect(badge.textContent).toMatch(/^filters$/i);
@@ -179,34 +185,34 @@ describe('Selecting a preset', () => {
 
 describe('Frequency band scoping', () => {
   it('Top 100 preset scopes to words with 500+ occurrences', () => {
-    const expected = vocabulary.filter(w => w.frequency >= 500).length;
+    const expected = vocabulary.filter((w) => w.frequency >= 500).length;
     // 500+ band should have some words
     expect(expected).toBeGreaterThan(0);
     // The count rendered next to the preset button should match
     renderFlashcards();
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const topBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.includes('Top 100'),
-    )!;
+    const topBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Top 100'))!;
     expect(topBtn.textContent).toContain(`(${expected})`);
   });
 
   it('101–300 preset shows count for 100–499 occurrences band', () => {
-    const expected = vocabulary.filter(w => w.frequency >= 100 && w.frequency < 500).length;
+    const expected = vocabulary.filter((w) => w.frequency >= 100 && w.frequency < 500).length;
     renderFlashcards();
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const btn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.includes('101–300'),
-    )!;
+    const btn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('101–300'))!;
     expect(btn.textContent).toContain(`(${expected})`);
   });
 
   it('All preset does not show a word count', () => {
     renderFlashcards();
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const allBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.trim() === 'All',
-    )!;
+    const allBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'All')!;
     expect(allBtn.textContent).not.toMatch(/\(\d+\)/);
   });
 });
@@ -229,14 +235,18 @@ describe('Combinability with POS filter', () => {
 
     // Click a POS filter (noun)
     const nounBtn = screen.getByRole('button', { name: /^noun/i });
-    await act(async () => { await user.click(nounBtn); });
+    await act(async () => {
+      await user.click(nounBtn);
+    });
 
     // Change preset to All
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const allBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.trim() === 'All',
-    )!;
-    await act(async () => { await user.click(allBtn); });
+    const allBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'All')!;
+    await act(async () => {
+      await user.click(allBtn);
+    });
 
     // Noun POS button should still be active
     const nounBtnAfter = screen.getByRole('button', { name: /^noun/i });
@@ -249,7 +259,9 @@ describe('Combinability with POS filter', () => {
 
     await openFilters(user);
     const nounBtn = screen.getByRole('button', { name: /^noun/i });
-    await act(async () => { await user.click(nounBtn); });
+    await act(async () => {
+      await user.click(nounBtn);
+    });
 
     const badge = getFiltersToggle();
     expect(badge.textContent).toContain('●');
@@ -262,15 +274,19 @@ describe('Combinability with POS filter', () => {
 
     // First switch to All preset
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const allBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.trim() === 'All',
-    )!;
-    await act(async () => { await user.click(allBtn); });
+    const allBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'All')!;
+    await act(async () => {
+      await user.click(allBtn);
+    });
 
     // Open filters and select a POS
     await openFilters(user);
     const nounBtn = screen.getByRole('button', { name: /^noun/i });
-    await act(async () => { await user.click(nounBtn); });
+    await act(async () => {
+      await user.click(nounBtn);
+    });
 
     const badge = getFiltersToggle();
     expect(badge.textContent).toMatch(/filters.*●/i);
@@ -285,17 +301,21 @@ describe('Reset behavior', () => {
     renderFlashcards();
 
     // Open filter panel
-    await act(async () => { await user.click(getFiltersToggle()); });
+    await act(async () => {
+      await user.click(getFiltersToggle());
+    });
 
     // Clear filters button should be visible (Top 100 is active by default)
     const clearBtn = screen.getByRole('button', { name: /clear filters/i });
-    await act(async () => { await user.click(clearBtn); });
+    await act(async () => {
+      await user.click(clearBtn);
+    });
 
     // Preset should now be All
     const presetSection = screen.getByText(/^preset$/i).parentElement!;
-    const allBtn = within(presetSection).getAllByRole('button').find(
-      b => b.textContent?.trim() === 'All',
-    )!;
+    const allBtn = within(presetSection)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.trim() === 'All')!;
     expect(allBtn).toHaveAttribute('aria-pressed', 'true');
   });
 });
@@ -320,13 +340,17 @@ describe('Custom deck integration', () => {
 
   it('shows "+ Create deck" when no custom decks exist', () => {
     renderFlashcards();
-    expect(screen.getByRole('button', { name: /manage custom decks/i })).toHaveTextContent('+ Create deck');
+    expect(screen.getByRole('button', { name: /manage custom decks/i })).toHaveTextContent(
+      '+ Create deck',
+    );
   });
 
   it('shows "Manage" button when custom decks exist', () => {
     seedDecks([{ id: '1', name: 'Week 1', wordKeys: ['καί'], createdAt: '' }]);
     renderFlashcards();
-    expect(screen.getByRole('button', { name: /manage custom decks/i })).toHaveTextContent('Manage');
+    expect(screen.getByRole('button', { name: /manage custom decks/i })).toHaveTextContent(
+      'Manage',
+    );
   });
 
   it('renders custom deck buttons with word counts', () => {
@@ -344,8 +368,12 @@ describe('Custom deck integration', () => {
     seedDecks([{ id: 'deck-1', name: 'Week 1', wordKeys: ['καί'], createdAt: '' }]);
     renderFlashcards();
     const section = getMyDecksSection();
-    const deckBtn = within(section).getAllByRole('button').find(b => b.textContent?.includes('Week 1'))!;
-    await act(async () => { await user.click(deckBtn); });
+    const deckBtn = within(section)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Week 1'))!;
+    await act(async () => {
+      await user.click(deckBtn);
+    });
     expect(deckBtn).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -354,12 +382,18 @@ describe('Custom deck integration', () => {
     seedDecks([{ id: 'deck-1', name: 'Week 1', wordKeys: ['καί'], createdAt: '' }]);
     renderFlashcards();
     const section = getMyDecksSection();
-    const deckBtn = within(section).getAllByRole('button').find(b => b.textContent?.includes('Week 1'))!;
+    const deckBtn = within(section)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Week 1'))!;
     // Activate
-    await act(async () => { await user.click(deckBtn); });
+    await act(async () => {
+      await user.click(deckBtn);
+    });
     expect(deckBtn).toHaveAttribute('aria-pressed', 'true');
     // Deactivate
-    await act(async () => { await user.click(deckBtn); });
+    await act(async () => {
+      await user.click(deckBtn);
+    });
     expect(deckBtn).toHaveAttribute('aria-pressed', 'false');
   });
 
@@ -368,8 +402,12 @@ describe('Custom deck integration', () => {
     seedDecks([{ id: 'deck-1', name: 'Week 1', wordKeys: ['καί'], createdAt: '' }]);
     renderFlashcards();
     const section = getMyDecksSection();
-    const deckBtn = within(section).getAllByRole('button').find(b => b.textContent?.includes('Week 1'))!;
-    await act(async () => { await user.click(deckBtn); });
+    const deckBtn = within(section)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Week 1'))!;
+    await act(async () => {
+      await user.click(deckBtn);
+    });
     expect(getFiltersToggle().textContent).toContain('●');
   });
 
@@ -377,7 +415,9 @@ describe('Custom deck integration', () => {
     const user = userEvent.setup();
     renderFlashcards();
     // Open filter panel first
-    await act(async () => { await user.click(getFiltersToggle()); });
+    await act(async () => {
+      await user.click(getFiltersToggle());
+    });
     expect(screen.getByText(/frequency \(occurrences/i)).toBeInTheDocument();
     // Open deck builder
     await act(async () => {
@@ -395,7 +435,9 @@ describe('Custom deck integration', () => {
     });
     expect(screen.getByText(/no custom decks yet/i)).toBeInTheDocument();
     // Open filter panel
-    await act(async () => { await user.click(getFiltersToggle()); });
+    await act(async () => {
+      await user.click(getFiltersToggle());
+    });
     expect(screen.queryByText(/no custom decks yet/i)).not.toBeInTheDocument();
   });
 
@@ -414,8 +456,12 @@ describe('Custom deck integration', () => {
     seedDecks([{ id: 'empty-deck', name: 'Empty', wordKeys: [], createdAt: '' }]);
     renderFlashcards();
     const section = getMyDecksSection();
-    const deckBtn = within(section).getAllByRole('button').find(b => b.textContent?.includes('Empty'))!;
-    await act(async () => { await user.click(deckBtn); });
+    const deckBtn = within(section)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Empty'))!;
+    await act(async () => {
+      await user.click(deckBtn);
+    });
     // No cards → empty state rendered (SRS mode: "all caught up")
     expect(screen.getByText(/all caught up|no cards match/i)).toBeInTheDocument();
   });
@@ -434,7 +480,9 @@ describe('Card study flow', () => {
     const user = userEvent.setup();
     renderFlashcards();
     const allBtn = screen.getByRole('button', { name: /study all/i });
-    await act(async () => { await user.click(allBtn); });
+    await act(async () => {
+      await user.click(allBtn);
+    });
     expect(screen.getByText(/card:/i)).toBeInTheDocument();
   });
 
@@ -455,7 +503,9 @@ describe('Card study flow', () => {
   it('reveals the card back when clicked in flip mode', async () => {
     const user = userEvent.setup();
     renderFlashcards();
-    await act(async () => { await user.click(getCardDiv()); });
+    await act(async () => {
+      await user.click(getCardDiv());
+    });
     // After flip, action buttons appear
     expect(screen.getByRole('button', { name: /got it/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /still learning/i })).toBeInTheDocument();
@@ -464,7 +514,9 @@ describe('Card study flow', () => {
   it('"Got It" advances to the next card', async () => {
     const user = userEvent.setup();
     renderFlashcards();
-    await act(async () => { await user.click(getCardDiv()); });
+    await act(async () => {
+      await user.click(getCardDiv());
+    });
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /got it/i }));
     });
@@ -477,7 +529,9 @@ describe('Card study flow', () => {
   it('"Still Learning" advances to the next card', async () => {
     const user = userEvent.setup();
     renderFlashcards();
-    await act(async () => { await user.click(getCardDiv()); });
+    await act(async () => {
+      await user.click(getCardDiv());
+    });
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /still learning/i }));
     });
@@ -491,7 +545,9 @@ describe('Card study flow', () => {
     renderFlashcards();
     // Switch to type mode
     const typeBtn = screen.getByRole('button', { name: /^type$/i });
-    await act(async () => { await user.click(typeBtn); });
+    await act(async () => {
+      await user.click(typeBtn);
+    });
     expect(screen.getByPlaceholderText(/type the english gloss/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^check$/i })).toBeInTheDocument();
   });
@@ -500,7 +556,9 @@ describe('Card study flow', () => {
     const user = userEvent.setup();
     renderFlashcards();
     const typeBtn = screen.getByRole('button', { name: /^type$/i });
-    await act(async () => { await user.click(typeBtn); });
+    await act(async () => {
+      await user.click(typeBtn);
+    });
     const input = screen.getByPlaceholderText(/type the english gloss/i);
     await act(async () => {
       await user.type(input, 'intentionally wrong answer xyz');
@@ -521,7 +579,9 @@ describe('Card study flow', () => {
     const user = userEvent.setup();
     renderFlashcards();
     const typeBtn = screen.getByRole('button', { name: /^type$/i });
-    await act(async () => { await user.click(typeBtn); });
+    await act(async () => {
+      await user.click(typeBtn);
+    });
     expect(screen.getByText(/keyboard:/i)).toBeInTheDocument();
   });
 
@@ -529,7 +589,9 @@ describe('Card study flow', () => {
     const user = userEvent.setup();
     renderFlashcards();
     const restartBtn = screen.getByRole('button', { name: /restart session/i });
-    await act(async () => { await user.click(restartBtn); });
+    await act(async () => {
+      await user.click(restartBtn);
+    });
     // Session restarted — card should still be showing
     expect(screen.getByText('tap to reveal')).toBeInTheDocument();
   });
@@ -537,7 +599,9 @@ describe('Card study flow', () => {
   it('shows accuracy in stats bar after a review', async () => {
     const user = userEvent.setup();
     renderFlashcards();
-    await act(async () => { await user.click(getCardDiv()); });
+    await act(async () => {
+      await user.click(getCardDiv());
+    });
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /got it/i }));
     });
@@ -548,19 +612,28 @@ describe('Card study flow', () => {
   it('shows session complete screen after going through all cards in Study All mode', async () => {
     const user = userEvent.setup();
     // Use a custom deck with a single word so session completes quickly
-    localStorage.setItem('greek-tools-custom-decks-v1', JSON.stringify([
-      { id: 'one-word', name: 'One Word', wordKeys: ['καί'], createdAt: '' },
-    ]));
+    localStorage.setItem(
+      'greek-tools-custom-decks-v1',
+      JSON.stringify([{ id: 'one-word', name: 'One Word', wordKeys: ['καί'], createdAt: '' }]),
+    );
     renderFlashcards();
     // Activate the single-word custom deck
     const section = screen.getByText(/^my decks$/i).parentElement!;
-    const deckBtn = within(section).getAllByRole('button').find(b => b.textContent?.includes('One Word'))!;
-    await act(async () => { await user.click(deckBtn); });
+    const deckBtn = within(section)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('One Word'))!;
+    await act(async () => {
+      await user.click(deckBtn);
+    });
     // Switch to Study All (avoids SRS complexity)
     const allBtn = screen.getByRole('button', { name: /study all/i });
-    await act(async () => { await user.click(allBtn); });
+    await act(async () => {
+      await user.click(allBtn);
+    });
     // Flip and mark the single card
-    await act(async () => { await user.click(getCardDiv()); });
+    await act(async () => {
+      await user.click(getCardDiv());
+    });
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /got it/i }));
     });
@@ -572,15 +645,22 @@ describe('Card study flow', () => {
   it('SRS mode shows "Study All Cards" button on session complete screen', async () => {
     const user = userEvent.setup();
     // Single-word deck in SRS mode
-    localStorage.setItem('greek-tools-custom-decks-v1', JSON.stringify([
-      { id: 'one-word', name: 'SRS Deck', wordKeys: ['καί'], createdAt: '' },
-    ]));
+    localStorage.setItem(
+      'greek-tools-custom-decks-v1',
+      JSON.stringify([{ id: 'one-word', name: 'SRS Deck', wordKeys: ['καί'], createdAt: '' }]),
+    );
     renderFlashcards();
     const section = screen.getByText(/^my decks$/i).parentElement!;
-    const deckBtn = within(section).getAllByRole('button').find(b => b.textContent?.includes('SRS Deck'))!;
-    await act(async () => { await user.click(deckBtn); });
+    const deckBtn = within(section)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('SRS Deck'))!;
+    await act(async () => {
+      await user.click(deckBtn);
+    });
     // Flip and rate the single card (SRS mode)
-    await act(async () => { await user.click(getCardDiv()); });
+    await act(async () => {
+      await user.click(getCardDiv());
+    });
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /got it/i }));
     });
@@ -592,10 +672,14 @@ describe('Card study flow', () => {
     const user = userEvent.setup();
     renderFlashcards();
     const enGrBtn = screen.getByRole('button', { name: /english → greek/i });
-    await act(async () => { await user.click(enGrBtn); });
+    await act(async () => {
+      await user.click(enGrBtn);
+    });
     // In en-gr mode the input placeholder changes
     const typeBtn = screen.getByRole('button', { name: /^type$/i });
-    await act(async () => { await user.click(typeBtn); });
+    await act(async () => {
+      await user.click(typeBtn);
+    });
     expect(screen.getByPlaceholderText(/type the greek word/i)).toBeInTheDocument();
   });
 
@@ -608,7 +692,18 @@ describe('Card study flow', () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(true));
     const user = userEvent.setup();
     // Seed some SRS data
-    localStorage.setItem('greek-tools-srs-v2', JSON.stringify({ 'καί': { interval: 4, repetitions: 3, easeFactor: 2.5, nextReview: '2099-01-01', lastReview: '2025-01-01' } }));
+    localStorage.setItem(
+      'greek-tools-srs-v2',
+      JSON.stringify({
+        καί: {
+          interval: 4,
+          repetitions: 3,
+          easeFactor: 2.5,
+          nextReview: '2099-01-01',
+          lastReview: '2025-01-01',
+        },
+      }),
+    );
     renderFlashcards();
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /reset srs/i }));
@@ -620,7 +715,7 @@ describe('Card study flow', () => {
   it('"Reset SRS" does nothing when cancelled', async () => {
     vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));
     const user = userEvent.setup();
-    localStorage.setItem('greek-tools-srs-v2', JSON.stringify({ 'καί': { interval: 4 } }));
+    localStorage.setItem('greek-tools-srs-v2', JSON.stringify({ καί: { interval: 4 } }));
     renderFlashcards();
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /reset srs/i }));
@@ -633,16 +728,24 @@ describe('Card study flow', () => {
     const user = userEvent.setup();
     renderFlashcards();
     const typeBtn = screen.getByRole('button', { name: /^type$/i });
-    await act(async () => { await user.click(typeBtn); });
+    await act(async () => {
+      await user.click(typeBtn);
+    });
     const input = screen.getByPlaceholderText(/type the english gloss/i);
-    await act(async () => { await user.type(input, 'zzz wrong answer'); });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /^check$/i })); });
+    await act(async () => {
+      await user.type(input, 'zzz wrong answer');
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /^check$/i }));
+    });
     // After incorrect answer, "Still Learning" and "Next →" buttons appear
     const stillLearningBtn = screen.getByRole('button', { name: /← still learning/i });
     const nextBtn = screen.getByRole('button', { name: /^next →$/i });
     expect(stillLearningBtn).toBeInTheDocument();
     expect(nextBtn).toBeInTheDocument();
-    await act(async () => { await user.click(stillLearningBtn); });
+    await act(async () => {
+      await user.click(stillLearningBtn);
+    });
     // Card advanced (either new card or still on same card)
     expect(screen.queryByRole('button', { name: /← still learning/i })).not.toBeInTheDocument();
   });
@@ -651,12 +754,20 @@ describe('Card study flow', () => {
     const user = userEvent.setup();
     renderFlashcards();
     const typeBtn = screen.getByRole('button', { name: /^type$/i });
-    await act(async () => { await user.click(typeBtn); });
+    await act(async () => {
+      await user.click(typeBtn);
+    });
     const input = screen.getByPlaceholderText(/type the english gloss/i);
-    await act(async () => { await user.type(input, 'zzz wrong answer'); });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /^check$/i })); });
+    await act(async () => {
+      await user.type(input, 'zzz wrong answer');
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /^check$/i }));
+    });
     const nextBtn = screen.getByRole('button', { name: /^next →$/i });
-    await act(async () => { await user.click(nextBtn); });
+    await act(async () => {
+      await user.click(nextBtn);
+    });
     expect(screen.queryByRole('button', { name: /^next →$/i })).not.toBeInTheDocument();
   });
 
@@ -666,23 +777,38 @@ describe('Card study flow', () => {
     const { normalizeKey } = await import('../data/srs');
     const { vocabulary } = await import('../data/vocabulary');
     // Find the first word in top-100 and use it
-    const word = vocabulary.find(w => w.frequency >= 500)!;
-    localStorage.setItem('greek-tools-custom-decks-v1', JSON.stringify([
-      { id: 'type-test', name: 'Type Test', wordKeys: [normalizeKey(word.greek)], createdAt: '' },
-    ]));
+    const word = vocabulary.find((w) => w.frequency >= 500)!;
+    localStorage.setItem(
+      'greek-tools-custom-decks-v1',
+      JSON.stringify([
+        { id: 'type-test', name: 'Type Test', wordKeys: [normalizeKey(word.greek)], createdAt: '' },
+      ]),
+    );
     renderFlashcards();
     const section = screen.getByText(/^my decks$/i).parentElement!;
-    const deckBtn = within(section).getAllByRole('button').find(b => b.textContent?.includes('Type Test'))!;
-    await act(async () => { await user.click(deckBtn); });
+    const deckBtn = within(section)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Type Test'))!;
+    await act(async () => {
+      await user.click(deckBtn);
+    });
     const typeBtn = screen.getByRole('button', { name: /^type$/i });
-    await act(async () => { await user.click(typeBtn); });
+    await act(async () => {
+      await user.click(typeBtn);
+    });
     const input = screen.getByPlaceholderText(/type the english gloss/i);
-    await act(async () => { await user.type(input, word.gloss); });
-    await act(async () => { await user.click(screen.getByRole('button', { name: /^check$/i })); });
+    await act(async () => {
+      await user.type(input, word.gloss);
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /^check$/i }));
+    });
     // "Got It →" appears on correct answer
     const gotItBtn = screen.queryByRole('button', { name: /got it →/i });
     if (gotItBtn) {
-      await act(async () => { await user.click(gotItBtn); });
+      await act(async () => {
+        await user.click(gotItBtn);
+      });
       expect(screen.queryByRole('button', { name: /got it →/i })).not.toBeInTheDocument();
     }
   });
@@ -693,9 +819,10 @@ describe('Card study flow', () => {
 describe('DeckBuilder integration', () => {
   it('Study button in DeckBuilder activates deck and closes builder', async () => {
     const user = userEvent.setup();
-    localStorage.setItem('greek-tools-custom-decks-v1', JSON.stringify([
-      { id: 'study-deck', name: 'Study Me', wordKeys: ['καί'], createdAt: '' },
-    ]));
+    localStorage.setItem(
+      'greek-tools-custom-decks-v1',
+      JSON.stringify([{ id: 'study-deck', name: 'Study Me', wordKeys: ['καί'], createdAt: '' }]),
+    );
     renderFlashcards();
     // Open the deck builder via "Manage" button
     await act(async () => {
@@ -703,12 +830,16 @@ describe('DeckBuilder integration', () => {
     });
     // DeckBuilder list view is open; click "Study" for the deck
     const studyBtn = screen.getByRole('button', { name: /^study$/i });
-    await act(async () => { await user.click(studyBtn); });
+    await act(async () => {
+      await user.click(studyBtn);
+    });
     // DeckBuilder should close (no longer showing the deck list)
     expect(screen.queryByText(/no custom decks yet/i)).not.toBeInTheDocument();
     // The deck should now be active (aria-pressed on the "My Decks" button)
     const section = screen.getByText(/^my decks$/i).parentElement!;
-    const deckBtn = within(section).getAllByRole('button').find(b => b.textContent?.includes('Study Me'))!;
+    const deckBtn = within(section)
+      .getAllByRole('button')
+      .find((b) => b.textContent?.includes('Study Me'))!;
     expect(deckBtn).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -723,10 +854,14 @@ describe('DeckBuilder integration', () => {
       await user.click(screen.getByRole('button', { name: /\+ new deck/i }));
     });
     const nameInput = screen.getByPlaceholderText(/week 1 passage/i);
-    await act(async () => { await user.type(nameInput, 'Fresh Deck'); });
+    await act(async () => {
+      await user.type(nameInput, 'Fresh Deck');
+    });
     // Pick at least one word
     const checkboxes = screen.getAllByRole('checkbox');
-    await act(async () => { await user.click(checkboxes[0]); });
+    await act(async () => {
+      await user.click(checkboxes[0]);
+    });
     await act(async () => {
       await user.click(screen.getByRole('button', { name: /create deck/i }));
     });

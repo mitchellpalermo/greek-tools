@@ -1,13 +1,22 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import posthog from 'posthog-js';
-import { vocabulary, type VocabWord } from '../data/vocabulary';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type CustomDeck, loadCustomDecks } from '../data/customDecks';
 import {
+  isDue,
+  loadSRSStore,
+  loadStats,
+  newCard,
+  nextSRS,
+  normalizeKey,
+  recordReview,
   type SRSCard,
-  loadSRSStore, saveSRSStore, loadStats, saveStats,
-  recordReview, newCard, nextSRS, isDue, STREAK_THRESHOLD, normalizeKey,
+  STREAK_THRESHOLD,
+  saveSRSStore,
+  saveStats,
 } from '../data/srs';
-import { loadCustomDecks, type CustomDeck } from '../data/customDecks';
+import { type VocabWord, vocabulary } from '../data/vocabulary';
 import DeckBuilder from './DeckBuilder';
+import ErrorBoundary from './ErrorBoundary';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,11 +28,11 @@ type FreqFilter = 'all' | '500+' | '100-499' | '50-99' | '<50';
 // ─── Frequency presets ────────────────────────────────────────────────────────
 
 export const FREQ_PRESETS = [
-  { id: 'all',    label: 'All',     filter: 'all'     as FreqFilter },
-  { id: 'top',    label: 'Top 100', filter: '500+'    as FreqFilter },
+  { id: 'all', label: 'All', filter: 'all' as FreqFilter },
+  { id: 'top', label: 'Top 100', filter: '500+' as FreqFilter },
   { id: 'mid-hi', label: '101–300', filter: '100-499' as FreqFilter },
-  { id: 'mid',    label: '301–500', filter: '50-99'   as FreqFilter },
-  { id: 'rare',   label: '500+',    filter: '<50'     as FreqFilter },
+  { id: 'mid', label: '301–500', filter: '50-99' as FreqFilter },
+  { id: 'rare', label: '500+', filter: '<50' as FreqFilter },
 ] as const;
 
 export const DEFAULT_FREQ_PRESET = FREQ_PRESETS[1]; // Top 100 (500+ occurrences)
@@ -59,7 +68,7 @@ function checkAnswer(input: string, gloss: string): boolean {
   if (!ans) return false;
   const parts = gloss.split(/[,/]/).map(norm).filter(Boolean);
   return parts.some(
-    p =>
+    (p) =>
       p === ans ||
       (ans.length >= 4 && p.startsWith(ans)) ||
       (p.length > 3 && levenshtein(p, ans) <= 1),
@@ -93,11 +102,20 @@ function buildQueue(
 
 // ─── Part-of-speech options present in the vocabulary ─────────────────────────
 
-const ALL_POS = ['noun', 'verb', 'adjective', 'pronoun', 'preposition', 'conjunction', 'adverb', 'article'];
+const ALL_POS = [
+  'noun',
+  'verb',
+  'adjective',
+  'pronoun',
+  'preposition',
+  'conjunction',
+  'adverb',
+  'article',
+];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function Flashcards() {
+function FlashcardsInner() {
   // Persistent state (localStorage)
   const [srsStore, setSrsStore] = useState<Record<string, SRSCard>>(() => loadSRSStore());
   const [stats, setStats] = useState(() => loadStats());
@@ -135,17 +153,17 @@ export default function Flashcards() {
 
   const filteredVocab = useMemo(() => {
     if (activeDeckId !== null) {
-      const deck = customDecks.find(d => d.id === activeDeckId);
+      const deck = customDecks.find((d) => d.id === activeDeckId);
       if (!deck) return [];
       const keySet = new Set(deck.wordKeys);
       return vocabulary.filter(
-        w =>
+        (w) =>
           keySet.has(normalizeKey(w.greek)) &&
           (posFilter.length === 0 || posFilter.includes(w.partOfSpeech)),
       );
     }
     return vocabulary.filter(
-      w =>
+      (w) =>
         matchFreq(w.frequency, freqFilter) &&
         (posFilter.length === 0 || posFilter.includes(w.partOfSpeech)),
     );
@@ -153,11 +171,15 @@ export default function Flashcards() {
 
   // SRS stats for display
   const dueCount = useMemo(
-    () => filteredVocab.filter(w => { const c = srsStore[normalizeKey(w.greek)]; return c ? isDue(c) : false; }).length,
+    () =>
+      filteredVocab.filter((w) => {
+        const c = srsStore[normalizeKey(w.greek)];
+        return c ? isDue(c) : false;
+      }).length,
     [filteredVocab, srsStore],
   );
   const newCount = useMemo(
-    () => filteredVocab.filter(w => !srsStore[normalizeKey(w.greek)]).length,
+    () => filteredVocab.filter((w) => !srsStore[normalizeKey(w.greek)]).length,
     [filteredVocab, srsStore],
   );
 
@@ -177,13 +199,16 @@ export default function Flashcards() {
 
   // Mount: start initial session
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { startSession(); }, []);
+  useEffect(() => {
+    startSession();
+  }, [startSession]);
 
   // Restart when mode or filters change (not on srsStore changes)
   const posFilterKey = posFilter.join(',');
-  const activeDeckWordKeysKey = activeDeckId !== null
-    ? (customDecks.find(d => d.id === activeDeckId)?.wordKeys.join(',') ?? '')
-    : '';
+  const activeDeckWordKeysKey =
+    activeDeckId !== null
+      ? (customDecks.find((d) => d.id === activeDeckId)?.wordKeys.join(',') ?? '')
+      : '';
   const prevStudyMode = useRef(studyMode);
   const prevFreqFilter = useRef(freqFilter);
   const prevPosFilterKey = useRef(posFilterKey);
@@ -218,7 +243,7 @@ export default function Flashcards() {
       const intervalDays = srsStore[normalizeKey(card.greek)]?.interval ?? 0;
 
       if (studyMode === 'srs') {
-        setSrsStore(prev => {
+        setSrsStore((prev) => {
           const k = normalizeKey(card.greek);
           const existing = prev[k] ?? newCard(k);
           const updated = nextSRS(existing, correct ? 4 : 1);
@@ -233,19 +258,19 @@ export default function Flashcards() {
         interval_days: intervalDays,
       });
 
-      setStats(prev => {
+      setStats((prev) => {
         const next = recordReview(prev, correct);
         saveStats(next);
         return next;
       });
 
-      setSessionScore(s => ({
+      setSessionScore((s) => ({
         known: s.known + (correct ? 1 : 0),
         learning: s.learning + (correct ? 0 : 1),
       }));
 
       if (index + 1 < queue.length) {
-        setIndex(i => i + 1);
+        setIndex((i) => i + 1);
         setFlipped(false);
         setTypedAnswer('');
         setAnswerResult(null);
@@ -256,7 +281,7 @@ export default function Flashcards() {
     [card, studyMode, srsStore, index, queue.length],
   );
 
-  const handleFlip = useCallback(() => setFlipped(f => !f), []);
+  const handleFlip = useCallback(() => setFlipped((f) => !f), []);
 
   const handleTypeSubmit = useCallback(() => {
     if (!card || answerResult !== null) return;
@@ -272,7 +297,10 @@ export default function Flashcards() {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (sessionDone) return;
       if (answerMode === 'flip') {
-        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handleFlip(); }
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          handleFlip();
+        }
         if (e.key === 'ArrowRight' && flipped) handleReview(true);
         if (e.key === 'ArrowLeft' && flipped) handleReview(false);
       }
@@ -286,19 +314,17 @@ export default function Flashcards() {
     if (answerMode === 'type' && !sessionDone) {
       inputRef.current?.focus();
     }
-  }, [answerMode, index, sessionDone]);
+  }, [answerMode, sessionDone]);
 
   // ─── Derived values ──────────────────────────────────────────────────────────
 
   const accuracy =
-    stats.totalReviewed > 0
-      ? Math.round((stats.totalCorrect / stats.totalReviewed) * 100)
-      : null;
+    stats.totalReviewed > 0 ? Math.round((stats.totalCorrect / stats.totalReviewed) * 100) : null;
   const front = card ? (direction === 'gr-en' ? card.greek : card.gloss) : '';
   const back = card ? (direction === 'gr-en' ? card.gloss : card.greek) : '';
   const expectedAnswer = card ? (direction === 'gr-en' ? card.gloss : card.greek) : '';
   const hasActiveFilters = freqFilter !== 'all' || posFilter.length > 0 || activeDeckId !== null;
-  const activePreset = FREQ_PRESETS.find(p => p.filter === freqFilter) ?? FREQ_PRESETS[0];
+  const activePreset = FREQ_PRESETS.find((p) => p.filter === freqFilter) ?? FREQ_PRESETS[0];
 
   // ─── Session complete screen ─────────────────────────────────────────────────
 
@@ -307,10 +333,7 @@ export default function Flashcards() {
     const pct = total > 0 ? Math.round((sessionScore.known / total) * 100) : 0;
     return (
       <div className="text-center space-y-4 py-12">
-        <div
-          className="text-7xl font-bold"
-          style={{ color: 'var(--color-grape)' }}
-        >
+        <div className="text-7xl font-bold" style={{ color: 'var(--color-grape)' }}>
           {pct}%
         </div>
         <h2 className="text-2xl font-bold text-text">Session Complete</h2>
@@ -362,7 +385,11 @@ export default function Flashcards() {
         )}
         {studyMode === 'all' && hasActiveFilters && (
           <button
-            onClick={() => { setFreqFilter('all'); setPosFilter([]); setActiveDeckId(null); }}
+            onClick={() => {
+              setFreqFilter('all');
+              setPosFilter([]);
+              setActiveDeckId(null);
+            }}
             className="px-5 py-2.5 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-medium"
           >
             Clear filters
@@ -376,12 +403,11 @@ export default function Flashcards() {
 
   return (
     <div className="space-y-4">
-
       {/* ── Top controls bar ──────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Study mode */}
         <div className="flex gap-1 bg-white border border-indigo-100 p-1 rounded-xl shadow-sm">
-          {(['srs', 'all'] as StudyMode[]).map(m => (
+          {(['srs', 'all'] as StudyMode[]).map((m) => (
             <button
               key={m}
               onClick={() => setStudyMode(m)}
@@ -399,7 +425,7 @@ export default function Flashcards() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Direction */}
           <div className="flex gap-1 bg-white border border-indigo-100 p-1 rounded-xl shadow-sm">
-            {(['gr-en', 'en-gr'] as Direction[]).map(d => (
+            {(['gr-en', 'en-gr'] as Direction[]).map((d) => (
               <button
                 key={d}
                 onClick={() => setDirection(d)}
@@ -416,7 +442,7 @@ export default function Flashcards() {
 
           {/* Answer mode */}
           <div className="flex gap-1 bg-white border border-indigo-100 p-1 rounded-xl shadow-sm">
-            {(['flip', 'type'] as AnswerMode[]).map(m => (
+            {(['flip', 'type'] as AnswerMode[]).map((m) => (
               <button
                 key={m}
                 onClick={() => setAnswerMode(m)}
@@ -433,14 +459,17 @@ export default function Flashcards() {
 
           {/* Filters toggle */}
           <button
-            onClick={() => { setShowFilters(f => !f); setShowDeckBuilder(false); }}
+            onClick={() => {
+              setShowFilters((f) => !f);
+              setShowDeckBuilder(false);
+            }}
             aria-label="Toggle filters"
             className={`px-3 py-1.5 rounded-xl text-sm border-2 font-semibold transition-colors ${
               hasActiveFilters
                 ? 'border-grape text-grape bg-grape/5'
                 : showFilters
-                ? 'border-gray-300 text-text bg-gray-50'
-                : 'border-gray-200 text-text-muted hover:border-grape/40'
+                  ? 'border-gray-300 text-text bg-gray-50'
+                  : 'border-gray-200 text-text-muted hover:border-grape/40'
             }`}
           >
             {freqFilter !== 'all' ? activePreset.label : 'Filters'}
@@ -454,11 +483,12 @@ export default function Flashcards() {
         <span className="text-xs font-bold text-text-muted uppercase tracking-wider shrink-0">
           Preset
         </span>
-        {FREQ_PRESETS.map(preset => {
+        {FREQ_PRESETS.map((preset) => {
           const active = freqFilter === preset.filter;
-          const count = preset.filter !== 'all'
-            ? vocabulary.filter(w => matchFreq(w.frequency, preset.filter)).length
-            : null;
+          const count =
+            preset.filter !== 'all'
+              ? vocabulary.filter((w) => matchFreq(w.frequency, preset.filter)).length
+              : null;
           return (
             <button
               key={preset.id}
@@ -486,7 +516,7 @@ export default function Flashcards() {
         <span className="text-xs font-bold text-text-muted uppercase tracking-wider shrink-0">
           My Decks
         </span>
-        {customDecks.map(deck => {
+        {customDecks.map((deck) => {
           const active = activeDeckId === deck.id;
           return (
             <button
@@ -507,7 +537,10 @@ export default function Flashcards() {
           );
         })}
         <button
-          onClick={() => { setShowDeckBuilder(d => !d); setShowFilters(false); }}
+          onClick={() => {
+            setShowDeckBuilder((d) => !d);
+            setShowFilters(false);
+          }}
           aria-label="Manage custom decks"
           className={`px-3 py-1 rounded-full text-sm border-2 border-dashed font-medium transition-colors ${
             showDeckBuilder
@@ -527,8 +560,8 @@ export default function Flashcards() {
               Frequency (occurrences in GNT)
             </p>
             <div className="flex flex-wrap gap-2">
-              {(['all', '500+', '100-499', '50-99', '<50'] as FreqFilter[]).map(f => {
-                const count = vocabulary.filter(w => matchFreq(w.frequency, f)).length;
+              {(['all', '500+', '100-499', '50-99', '<50'] as FreqFilter[]).map((f) => {
+                const count = vocabulary.filter((w) => matchFreq(w.frequency, f)).length;
                 return (
                   <button
                     key={f}
@@ -540,7 +573,9 @@ export default function Flashcards() {
                     }`}
                   >
                     {f === 'all' ? 'All' : `${f}×`}{' '}
-                    <span className={`text-xs ${freqFilter === f ? 'text-white/70' : 'text-text-muted'}`}>
+                    <span
+                      className={`text-xs ${freqFilter === f ? 'text-white/70' : 'text-text-muted'}`}
+                    >
                       ({count})
                     </span>
                   </button>
@@ -554,16 +589,16 @@ export default function Flashcards() {
               Part of Speech
             </p>
             <div className="flex flex-wrap gap-2">
-              {ALL_POS.map(pos => {
-                const count = vocabulary.filter(w => w.partOfSpeech === pos).length;
+              {ALL_POS.map((pos) => {
+                const count = vocabulary.filter((w) => w.partOfSpeech === pos).length;
                 if (count === 0) return null;
                 const active = posFilter.includes(pos);
                 return (
                   <button
                     key={pos}
                     onClick={() =>
-                      setPosFilter(prev =>
-                        active ? prev.filter(p => p !== pos) : [...prev, pos],
+                      setPosFilter((prev) =>
+                        active ? prev.filter((p) => p !== pos) : [...prev, pos],
                       )
                     }
                     className={`px-3 py-1 rounded-full text-sm border-2 font-medium transition-colors ${
@@ -588,7 +623,11 @@ export default function Flashcards() {
             </p>
             {hasActiveFilters && (
               <button
-                onClick={() => { setFreqFilter('all'); setPosFilter([]); setActiveDeckId(null); }}
+                onClick={() => {
+                  setFreqFilter('all');
+                  setPosFilter([]);
+                  setActiveDeckId(null);
+                }}
                 className="text-sm text-coral hover:opacity-80 font-semibold transition-opacity"
               >
                 Clear filters
@@ -603,7 +642,10 @@ export default function Flashcards() {
         <DeckBuilder
           decks={customDecks}
           activeDeckId={activeDeckId}
-          onActivateDeck={(id) => { setActiveDeckId(id); setShowDeckBuilder(false); }}
+          onActivateDeck={(id) => {
+            setActiveDeckId(id);
+            setShowDeckBuilder(false);
+          }}
           onDecksChange={setCustomDecks}
           onClose={() => setShowDeckBuilder(false)}
         />
@@ -615,14 +657,23 @@ export default function Flashcards() {
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             {studyMode === 'srs' ? (
               <>
-                <span>Due: <strong className="text-grape">{dueCount}</strong></span>
+                <span>
+                  Due: <strong className="text-grape">{dueCount}</strong>
+                </span>
                 <span className="hidden sm:inline text-indigo-200">|</span>
-                <span>New: <strong className="text-primary">{newCount}</strong></span>
+                <span>
+                  New: <strong className="text-primary">{newCount}</strong>
+                </span>
                 <span className="hidden sm:inline text-indigo-200">|</span>
               </>
             ) : (
               <>
-                <span>Card: <strong className="text-grape">{index + 1}/{queue.length}</strong></span>
+                <span>
+                  Card:{' '}
+                  <strong className="text-grape">
+                    {index + 1}/{queue.length}
+                  </strong>
+                </span>
                 <span className="hidden sm:inline text-indigo-200">|</span>
               </>
             )}
@@ -642,7 +693,9 @@ export default function Flashcards() {
             {accuracy !== null && (
               <>
                 <span className="hidden sm:inline text-indigo-200">|</span>
-                <span>Accuracy: <strong className="text-text">{accuracy}%</strong></span>
+                <span>
+                  Accuracy: <strong className="text-text">{accuracy}%</strong>
+                </span>
               </>
             )}
           </div>
@@ -658,7 +711,9 @@ export default function Flashcards() {
       <div
         onClick={answerMode === 'flip' && !flipped ? handleFlip : undefined}
         className={`bg-bg-card rounded-2xl shadow-md border-2 border-indigo-100 px-4 py-6 sm:px-10 sm:py-8 text-center select-none min-h-[200px] sm:min-h-[220px] flex flex-col items-center justify-center transition-all ${
-          answerMode === 'flip' && !flipped ? 'cursor-pointer active:shadow-lg hover:shadow-lg hover:border-grape/30' : ''
+          answerMode === 'flip' && !flipped
+            ? 'cursor-pointer active:shadow-lg hover:shadow-lg hover:border-grape/30'
+            : ''
         }`}
       >
         {/* Front side */}
@@ -674,7 +729,9 @@ export default function Flashcards() {
           {front}
         </p>
         {direction === 'gr-en' && (
-          <p className="text-text-muted text-sm mt-2 font-medium uppercase tracking-wide text-xs">{card.partOfSpeech}</p>
+          <p className="text-text-muted text-sm mt-2 font-medium uppercase tracking-wide text-xs">
+            {card.partOfSpeech}
+          </p>
         )}
 
         {/* Flip mode: reveal hint */}
@@ -714,8 +771,10 @@ export default function Flashcards() {
               ref={inputRef}
               type="text"
               value={typedAnswer}
-              onChange={e => setTypedAnswer(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') handleTypeSubmit(); }}
+              onChange={(e) => setTypedAnswer(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleTypeSubmit();
+              }}
               placeholder={
                 direction === 'gr-en' ? 'Type the English gloss…' : 'Type the Greek word…'
               }
@@ -736,19 +795,20 @@ export default function Flashcards() {
         {answerMode === 'type' && answerResult !== null && (
           <div
             className={`mt-4 px-4 py-3 rounded-xl w-full max-w-sm text-center border-2 ${
-              answerResult === 'correct'
-                ? 'bg-jade/5 border-jade/30'
-                : 'bg-coral/5 border-coral/30'
+              answerResult === 'correct' ? 'bg-jade/5 border-jade/30' : 'bg-coral/5 border-coral/30'
             }`}
           >
             {answerResult === 'correct' ? (
-              <p className="font-bold" style={{ color: 'var(--color-jade)' }}>Correct!</p>
+              <p className="font-bold" style={{ color: 'var(--color-jade)' }}>
+                Correct!
+              </p>
             ) : (
               <>
-                <p className="font-bold" style={{ color: 'var(--color-coral)' }}>Not quite</p>
+                <p className="font-bold" style={{ color: 'var(--color-coral)' }}>
+                  Not quite
+                </p>
                 <p className="text-text-muted text-sm mt-1">
-                  Answer:{' '}
-                  <span className="font-semibold text-text">{expectedAnswer}</span>
+                  Answer: <span className="font-semibold text-text">{expectedAnswer}</span>
                 </p>
               </>
             )}
@@ -801,14 +861,27 @@ export default function Flashcards() {
       {answerMode === 'flip' && (
         <p className="hidden sm:block text-xs text-text-muted text-center">
           Keyboard:{' '}
-          <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 rounded text-primary font-mono">Space</kbd> flip ·{' '}
-          <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 rounded text-primary font-mono">→</kbd> got it ·{' '}
-          <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 rounded text-primary font-mono">←</kbd> still learning
+          <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 rounded text-primary font-mono">
+            Space
+          </kbd>{' '}
+          flip ·{' '}
+          <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 rounded text-primary font-mono">
+            →
+          </kbd>{' '}
+          got it ·{' '}
+          <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 rounded text-primary font-mono">
+            ←
+          </kbd>{' '}
+          still learning
         </p>
       )}
       {answerMode === 'type' && (
         <p className="hidden sm:block text-xs text-text-muted text-center">
-          Keyboard: <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 rounded text-primary font-mono">Enter</kbd> check answer
+          Keyboard:{' '}
+          <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 rounded text-primary font-mono">
+            Enter
+          </kbd>{' '}
+          check answer
         </p>
       )}
 
@@ -836,5 +909,13 @@ export default function Flashcards() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Flashcards() {
+  return (
+    <ErrorBoundary component="Flashcards">
+      <FlashcardsInner />
+    </ErrorBoundary>
   );
 }

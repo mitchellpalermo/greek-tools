@@ -1,42 +1,39 @@
-import React from 'react';
 import type {
-  ParseSettings,
+  ParseMood,
+  ParseSettings as ParseSettingsType,
   ParseTense,
   ParseVoice,
-  ParseMood,
 } from '../lib/verb-parse';
 import {
+  MOOD_LABELS,
+  PARSE_MOODS,
   PARSE_TENSES,
   PARSE_VOICES,
-  PARSE_MOODS,
   TENSE_LABELS,
   VOICE_LABELS,
-  MOOD_LABELS,
 } from '../lib/verb-parse';
 
 interface Props {
-  settings: ParseSettings;
-  onChange: (s: ParseSettings) => void;
+  settings: ParseSettingsType;
+  onChange: (s: ParseSettingsType) => void;
   onStart: () => void;
 }
 
 function toggle<T>(arr: T[], val: T): T[] {
-  return arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val];
+  return arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val];
 }
 
 const SESSION_LENGTHS = [10, 20, 30] as const;
 
 // Group tenses by indicative-only vs. cross-mood availability
-const TENSE_GROUPS: { label: string; tenses: ParseTense[] }[] = [
+const _TENSE_GROUPS: { label: string; tenses: ParseTense[] }[] = [
   { label: 'All Moods', tenses: ['present', 'aorist'] },
   { label: 'Indicative Only', tenses: ['imperfect', 'future', 'perfect'] },
 ];
 
 export default function ParseSettings({ settings, onChange, onStart }: Props) {
   const canStart =
-    settings.tenses.length > 0 &&
-    settings.voices.length > 0 &&
-    settings.moods.length > 0;
+    settings.tenses.length > 0 && settings.voices.length > 0 && settings.moods.length > 0;
 
   function setTenses(tenses: ParseTense[]) {
     onChange({ ...settings, tenses });
@@ -56,7 +53,7 @@ export default function ParseSettings({ settings, onChange, onStart }: Props) {
           Tenses
         </h2>
         <div className="flex flex-wrap gap-2">
-          {PARSE_TENSES.map(t => (
+          {PARSE_TENSES.map((t) => (
             <ToggleChip
               key={t}
               label={TENSE_LABELS[t]}
@@ -87,7 +84,7 @@ export default function ParseSettings({ settings, onChange, onStart }: Props) {
           Voices
         </h2>
         <div className="flex flex-wrap gap-2">
-          {PARSE_VOICES.map(v => (
+          {PARSE_VOICES.map((v) => (
             <ToggleChip
               key={v}
               label={VOICE_LABELS[v]}
@@ -107,7 +104,7 @@ export default function ParseSettings({ settings, onChange, onStart }: Props) {
           Moods
         </h2>
         <div className="flex flex-wrap gap-2">
-          {PARSE_MOODS.map(m => (
+          {PARSE_MOODS.map((m) => (
             <ToggleChip
               key={m}
               label={MOOD_LABELS[m]}
@@ -117,7 +114,8 @@ export default function ParseSettings({ settings, onChange, onStart }: Props) {
           ))}
         </div>
         <p className="mt-2 text-xs text-text-muted">
-          Not all tense/voice/mood combinations exist — unavailable combos are skipped automatically.
+          Not all tense/voice/mood combinations exist — unavailable combos are skipped
+          automatically.
         </p>
       </section>
 
@@ -127,7 +125,7 @@ export default function ParseSettings({ settings, onChange, onStart }: Props) {
           Forms per session
         </h2>
         <div className="flex gap-2">
-          {SESSION_LENGTHS.map(n => (
+          {SESSION_LENGTHS.map((n) => (
             <button
               key={n}
               onClick={() => onChange({ ...settings, sessionLength: n })}

@@ -7,15 +7,18 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Free tools for Koine Greek students — keyboard, flashcards, and more." } = Astro.props;
+const {
+  title,
+  description = 'Free tools for Koine Greek students — keyboard, flashcards, and more.',
+} = Astro.props;
 
 const navLinks = [
-  { href: '/keyboard',   label: 'Type',       tabLabel: 'Type'   },
-  { href: '/flashcards', label: 'Flashcards', tabLabel: 'Cards'  },
-  { href: '/daily',      label: 'Daily',      tabLabel: 'Daily'  },
-  { href: '/reader',     label: 'Reader',     tabLabel: 'Reader' },
-  { href: '/grammar',    label: 'Grammar',    tabLabel: 'Grammar'},
-  { href: '/quiz',       label: 'Quiz',       tabLabel: 'Quiz'   },
+  { href: '/keyboard', label: 'Type', tabLabel: 'Type' },
+  { href: '/flashcards', label: 'Flashcards', tabLabel: 'Cards' },
+  { href: '/daily', label: 'Daily', tabLabel: 'Daily' },
+  { href: '/reader', label: 'Reader', tabLabel: 'Reader' },
+  { href: '/grammar', label: 'Grammar', tabLabel: 'Grammar' },
+  { href: '/quiz', label: 'Quiz', tabLabel: 'Quiz' },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -24,7 +27,7 @@ const currentPath = Astro.url.pathname;
 const QUIZ_PATHS = ['/quiz', '/paradigms', '/parse'];
 
 function isActive(href: string) {
-  if (href === '/quiz') return QUIZ_PATHS.some(p => currentPath.startsWith(p));
+  if (href === '/quiz') return QUIZ_PATHS.some((p) => currentPath.startsWith(p));
   return currentPath.startsWith(href);
 }
 ---
@@ -58,6 +61,7 @@ function isActive(href: string) {
           session_recording: { sample_rate: 0.2 },
           capture_pageview: true,
           capture_pageleave: false,
+          capture_exceptions: true,
         });
       }
     </script>

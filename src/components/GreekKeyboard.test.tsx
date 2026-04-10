@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import GreekKeyboard from './GreekKeyboard';
 
 // ─── helpers ───────────────────────────────────────────────────────────────
@@ -55,11 +55,29 @@ describe('GreekKeyboard', () => {
     it.each([
       // 's' is excluded: sigma at end-of-input becomes ς via final sigma.
       // That behavior is covered in the "final sigma conversion" section.
-      ['a', 'α'], ['b', 'β'], ['g', 'γ'], ['d', 'δ'], ['e', 'ε'],
-      ['z', 'ζ'], ['h', 'η'], ['q', 'θ'], ['i', 'ι'], ['k', 'κ'],
-      ['l', 'λ'], ['m', 'μ'], ['n', 'ν'], ['c', 'ξ'], ['o', 'ο'],
-      ['p', 'π'], ['r', 'ρ'], ['w', 'ω'], ['t', 'τ'],
-      ['u', 'υ'], ['f', 'φ'], ['x', 'χ'], ['y', 'ψ'],
+      ['a', 'α'],
+      ['b', 'β'],
+      ['g', 'γ'],
+      ['d', 'δ'],
+      ['e', 'ε'],
+      ['z', 'ζ'],
+      ['h', 'η'],
+      ['q', 'θ'],
+      ['i', 'ι'],
+      ['k', 'κ'],
+      ['l', 'λ'],
+      ['m', 'μ'],
+      ['n', 'ν'],
+      ['c', 'ξ'],
+      ['o', 'ο'],
+      ['p', 'π'],
+      ['r', 'ρ'],
+      ['w', 'ω'],
+      ['t', 'τ'],
+      ['u', 'υ'],
+      ['f', 'φ'],
+      ['x', 'χ'],
+      ['y', 'ψ'],
     ])('key %s produces %s', (key, expected) => {
       render(<GreekKeyboard />);
       const textarea = getTextarea();
@@ -68,9 +86,18 @@ describe('GreekKeyboard', () => {
     });
 
     it.each([
-      ['A', 'Α'], ['B', 'Β'], ['G', 'Γ'], ['D', 'Δ'], ['E', 'Ε'],
-      ['K', 'Κ'], ['L', 'Λ'], ['M', 'Μ'], ['N', 'Ν'], ['P', 'Π'],
-      ['T', 'Τ'], ['S', 'Σ'],
+      ['A', 'Α'],
+      ['B', 'Β'],
+      ['G', 'Γ'],
+      ['D', 'Δ'],
+      ['E', 'Ε'],
+      ['K', 'Κ'],
+      ['L', 'Λ'],
+      ['M', 'Μ'],
+      ['N', 'Ν'],
+      ['P', 'Π'],
+      ['T', 'Τ'],
+      ['S', 'Σ'],
     ])('uppercase key %s produces %s', (key, expected) => {
       render(<GreekKeyboard />);
       typeKey(getTextarea(), key);
@@ -283,7 +310,9 @@ describe('GreekKeyboard', () => {
       const event = new Event('beforeinput', { bubbles: true, cancelable: true });
       Object.defineProperty(event, 'inputType', { value: 'deleteContentBackward' });
       Object.defineProperty(event, 'data', { value: null });
-      await act(async () => { fireEvent(getTextarea(), event); });
+      await act(async () => {
+        fireEvent(getTextarea(), event);
+      });
       expect(getTextarea().value).toBe('');
     });
 
@@ -292,7 +321,9 @@ describe('GreekKeyboard', () => {
       const event = new Event('beforeinput', { bubbles: true, cancelable: true });
       Object.defineProperty(event, 'inputType', { value: 'insertText' });
       Object.defineProperty(event, 'data', { value: null });
-      await act(async () => { fireEvent(getTextarea(), event); });
+      await act(async () => {
+        fireEvent(getTextarea(), event);
+      });
       expect(getTextarea().value).toBe('');
     });
 

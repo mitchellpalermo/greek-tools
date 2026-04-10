@@ -5,9 +5,9 @@
  * and scoring feedback.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it } from 'vitest';
 import ParadigmQuiz from './ParadigmQuiz';
 
 beforeEach(() => {
@@ -51,7 +51,9 @@ describe('ParadigmQuiz — select phase', () => {
   it('shows noun paradigms by default', () => {
     render(<ParadigmQuiz />);
     expect(screen.getByRole('button', { name: /1st Decl\. Feminine.*ἡμέρα/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /2nd Decl\. Masculine.*λόγος/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /2nd Decl\. Masculine.*λόγος/i }),
+    ).toBeInTheDocument();
   });
 
   it('switching to Adjectives shows adjective paradigms', async () => {
@@ -161,7 +163,7 @@ describe('ParadigmQuiz — quiz phase', () => {
     expect(inputs.length).toBe(10); // all 10 cells
   });
 
-  it('shows \"← Change paradigm\" link in quiz phase', async () => {
+  it('shows "← Change paradigm" link in quiz phase', async () => {
     render(<ParadigmQuiz />);
     await startQuizWithFirstNoun();
     expect(screen.getByText(/← Change paradigm/i)).toBeInTheDocument();
@@ -186,7 +188,7 @@ describe('ParadigmQuiz — quiz phase', () => {
     expect((firstInput as HTMLInputElement).value).toMatch(/[λαβγδεζηθικλμνξοπρστυφχψω]/);
   });
 
-  it('\"← Change paradigm\" returns to select phase', async () => {
+  it('"← Change paradigm" returns to select phase', async () => {
     const user = userEvent.setup();
     render(<ParadigmQuiz />);
     await startQuizWithFirstNoun();

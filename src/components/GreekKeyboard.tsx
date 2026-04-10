@@ -1,5 +1,12 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { GREEK_MAP, DIACRITIC_MAP, applyFinalSigma, processGreekKey, processGreekInput, translateGreekInput } from '../lib/greek-input';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  applyFinalSigma,
+  DIACRITIC_MAP,
+  GREEK_MAP,
+  processGreekInput,
+  processGreekKey,
+  translateGreekInput,
+} from '../lib/greek-input';
 
 export default function GreekKeyboard() {
   const [text, setText] = useState('');
@@ -21,7 +28,7 @@ export default function GreekKeyboard() {
     if (preventDefault) {
       e.preventDefault();
       if (append) {
-        setText(prev => {
+        setText((prev) => {
           const next = prev + append;
           lastHandledRef.current = applyFinalSigma(next);
           return next;
@@ -52,7 +59,7 @@ export default function GreekKeyboard() {
       // (e.g. "logos" → "λογος"). Translate each character individually.
       if (ie.data.length > 1) {
         e.preventDefault();
-        setText(prev => {
+        setText((prev) => {
           const next = prev + translateGreekInput(ie.data!);
           lastHandledRef.current = applyFinalSigma(next);
           return next;
@@ -63,7 +70,7 @@ export default function GreekKeyboard() {
       if (preventDefault) {
         e.preventDefault();
         if (append) {
-          setText(prev => {
+          setText((prev) => {
             const next = prev + append;
             lastHandledRef.current = applyFinalSigma(next);
             return next;
@@ -105,7 +112,6 @@ export default function GreekKeyboard() {
         className="w-full h-48 p-4 text-2xl rounded-xl border-2 border-indigo-100 focus:border-primary focus:outline-none resize-y bg-bg-card shadow-sm"
         style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}
         spellCheck={false}
-        autoFocus
       />
 
       <div className="flex gap-3">
@@ -124,17 +130,32 @@ export default function GreekKeyboard() {
       </div>
 
       <details className="bg-bg-card rounded-xl border border-indigo-100 p-4 shadow-sm">
-        <summary className="font-semibold cursor-pointer text-primary">Key Mappings Reference</summary>
+        <summary className="font-semibold cursor-pointer text-primary">
+          Key Mappings Reference
+        </summary>
         <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-1 text-sm">
-          <div className="font-bold col-span-full mt-2 mb-1 text-text-muted uppercase tracking-wide text-xs">Letters</div>
-          {Object.entries(GREEK_MAP).filter(([k]) => k === k.toLowerCase()).map(([eng, grk]) => (
-            <div key={eng} className="flex gap-2 items-center">
-              <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">{eng}</kbd>
-              <span className="text-text-muted">→</span>
-              <span className="text-lg" style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}>{grk}</span>
-            </div>
-          ))}
-          <div className="font-bold col-span-full mt-4 mb-1 text-text-muted uppercase tracking-wide text-xs">Diacritics (type after the vowel)</div>
+          <div className="font-bold col-span-full mt-2 mb-1 text-text-muted uppercase tracking-wide text-xs">
+            Letters
+          </div>
+          {Object.entries(GREEK_MAP)
+            .filter(([k]) => k === k.toLowerCase())
+            .map(([eng, grk]) => (
+              <div key={eng} className="flex gap-2 items-center">
+                <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">
+                  {eng}
+                </kbd>
+                <span className="text-text-muted">→</span>
+                <span
+                  className="text-lg"
+                  style={{ color: 'var(--color-greek)', fontFamily: 'var(--font-greek)' }}
+                >
+                  {grk}
+                </span>
+              </div>
+            ))}
+          <div className="font-bold col-span-full mt-4 mb-1 text-text-muted uppercase tracking-wide text-xs">
+            Diacritics (type after the vowel)
+          </div>
           {Object.entries(DIACRITIC_MAP).map(([key, _]) => {
             const labels: Record<string, string> = {
               ')': 'smooth breathing ̓',
@@ -146,15 +167,31 @@ export default function GreekKeyboard() {
             };
             return (
               <div key={key} className="flex gap-2 items-center">
-                <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">{key}</kbd>
+                <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">
+                  {key}
+                </kbd>
                 <span className="text-text-muted text-xs">{labels[key]}</span>
               </div>
             );
           })}
-          <div className="font-bold col-span-full mt-4 mb-1 text-text-muted uppercase tracking-wide text-xs">Punctuation</div>
-          <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">?</kbd><span className="text-text-muted text-xs">Greek question mark (;)</span></div>
-          <div className="flex gap-2 items-center"><kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">:</kbd><span className="text-text-muted text-xs">ano teleia (·)</span></div>
-          <div className="col-span-full mt-2 text-text-muted italic text-xs">Final sigma (ς) is applied automatically at word boundaries.</div>
+          <div className="font-bold col-span-full mt-4 mb-1 text-text-muted uppercase tracking-wide text-xs">
+            Punctuation
+          </div>
+          <div className="flex gap-2 items-center">
+            <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">
+              ?
+            </kbd>
+            <span className="text-text-muted text-xs">Greek question mark (;)</span>
+          </div>
+          <div className="flex gap-2 items-center">
+            <kbd className="bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded text-xs font-mono text-primary">
+              :
+            </kbd>
+            <span className="text-text-muted text-xs">ano teleia (·)</span>
+          </div>
+          <div className="col-span-full mt-2 text-text-muted italic text-xs">
+            Final sigma (ς) is applied automatically at word boundaries.
+          </div>
         </div>
       </details>
     </div>

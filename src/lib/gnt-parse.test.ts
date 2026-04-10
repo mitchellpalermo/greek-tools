@@ -5,33 +5,35 @@
  * Uses synthetic MorphBook fixtures — no network calls.
  */
 
-import { describe, it, expect } from 'vitest';
-import {
-  extractVerbs,
-  sampleVerbs,
-  gradeGNTAnswer,
-  emptyGNTAnswer,
-  type GNTParseItem,
-  type GNTParseAnswer,
-} from './gnt-parse';
+import { describe, expect, it } from 'vitest';
 import type { MorphBook } from '../data/morphgnt';
+import {
+  emptyGNTAnswer,
+  extractVerbs,
+  type GNTParseAnswer,
+  type GNTParseItem,
+  gradeGNTAnswer,
+  sampleVerbs,
+} from './gnt-parse';
 
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
 
 /** Build a minimal MorphBook with a single chapter/verse of provided words. */
-function makeBook(words: Array<{ text: string; lemma: string; pos: string; parsing: string }>): MorphBook {
-  return { '1': { '1': words.map(w => ({ ...w })) } };
+function makeBook(
+  words: Array<{ text: string; lemma: string; pos: string; parsing: string }>,
+): MorphBook {
+  return { '1': { '1': words.map((w) => ({ ...w })) } };
 }
 
 const FINITE_VERB = { text: 'λύει', lemma: 'λύω', pos: 'V-', parsing: '3PAI-S--' };
 // 3=3rd, P=Present, A=Active, I=Indicative, -=no case, S=Singular, -=no gender
-const INFINITIVE   = { text: 'λύειν', lemma: 'λύω', pos: 'V-', parsing: '-PAN----' };
+const INFINITIVE = { text: 'λύειν', lemma: 'λύω', pos: 'V-', parsing: '-PAN----' };
 // -=no person, P=Present, A=Active, N=Infinitive
-const PARTICIPLE   = { text: 'βοώντος', lemma: 'βοάω', pos: 'V-', parsing: '-PAPGSMX' };
+const PARTICIPLE = { text: 'βοώντος', lemma: 'βοάω', pos: 'V-', parsing: '-PAPGSMX' };
 // -=no person, P=Present, A=Active, P=Participle, G=Genitive, S=Singular, M=Masculine
-const NOUN         = { text: 'ἀρχῇ', lemma: 'ἀρχή', pos: 'N-', parsing: '---DSF--' };
+const NOUN = { text: 'ἀρχῇ', lemma: 'ἀρχή', pos: 'N-', parsing: '---DSF--' };
 
 // ---------------------------------------------------------------------------
 // extractVerbs
@@ -92,7 +94,7 @@ describe('extractVerbs', () => {
     const book = makeBook([NOUN, FINITE_VERB, INFINITIVE, PARTICIPLE]);
     const items = extractVerbs(book, '1', 'John');
     expect(items).toHaveLength(3);
-    expect(items.map(i => i.type).sort()).toEqual(['finite', 'infinitive', 'participle'].sort());
+    expect(items.map((i) => i.type).sort()).toEqual(['finite', 'infinitive', 'participle'].sort());
   });
 
   it('returns empty array for missing chapter', () => {
@@ -152,8 +154,13 @@ describe('gradeGNTAnswer — finite verb', () => {
 
   it('all correct', () => {
     const answer: GNTParseAnswer = {
-      tense: 'present', voice: 'active', mood: 'indicative',
-      person: '3rd', number: 'singular', parseCase: '', gender: '',
+      tense: 'present',
+      voice: 'active',
+      mood: 'indicative',
+      person: '3rd',
+      number: 'singular',
+      parseCase: '',
+      gender: '',
     };
     const result = gradeGNTAnswer(item, answer);
     expect(result.allCorrect).toBe(true);
@@ -168,8 +175,13 @@ describe('gradeGNTAnswer — finite verb', () => {
 
   it('wrong tense', () => {
     const answer: GNTParseAnswer = {
-      tense: 'aorist', voice: 'active', mood: 'indicative',
-      person: '3rd', number: 'singular', parseCase: '', gender: '',
+      tense: 'aorist',
+      voice: 'active',
+      mood: 'indicative',
+      person: '3rd',
+      number: 'singular',
+      parseCase: '',
+      gender: '',
     };
     const result = gradeGNTAnswer(item, answer);
     expect(result.allCorrect).toBe(false);
@@ -197,8 +209,13 @@ describe('gradeGNTAnswer — infinitive', () => {
 
   it('all correct — no person/number/case/gender', () => {
     const answer: GNTParseAnswer = {
-      tense: 'present', voice: 'active', mood: 'infinitive',
-      person: '', number: '', parseCase: '', gender: '',
+      tense: 'present',
+      voice: 'active',
+      mood: 'infinitive',
+      person: '',
+      number: '',
+      parseCase: '',
+      gender: '',
     };
     const result = gradeGNTAnswer(item, answer);
     expect(result.allCorrect).toBe(true);
@@ -210,8 +227,13 @@ describe('gradeGNTAnswer — infinitive', () => {
 
   it('wrong voice', () => {
     const answer: GNTParseAnswer = {
-      tense: 'present', voice: 'passive', mood: 'infinitive',
-      person: '', number: '', parseCase: '', gender: '',
+      tense: 'present',
+      voice: 'passive',
+      mood: 'infinitive',
+      person: '',
+      number: '',
+      parseCase: '',
+      gender: '',
     };
     expect(gradeGNTAnswer(item, answer).allCorrect).toBe(false);
     expect(gradeGNTAnswer(item, answer).voice).toBe(false);
@@ -228,8 +250,13 @@ describe('gradeGNTAnswer — participle', () => {
 
   it('all correct', () => {
     const answer: GNTParseAnswer = {
-      tense: 'present', voice: 'active', mood: 'participle',
-      person: '', number: 'singular', parseCase: 'genitive', gender: 'masculine',
+      tense: 'present',
+      voice: 'active',
+      mood: 'participle',
+      person: '',
+      number: 'singular',
+      parseCase: 'genitive',
+      gender: 'masculine',
     };
     const result = gradeGNTAnswer(item, answer);
     expect(result.allCorrect).toBe(true);
@@ -241,8 +268,13 @@ describe('gradeGNTAnswer — participle', () => {
 
   it('wrong case', () => {
     const answer: GNTParseAnswer = {
-      tense: 'present', voice: 'active', mood: 'participle',
-      person: '', number: 'singular', parseCase: 'nominative', gender: 'masculine',
+      tense: 'present',
+      voice: 'active',
+      mood: 'participle',
+      person: '',
+      number: 'singular',
+      parseCase: 'nominative',
+      gender: 'masculine',
     };
     const result = gradeGNTAnswer(item, answer);
     expect(result.allCorrect).toBe(false);
@@ -251,8 +283,13 @@ describe('gradeGNTAnswer — participle', () => {
 
   it('wrong gender', () => {
     const answer: GNTParseAnswer = {
-      tense: 'present', voice: 'active', mood: 'participle',
-      person: '', number: 'singular', parseCase: 'genitive', gender: 'feminine',
+      tense: 'present',
+      voice: 'active',
+      mood: 'participle',
+      person: '',
+      number: 'singular',
+      parseCase: 'genitive',
+      gender: 'feminine',
     };
     expect(gradeGNTAnswer(item, answer).gender).toBe(false);
   });

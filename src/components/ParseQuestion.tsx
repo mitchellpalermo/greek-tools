@@ -14,10 +14,10 @@ import {
   PARSE_NUMBERS,
   PARSE_PERSONS,
   PARSE_TENSES,
-  PARSE_VOICES,
   PERSON_LABELS,
   TENSE_LABELS,
   VOICE_LABELS,
+  voicesForTense,
 } from '../lib/verb-parse';
 
 interface Props {
@@ -73,12 +73,16 @@ export default function ParseQuestion({ item, index, total, answer, onChange, on
           value={answer.tense}
           options={PARSE_TENSES}
           labels={TENSE_LABELS}
-          onChange={(v) => onChange({ ...answer, tense: v })}
+          onChange={(v) => {
+            const availableVoices = voicesForTense(v);
+            const voiceStillValid = answer.voice !== '' && availableVoices.includes(answer.voice);
+            onChange({ ...answer, tense: v, voice: voiceStillValid ? answer.voice : '' });
+          }}
         />
         <ParseSelect<ParseVoice>
           label="Voice"
           value={answer.voice}
-          options={PARSE_VOICES}
+          options={voicesForTense(answer.tense)}
           labels={VOICE_LABELS}
           onChange={(v) => onChange({ ...answer, voice: v })}
         />

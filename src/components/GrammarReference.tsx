@@ -50,6 +50,7 @@ import {
   prepositions,
   verbParadigms,
 } from '../data/grammar';
+import ErrorBoundary from './ErrorBoundary';
 import {
   AdjParadigmCard,
   DescriptionBar,
@@ -1531,7 +1532,7 @@ function ParticipleSection() {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function GrammarReference() {
+function GrammarReferenceInner() {
   const [activeSection, setActiveSection] = useState<string>('nouns');
 
   const handleNavClick = (id: string) => {
@@ -1734,5 +1735,13 @@ export default function GrammarReference() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function GrammarReference() {
+  return (
+    <ErrorBoundary component="GrammarReference">
+      <GrammarReferenceInner />
+    </ErrorBoundary>
   );
 }

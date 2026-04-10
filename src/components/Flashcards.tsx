@@ -16,6 +16,7 @@ import {
 } from '../data/srs';
 import { type VocabWord, vocabulary } from '../data/vocabulary';
 import DeckBuilder from './DeckBuilder';
+import ErrorBoundary from './ErrorBoundary';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -114,7 +115,7 @@ const ALL_POS = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function Flashcards() {
+function FlashcardsInner() {
   // Persistent state (localStorage)
   const [srsStore, setSrsStore] = useState<Record<string, SRSCard>>(() => loadSRSStore());
   const [stats, setStats] = useState(() => loadStats());
@@ -908,5 +909,13 @@ export default function Flashcards() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Flashcards() {
+  return (
+    <ErrorBoundary component="Flashcards">
+      <FlashcardsInner />
+    </ErrorBoundary>
   );
 }

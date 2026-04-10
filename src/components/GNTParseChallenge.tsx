@@ -23,6 +23,7 @@ import {
   sampleVerbs,
   saveGNTSettings,
 } from '../lib/gnt-parse';
+import ErrorBoundary from './ErrorBoundary';
 import GNTParseQuestion from './GNTParseQuestion';
 import type { SessionResults } from './ParseResults';
 import ParseResults from './ParseResults';
@@ -30,7 +31,7 @@ import PassageSelector from './PassageSelector';
 
 type Phase = 'select' | 'question' | 'feedback' | 'results';
 
-export default function GNTParseChallenge() {
+function GNTParseChallengeInner() {
   const [settings, setSettings] = useState<GNTPassageSettings>(DEFAULT_GNT_SETTINGS);
   const [bookData, setBookData] = useState<MorphBook | null>(null);
   const [bookName, setBookName] = useState('John');
@@ -338,5 +339,13 @@ function FeedbackRow({
         <span className={correct ? 'text-green-600' : 'text-red-600'}>{correct ? '✓' : '✗'}</span>
       </div>
     </div>
+  );
+}
+
+export default function GNTParseChallenge() {
+  return (
+    <ErrorBoundary component="GNTParseChallenge">
+      <GNTParseChallengeInner />
+    </ErrorBoundary>
   );
 }

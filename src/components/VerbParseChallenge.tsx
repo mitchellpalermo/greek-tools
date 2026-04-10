@@ -13,6 +13,7 @@ import {
   loadParseSettings,
   saveParseSettings,
 } from '../lib/verb-parse';
+import ErrorBoundary from './ErrorBoundary';
 import ParseFeedback from './ParseFeedback';
 import ParseQuestion from './ParseQuestion';
 import type { SessionResults } from './ParseResults';
@@ -21,7 +22,7 @@ import ParseSettings from './ParseSettings';
 
 type Phase = 'settings' | 'question' | 'feedback' | 'results';
 
-export default function VerbParseChallenge() {
+function VerbParseChallengeInner() {
   const [settings, setSettings] = useState<ParseSettingsType>(DEFAULT_PARSE_SETTINGS);
   const [phase, setPhase] = useState<Phase>('settings');
   const [session, setSession] = useState<ParseItem[]>([]);
@@ -129,5 +130,13 @@ export default function VerbParseChallenge() {
         />
       )}
     </div>
+  );
+}
+
+export default function VerbParseChallenge() {
+  return (
+    <ErrorBoundary component="VerbParseChallenge">
+      <VerbParseChallengeInner />
+    </ErrorBoundary>
   );
 }

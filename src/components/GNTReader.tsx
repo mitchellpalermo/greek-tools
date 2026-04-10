@@ -9,6 +9,7 @@ import {
   saveLastPassage,
 } from '../data/morphgnt';
 import { getStudiedLemmas } from '../data/srs';
+import ErrorBoundary from './ErrorBoundary';
 import { type ActiveWord, WordPopup, WordToken } from './GreekText';
 
 // ─── URL helpers ──────────────────────────────────────────────────────────────
@@ -69,7 +70,7 @@ function VerseDisplay({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function GNTReader() {
+function GNTReaderInner() {
   const [books, setBooks] = useState<BookMeta[]>([]);
   const [book, setBook] = useState('JHN');
   const [chapter, setChapter] = useState(1);
@@ -310,5 +311,13 @@ export default function GNTReader() {
       {/* ── Word popup ────────────────────────────────────────────────────── */}
       {activeWord && <WordPopup active={activeWord} onClose={handleClosePopup} />}
     </div>
+  );
+}
+
+export default function GNTReader() {
+  return (
+    <ErrorBoundary component="GNTReader">
+      <GNTReaderInner />
+    </ErrorBoundary>
   );
 }

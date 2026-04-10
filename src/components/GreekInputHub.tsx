@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import GreekKeyboard from './GreekKeyboard';
 import Transliteration from './Transliteration';
 
 type Tab = 'keyboard' | 'transliteration';
 
-export default function GreekInputHub() {
+function GreekInputHubInner() {
   const [activeTab, setActiveTab] = useState<Tab>('keyboard');
 
   return (
@@ -47,5 +48,13 @@ export default function GreekInputHub() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function GreekInputHub() {
+  return (
+    <ErrorBoundary component="GreekInputHub">
+      <GreekInputHubInner />
+    </ErrorBoundary>
   );
 }

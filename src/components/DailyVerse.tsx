@@ -10,9 +10,10 @@ import {
 } from '../data/dailyVerses';
 import { fetchBook, type MorphVerse, type MorphWord } from '../data/morphgnt';
 import { getStudiedLemmas } from '../data/srs';
+import ErrorBoundary from './ErrorBoundary';
 import { type ActiveWord, WordPopup, WordToken } from './GreekText';
 
-export default function DailyVerse() {
+function DailyVerseInner() {
   const [verseRef, setVerseRef] = useState<DailyVerseRef | null>(null);
   const [dailyDoseLink, setDailyDoseLink] = useState<string | null>(null);
   const [verse, setVerse] = useState<MorphVerse | null>(null);
@@ -185,5 +186,13 @@ export default function DailyVerse() {
       {/* ── Word popup ─────────────────────────────────────────────────────── */}
       {activeWord && <WordPopup active={activeWord} onClose={handleClosePopup} />}
     </div>
+  );
+}
+
+export default function DailyVerse() {
+  return (
+    <ErrorBoundary component="DailyVerse">
+      <DailyVerseInner />
+    </ErrorBoundary>
   );
 }

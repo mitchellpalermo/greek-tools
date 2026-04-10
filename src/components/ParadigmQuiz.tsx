@@ -34,6 +34,7 @@ import {
   type TableModel,
 } from '../lib/paradigm-quiz';
 import { loadQuizSettings, saveQuizSettings } from '../lib/quiz-settings';
+import ErrorBoundary from './ErrorBoundary';
 import type { Mood } from './grammar/VerbParadigmGrid';
 import VerbParadigmGrid from './grammar/VerbParadigmGrid';
 
@@ -809,7 +810,7 @@ function ScoreBadge({ correct, accentOnly, wrong, total, accentStrict }: ScoreBa
 // ParadigmQuiz — root component
 // ---------------------------------------------------------------------------
 
-export default function ParadigmQuiz() {
+function ParadigmQuizInner() {
   const [phase, setPhase] = useState<Phase>({ name: 'select' });
   const [inputs, setInputs] = useState<InputMap>({});
   const [results, setResults] = useState<Record<number, CellResult>>({});
@@ -1031,5 +1032,13 @@ export default function ParadigmQuiz() {
       {/* Keyboard reference chart (quiz phase only) */}
       {phase.name === 'quiz' && <BetaCodeReference />}
     </div>
+  );
+}
+
+export default function ParadigmQuiz() {
+  return (
+    <ErrorBoundary component="ParadigmQuiz">
+      <ParadigmQuizInner />
+    </ErrorBoundary>
   );
 }

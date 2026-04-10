@@ -12,7 +12,7 @@ const {
   description = 'Free tools for Koine Greek students — keyboard, flashcards, and more.',
 } = Astro.props;
 
-const _navLinks = [
+const navLinks = [
   { href: '/keyboard', label: 'Type', tabLabel: 'Type' },
   { href: '/flashcards', label: 'Flashcards', tabLabel: 'Cards' },
   { href: '/daily', label: 'Daily', tabLabel: 'Daily' },
@@ -26,7 +26,7 @@ const currentPath = Astro.url.pathname;
 // Quiz section covers the picker and both quiz modes
 const QUIZ_PATHS = ['/quiz', '/paradigms', '/parse'];
 
-function _isActive(href: string) {
+function isActive(href: string) {
   if (href === '/quiz') return QUIZ_PATHS.some((p) => currentPath.startsWith(p));
   return currentPath.startsWith(href);
 }

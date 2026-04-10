@@ -112,6 +112,34 @@ Issue template is at `.github/ISSUE_TEMPLATE/feature.md`.
 - Vocabulary data is pre-processed by `scripts/build-vocabulary.mjs`
 - SRS (Spaced Repetition System) state is persisted in `localStorage` via `src/data/srs.ts`
 
+## Error Reporting
+
+Two mechanisms capture runtime errors and send them to PostHog:
+
+**Automatic JS errors** — `capture_exceptions: true` in the PostHog init (`src/layouts/Layout.astro`) hooks into `window.onerror` and `unhandledrejection`. Any unhandled error on the page is sent automatically as a `$exception` event. No extra code needed.
+
+**React ErrorBoundary** — `src/components/ErrorBoundary.tsx` is a class component that calls `posthog.captureException` in `componentDidCatch`. Every React island wraps its content using the Inner/wrapper pattern:
+
+```tsx
+function FlashcardsInner() { /* all the real logic */ }
+
+export default function Flashcards() {
+  return (
+    <ErrorBoundary component="Flashcards">
+      <FlashcardsInner />
+    </ErrorBoundary>
+  );
+}
+```
+
+The `component` prop is tagged on every captured exception so errors can be filtered in PostHog by which island originated them.
+
+**Why the Inner/wrapper pattern?** Astro islands each create their own `ReactDOM.createRoot()`. A boundary placed outside a `client:load` island in an `.astro` file is in a different React tree and cannot catch errors from that island. The boundary must live inside the component's own tree.
+
+**When adding a new React island**, follow the same pattern: implement as `ComponentNameInner`, export `ComponentName` as the ErrorBoundary wrapper with the component name as the `component` prop.
+
+**Viewing errors in PostHog** — errors appear under "Error tracking" in the PostHog sidebar, grouped by message and stack trace, with links to session recordings. Filter by the `component` property to isolate errors to a specific island.
+
 ## Architecture Decisions
 
 See `docs/adr/` for recorded decisions:

@@ -306,6 +306,19 @@ export const nounParadigms: NounParadigm[] = [
     },
   },
   {
+    id: '1f-eta',
+    name: '1st Decl. Feminine — ἀρχή (η-stem)',
+    declension: '1st',
+    gender: 'feminine',
+    forms: {
+      nom: { sg: { full: 'ἀρχή', ending: 'η' }, pl: { full: 'ἀρχαί', ending: 'αι' } },
+      gen: { sg: { full: 'ἀρχῆς', ending: 'ης' }, pl: { full: 'ἀρχῶν', ending: 'ων' } },
+      dat: { sg: { full: 'ἀρχῇ', ending: 'ῃ' }, pl: { full: 'ἀρχαῖς', ending: 'αις' } },
+      acc: { sg: { full: 'ἀρχήν', ending: 'ην' }, pl: { full: 'ἀρχάς', ending: 'ας' } },
+      voc: { sg: { full: 'ἀρχή', ending: 'η' }, pl: { full: 'ἀρχαί', ending: 'αι' } },
+    },
+  },
+  {
     id: '1m-as',
     name: '1st Decl. Masculine — νεανίας',
     declension: '1st',

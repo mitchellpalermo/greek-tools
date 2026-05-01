@@ -124,7 +124,6 @@ function DailyVerseInner() {
               onClick={(e) => e.stopPropagation()}
             >
               {verse.map((word, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: verse word order is stable biblical text
                 <WordToken
                   key={i}
                   word={word}

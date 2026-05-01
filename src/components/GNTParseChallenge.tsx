@@ -11,6 +11,7 @@ import {
   DEFAULT_GNT_SETTINGS,
   emptyGNTAnswer,
   extractVerbs,
+  formatRangeRef,
   GNT_CASE_LABELS,
   GNT_GENDER_LABELS,
   GNT_MOOD_LABELS,
@@ -36,6 +37,7 @@ function GNTParseChallengeInner() {
   const [bookData, setBookData] = useState<MorphBook | null>(null);
   const [bookName, setBookName] = useState('John');
   const [verbCount, setVerbCount] = useState<number | null>(null);
+  const [verseCount, setVerseCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [phase, setPhase] = useState<Phase>('select');
   const [session, setSession] = useState<GNTParseItem[]>([]);
@@ -51,22 +53,32 @@ function GNTParseChallengeInner() {
     setSettingsLoaded(true);
   }, []);
 
-  // Fetch book data whenever book or chapter changes
+  // Fetch book data whenever book or chapter changes; recount verbs when range changes
   useEffect(() => {
     if (!settingsLoaded) return;
     setVerbCount(null);
+    setVerseCount(null);
     setLoading(true);
     Promise.all([fetchBook(settings.book), fetchBooks()])
       .then(([data, books]) => {
         setBookData(data);
         const meta = books.find((b) => b.code === settings.book);
         if (meta) setBookName(meta.name);
-        const verbs = extractVerbs(data, String(settings.chapter), meta?.name ?? settings.book);
+        const chapterData = data[String(settings.chapter)];
+        const numVerses = chapterData ? Object.keys(chapterData).length : 0;
+        setVerseCount(numVerses);
+        const verbs = extractVerbs(
+          data,
+          String(settings.chapter),
+          meta?.name ?? settings.book,
+          settings.verseStart,
+          settings.verseEnd,
+        );
         setVerbCount(verbs.length);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [settings.book, settings.chapter, settingsLoaded]);
+  }, [settings.book, settings.chapter, settings.verseStart, settings.verseEnd, settingsLoaded]);
 
   function handleSettingsChange(s: GNTPassageSettings) {
     setSettings(s);
@@ -75,7 +87,13 @@ function GNTParseChallengeInner() {
 
   function handleStart() {
     if (!bookData) return;
-    const all = extractVerbs(bookData, String(settings.chapter), bookName);
+    const all = extractVerbs(
+      bookData,
+      String(settings.chapter),
+      bookName,
+      settings.verseStart,
+      settings.verseEnd,
+    );
     const count = settings.sessionLength === 'all' ? all.length : settings.sessionLength;
     const items = sampleVerbs(all, count);
     if (items.length === 0) return;
@@ -122,11 +140,17 @@ function GNTParseChallengeInner() {
 
   if (!settingsLoaded) return null;
 
+  const sessionRef =
+    verseCount !== null
+      ? formatRangeRef(bookName, settings.chapter, settings.verseStart, settings.verseEnd, verseCount)
+      : `${bookName} ${settings.chapter}`;
+
   if (phase === 'select') {
     return (
       <PassageSelector
         settings={settings}
         verbCount={verbCount}
+        verseCount={verseCount}
         onChange={handleSettingsChange}
         onStart={handleStart}
         loading={loading}
@@ -136,26 +160,32 @@ function GNTParseChallengeInner() {
 
   if (phase === 'question' && session[currentIndex]) {
     return (
-      <GNTParseQuestion
-        item={session[currentIndex]}
-        index={currentIndex}
-        total={session.length}
-        answer={answer}
-        onChange={setAnswer}
-        onSubmit={handleSubmit}
-      />
+      <div>
+        <p className="text-center text-xs text-text-muted mb-4">{sessionRef}</p>
+        <GNTParseQuestion
+          item={session[currentIndex]}
+          index={currentIndex}
+          total={session.length}
+          answer={answer}
+          onChange={setAnswer}
+          onSubmit={handleSubmit}
+        />
+      </div>
     );
   }
 
   if (phase === 'feedback' && session[currentIndex] && currentResult) {
     return (
-      <GNTFeedback
-        item={session[currentIndex]}
-        answer={answer}
-        result={currentResult}
-        onNext={handleNext}
-        isLast={currentIndex + 1 >= session.length}
-      />
+      <div>
+        <p className="text-center text-xs text-text-muted mb-4">{sessionRef}</p>
+        <GNTFeedback
+          item={session[currentIndex]}
+          answer={answer}
+          result={currentResult}
+          onNext={handleNext}
+          isLast={currentIndex + 1 >= session.length}
+        />
+      </div>
     );
   }
 

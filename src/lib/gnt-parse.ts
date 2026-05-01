@@ -273,13 +273,15 @@ const GENDER_MAP: Record<string, GNTGender> = {
 // ---------------------------------------------------------------------------
 
 /**
- * Extract all verb parse items from a chapter of MorphGNT data.
- * Returns them in canonical (text order) sequence, then shuffled.
+ * Extract all verb parse items from a chapter (or verse range) of MorphGNT data.
+ * Returns them in canonical (text order) sequence.
  */
 export function extractVerbs(
   bookData: MorphBook,
   chapter: string,
   bookName: string,
+  verseStart = 1,
+  verseEnd = Infinity,
 ): GNTParseItem[] {
   const verses = bookData[chapter];
   if (!verses) return [];
@@ -287,6 +289,8 @@ export function extractVerbs(
   const items: GNTParseItem[] = [];
 
   for (const [verseNum, words] of Object.entries(verses)) {
+    const v = parseInt(verseNum, 10);
+    if (v < verseStart || v > verseEnd) continue;
     for (let i = 0; i < words.length; i++) {
       const word = words[i];
       if (word.pos !== 'V-') continue;
@@ -352,6 +356,8 @@ export function sampleVerbs(items: GNTParseItem[], count: number): GNTParseItem[
 export interface GNTPassageSettings {
   book: string;
   chapter: number;
+  verseStart: number;
+  verseEnd: number; // Infinity means "last verse in chapter"
   sessionLength: 10 | 20 | 30 | 'all';
 }
 
@@ -360,6 +366,8 @@ const GNT_SETTINGS_KEY = 'greek-tools-gnt-parse-settings-v1';
 export const DEFAULT_GNT_SETTINGS: GNTPassageSettings = {
   book: 'JHN',
   chapter: 1,
+  verseStart: 1,
+  verseEnd: Infinity,
   sessionLength: 20,
 };
 
@@ -371,6 +379,8 @@ export function loadGNTSettings(): GNTPassageSettings {
     return {
       book: typeof p.book === 'string' ? p.book : 'JHN',
       chapter: typeof p.chapter === 'number' ? p.chapter : 1,
+      verseStart: typeof p.verseStart === 'number' && isFinite(p.verseStart) ? p.verseStart : 1,
+      verseEnd: typeof p.verseEnd === 'number' && isFinite(p.verseEnd) ? p.verseEnd : Infinity,
       sessionLength: ([10, 20, 30, 'all'] as const).includes(
         p.sessionLength as 10 | 20 | 30 | 'all',
       )
@@ -380,6 +390,20 @@ export function loadGNTSettings(): GNTPassageSettings {
   } catch {
     return { ...DEFAULT_GNT_SETTINGS };
   }
+}
+
+/** Format a human-readable passage reference for a verse range. */
+export function formatRangeRef(
+  bookName: string,
+  chapter: number,
+  verseStart: number,
+  verseEnd: number,
+  totalVerses: number,
+): string {
+  const effectiveEnd = !isFinite(verseEnd) || verseEnd >= totalVerses ? totalVerses : verseEnd;
+  if (verseStart === 1 && effectiveEnd >= totalVerses) return `${bookName} ${chapter}`;
+  if (verseStart === effectiveEnd) return `${bookName} ${chapter}:${verseStart}`;
+  return `${bookName} ${chapter}:${verseStart}–${effectiveEnd}`;
 }
 
 export function saveGNTSettings(s: GNTPassageSettings): void {

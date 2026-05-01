@@ -83,7 +83,13 @@ function DailyVerseInner() {
   const handleClosePopup = useCallback(() => setActiveWord(null), []);
 
   return (
-    <div onClick={handleClosePopup}>
+    <div
+      role="presentation"
+      onClick={handleClosePopup}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') handleClosePopup();
+      }}
+    >
       {/* ── Streak counter ─────────────────────────────────────────────────── */}
       {streakData.streak > 0 && (
         <div
@@ -117,7 +123,9 @@ function DailyVerseInner() {
             <div
               className="flex flex-wrap mb-6"
               style={{ gap: '0 0', lineHeight: '2' }}
+              role="presentation"
               onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
             >
               {verse.map((word, i) => (
                 <WordToken
@@ -139,7 +147,12 @@ function DailyVerseInner() {
                 — {verseRef.displayRef}
               </p>
 
-              <div className="flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="flex gap-2 flex-wrap"
+                role="presentation"
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
                 <button
                   onClick={() => setShowGlosses((g) => !g)}
                   className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${

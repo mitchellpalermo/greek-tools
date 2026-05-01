@@ -83,13 +83,9 @@ function DailyVerseInner() {
   const handleClosePopup = useCallback(() => setActiveWord(null), []);
 
   return (
-    <div
-      role="presentation"
-      onClick={handleClosePopup}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') handleClosePopup();
-      }}
-    >
+    // biome-ignore lint/a11y/noStaticElementInteractions: click-outside-to-dismiss backdrop
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Escape is handled by WordPopup; backdrop click is supplemental
+    <div onClick={handleClosePopup}>
       {/* ── Streak counter ─────────────────────────────────────────────────── */}
       {streakData.streak > 0 && (
         <div
@@ -120,13 +116,14 @@ function DailyVerseInner() {
         {!loading && !error && verse && verseRef && (
           <>
             {/* Greek text */}
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation prevents backdrop dismiss */}
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only; no action needed */}
             <div
               className="flex flex-wrap mb-6"
               style={{ gap: '0 0', lineHeight: '2' }}
-              role="presentation"
               onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
             >
+              {/* biome-ignore lint/suspicious/noArrayIndexKey: verse word order is stable biblical text */}
               {verse.map((word, i) => (
                 <WordToken
                   key={i}
@@ -147,13 +144,14 @@ function DailyVerseInner() {
                 — {verseRef.displayRef}
               </p>
 
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation prevents backdrop dismiss */}
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only; no action needed */}
               <div
                 className="flex gap-2 flex-wrap"
-                role="presentation"
                 onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
               >
                 <button
+                  type="button"
                   onClick={() => setShowGlosses((g) => !g)}
                   className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
                     showGlosses

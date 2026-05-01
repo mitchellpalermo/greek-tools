@@ -123,8 +123,8 @@ function DailyVerseInner() {
               style={{ gap: '0 0', lineHeight: '2' }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* biome-ignore lint/suspicious/noArrayIndexKey: verse word order is stable biblical text */}
               {verse.map((word, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: verse word order is stable biblical text
                 <WordToken
                   key={i}
                   word={word}

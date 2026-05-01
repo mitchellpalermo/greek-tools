@@ -146,10 +146,7 @@ function DailyVerseInner() {
 
               {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation prevents backdrop dismiss */}
               {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only; no action needed */}
-              <div
-                className="flex gap-2 flex-wrap"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className="flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
                 <button
                   type="button"
                   onClick={() => setShowGlosses((g) => !g)}

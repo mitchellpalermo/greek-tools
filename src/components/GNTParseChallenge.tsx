@@ -142,7 +142,13 @@ function GNTParseChallengeInner() {
 
   const sessionRef =
     verseCount !== null
-      ? formatRangeRef(bookName, settings.chapter, settings.verseStart, settings.verseEnd, verseCount)
+      ? formatRangeRef(
+          bookName,
+          settings.chapter,
+          settings.verseStart,
+          settings.verseEnd,
+          verseCount,
+        )
       : `${bookName} ${settings.chapter}`;
 
   if (phase === 'select') {

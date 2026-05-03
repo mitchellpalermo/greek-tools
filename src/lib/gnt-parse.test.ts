@@ -32,9 +32,7 @@ function makeBook(
 type WordSpec = { text: string; lemma: string; pos: string; parsing: string };
 
 /** Build a multi-verse MorphBook (chapter 1, verses 1–N, one word each). */
-function makeMultiVerseBook(
-  entries: Array<{ verse: number; word: WordSpec }>,
-): MorphBook {
+function makeMultiVerseBook(entries: Array<{ verse: number; word: WordSpec }>): MorphBook {
   const chapter: Record<string, WordSpec[]> = {};
   for (const { verse, word } of entries) {
     chapter[String(verse)] = [{ ...word }];

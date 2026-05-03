@@ -112,7 +112,8 @@ function GNTParseChallengeInner() {
   }
 
   function handleNext() {
-    const updated = [...results, currentResult!];
+    if (!currentResult) return;
+    const updated = [...results, currentResult];
     setResults(updated);
     if (currentIndex + 1 >= session.length) {
       setPhase('results');
@@ -284,13 +285,13 @@ function GNTFeedback({
           <>
             <FeedbackRow
               property="Person"
-              correct={result.person!}
+              correct={result.person ?? true}
               given={answer.person ? GNT_PERSON_LABELS[answer.person] : '—'}
               expected={GNT_PERSON_LABELS[item.person]}
             />
             <FeedbackRow
               property="Number"
-              correct={result.number!}
+              correct={result.number ?? true}
               given={answer.number ? GNT_NUMBER_LABELS[answer.number] : '—'}
               expected={GNT_NUMBER_LABELS[item.number]}
             />
@@ -302,19 +303,19 @@ function GNTFeedback({
           <>
             <FeedbackRow
               property="Case"
-              correct={result.parseCase!}
+              correct={result.parseCase ?? true}
               given={answer.parseCase ? GNT_CASE_LABELS[answer.parseCase] : '—'}
               expected={GNT_CASE_LABELS[item.parseCase]}
             />
             <FeedbackRow
               property="Number"
-              correct={result.number!}
+              correct={result.number ?? true}
               given={answer.number ? GNT_NUMBER_LABELS[answer.number] : '—'}
               expected={GNT_NUMBER_LABELS[item.number]}
             />
             <FeedbackRow
               property="Gender"
-              correct={result.gender!}
+              correct={result.gender ?? true}
               given={answer.gender ? GNT_GENDER_LABELS[answer.gender] : '—'}
               expected={GNT_GENDER_LABELS[item.gender]}
             />

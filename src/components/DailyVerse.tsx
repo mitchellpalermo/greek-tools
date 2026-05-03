@@ -83,6 +83,8 @@ function DailyVerseInner() {
   const handleClosePopup = useCallback(() => setActiveWord(null), []);
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: click-outside-to-dismiss backdrop
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Escape is handled by WordPopup; backdrop click is supplemental
     <div onClick={handleClosePopup}>
       {/* ── Streak counter ─────────────────────────────────────────────────── */}
       {streakData.streak > 0 && (
@@ -114,6 +116,8 @@ function DailyVerseInner() {
         {!loading && !error && verse && verseRef && (
           <>
             {/* Greek text */}
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation prevents backdrop dismiss */}
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only; no action needed */}
             <div
               className="flex flex-wrap mb-6"
               style={{ gap: '0 0', lineHeight: '2' }}
@@ -139,8 +143,11 @@ function DailyVerseInner() {
                 — {verseRef.displayRef}
               </p>
 
+              {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation prevents backdrop dismiss */}
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only; no action needed */}
               <div className="flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
                 <button
+                  type="button"
                   onClick={() => setShowGlosses((g) => !g)}
                   className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
                     showGlosses

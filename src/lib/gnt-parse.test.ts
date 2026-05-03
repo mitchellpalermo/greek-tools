@@ -10,9 +10,11 @@ import type { MorphBook } from '../data/morphgnt';
 import {
   emptyGNTAnswer,
   extractVerbs,
+  formatRangeRef,
   type GNTParseAnswer,
   type GNTParseItem,
   gradeGNTAnswer,
+  loadGNTSettings,
   sampleVerbs,
 } from './gnt-parse';
 
@@ -25,6 +27,17 @@ function makeBook(
   words: Array<{ text: string; lemma: string; pos: string; parsing: string }>,
 ): MorphBook {
   return { '1': { '1': words.map((w) => ({ ...w })) } };
+}
+
+type WordSpec = { text: string; lemma: string; pos: string; parsing: string };
+
+/** Build a multi-verse MorphBook (chapter 1, verses 1–N, one word each). */
+function makeMultiVerseBook(entries: Array<{ verse: number; word: WordSpec }>): MorphBook {
+  const chapter: Record<string, WordSpec[]> = {};
+  for (const { verse, word } of entries) {
+    chapter[String(verse)] = [{ ...word }];
+  }
+  return { '1': chapter };
 }
 
 const FINITE_VERB = { text: 'λύει', lemma: 'λύω', pos: 'V-', parsing: '3PAI-S--' };
@@ -292,5 +305,111 @@ describe('gradeGNTAnswer — participle', () => {
       gender: 'feminine',
     };
     expect(gradeGNTAnswer(item, answer).gender).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// extractVerbs — verse range filtering
+// ---------------------------------------------------------------------------
+
+describe('extractVerbs — verse range filtering', () => {
+  const book = makeMultiVerseBook([
+    { verse: 1, word: FINITE_VERB },
+    { verse: 2, word: FINITE_VERB },
+    { verse: 3, word: FINITE_VERB },
+    { verse: 4, word: FINITE_VERB },
+    { verse: 5, word: FINITE_VERB },
+  ]);
+
+  it('returns all verbs when no range given (full chapter)', () => {
+    expect(extractVerbs(book, '1', 'John')).toHaveLength(5);
+  });
+
+  it('filters to a single verse', () => {
+    const items = extractVerbs(book, '1', 'John', 3, 3);
+    expect(items).toHaveLength(1);
+    expect(items[0].verseRef).toBe('John 1:3');
+  });
+
+  it('filters to a range', () => {
+    const items = extractVerbs(book, '1', 'John', 2, 4);
+    expect(items).toHaveLength(3);
+    expect(items.map((i) => i.verseRef)).toEqual(['John 1:2', 'John 1:3', 'John 1:4']);
+  });
+
+  it('verseStart=1, verseEnd=Infinity behaves like full chapter', () => {
+    expect(extractVerbs(book, '1', 'John', 1, Infinity)).toHaveLength(5);
+  });
+
+  it('returns empty array when range has no matching verses', () => {
+    expect(extractVerbs(book, '1', 'John', 10, 20)).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatRangeRef
+// ---------------------------------------------------------------------------
+
+describe('formatRangeRef', () => {
+  it('returns book+chapter only for full chapter (verseStart=1, verseEnd=totalVerses)', () => {
+    expect(formatRangeRef('John', 1, 1, 50, 50)).toBe('John 1');
+  });
+
+  it('returns book+chapter only for full chapter (verseEnd=Infinity)', () => {
+    expect(formatRangeRef('John', 1, 1, Infinity, 50)).toBe('John 1');
+  });
+
+  it('returns single verse reference when start equals end', () => {
+    expect(formatRangeRef('John', 1, 3, 3, 50)).toBe('John 1:3');
+  });
+
+  it('returns range reference with en-dash', () => {
+    expect(formatRangeRef('John', 1, 1, 18, 50)).toBe('John 1:1–18');
+  });
+
+  it('treats verseEnd > totalVerses same as full chapter', () => {
+    expect(formatRangeRef('Romans', 8, 1, 999, 39)).toBe('Romans 8');
+  });
+
+  it('handles chapter other than 1', () => {
+    expect(formatRangeRef('Romans', 8, 1, 17, 39)).toBe('Romans 8:1–17');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// loadGNTSettings — backward compatibility
+// ---------------------------------------------------------------------------
+
+describe('loadGNTSettings — backward compatibility', () => {
+  it('defaults verseStart and verseEnd when missing from stored settings', () => {
+    localStorage.setItem(
+      'greek-tools-gnt-parse-settings-v1',
+      JSON.stringify({ book: 'ROM', chapter: 3, sessionLength: 10 }),
+    );
+    const s = loadGNTSettings();
+    expect(s.verseStart).toBe(1);
+    expect(s.verseEnd).toBe(Infinity);
+    localStorage.removeItem('greek-tools-gnt-parse-settings-v1');
+  });
+
+  it('defaults verseEnd to Infinity when stored as null (JSON.stringify(Infinity))', () => {
+    localStorage.setItem(
+      'greek-tools-gnt-parse-settings-v1',
+      JSON.stringify({ book: 'JHN', chapter: 1, verseStart: 1, verseEnd: null, sessionLength: 20 }),
+    );
+    const s = loadGNTSettings();
+    expect(s.verseEnd).toBe(Infinity);
+    localStorage.removeItem('greek-tools-gnt-parse-settings-v1');
+  });
+
+  it('preserves a finite verseEnd that was saved', () => {
+    localStorage.setItem(
+      'greek-tools-gnt-parse-settings-v1',
+      JSON.stringify({ book: 'JHN', chapter: 1, verseStart: 3, verseEnd: 18, sessionLength: 20 }),
+    );
+    const s = loadGNTSettings();
+    expect(s.verseStart).toBe(3);
+    expect(s.verseEnd).toBe(18);
+    localStorage.removeItem('greek-tools-gnt-parse-settings-v1');
   });
 });

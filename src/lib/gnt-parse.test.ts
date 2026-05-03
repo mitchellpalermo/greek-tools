@@ -29,11 +29,13 @@ function makeBook(
   return { '1': { '1': words.map((w) => ({ ...w })) } };
 }
 
+type WordSpec = { text: string; lemma: string; pos: string; parsing: string };
+
 /** Build a multi-verse MorphBook (chapter 1, verses 1–N, one word each). */
 function makeMultiVerseBook(
-  entries: Array<{ verse: number; word: { text: string; lemma: string; pos: string; parsing: string } }>,
+  entries: Array<{ verse: number; word: WordSpec }>,
 ): MorphBook {
-  const chapter: Record<string, Array<{ text: string; lemma: string; pos: string; parsing: string }>> = {};
+  const chapter: Record<string, WordSpec[]> = {};
   for (const { verse, word } of entries) {
     chapter[String(verse)] = [{ ...word }];
   }
@@ -392,7 +394,7 @@ describe('loadGNTSettings — backward compatibility', () => {
     localStorage.removeItem('greek-tools-gnt-parse-settings-v1');
   });
 
-  it('defaults verseEnd to Infinity when stored as null (JSON.stringify(Infinity) === null)', () => {
+  it('defaults verseEnd to Infinity when stored as null (JSON.stringify(Infinity))', () => {
     localStorage.setItem(
       'greek-tools-gnt-parse-settings-v1',
       JSON.stringify({ book: 'JHN', chapter: 1, verseStart: 1, verseEnd: null, sessionLength: 20 }),

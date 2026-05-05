@@ -6,6 +6,7 @@ import {
   TENSE_LABELS,
   VOICE_LABELS,
 } from '../lib/verb-parse';
+import { vocabLookup } from '../lib/vocab-lookup';
 
 interface Props {
   item: ParseItem;
@@ -16,6 +17,8 @@ interface Props {
 }
 
 export default function ParseFeedback({ item, answer, result, onNext, isLast }: Props) {
+  const vocab = vocabLookup.get(item.lemma);
+
   return (
     <div className="max-w-lg mx-auto space-y-6">
       {/* ── Form display ────────────────────────────────────────────────── */}
@@ -75,6 +78,22 @@ export default function ParseFeedback({ item, answer, result, onNext, isLast }: 
       >
         {result.allCorrect ? 'Correct!' : 'Not quite — review the corrections above.'}
       </div>
+
+      {/* ── Word definition ─────────────────────────────────────────────── */}
+      {vocab && (
+        <div className="flex items-baseline gap-2 px-4 py-2.5 rounded-lg bg-bg-card border border-gray-100 text-sm">
+          <span
+            className="font-semibold shrink-0"
+            style={{ fontFamily: 'var(--font-greek)', color: 'var(--color-primary)' }}
+          >
+            {item.lemma}
+          </span>
+          <span className="text-text">{vocab.gloss}</span>
+          <span className="text-text-muted ml-auto shrink-0">
+            {vocab.frequency.toLocaleString()}×
+          </span>
+        </div>
+      )}
 
       {/* ── Next button ─────────────────────────────────────────────────── */}
       <button

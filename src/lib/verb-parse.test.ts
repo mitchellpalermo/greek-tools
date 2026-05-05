@@ -9,6 +9,7 @@ import {
   buildSession,
   DEFAULT_PARSE_SETTINGS,
   emptyAnswer,
+  extractLemma,
   gradeAnswer,
   normalizeForm,
   PARSE_MOODS,
@@ -18,6 +19,28 @@ import {
   type ParseSettings,
   voicesForTense,
 } from './verb-parse';
+
+// ---------------------------------------------------------------------------
+// extractLemma
+// ---------------------------------------------------------------------------
+
+describe('extractLemma', () => {
+  it('extracts the lemma after an em dash', () => {
+    expect(extractLemma('Present Active Indicative — λύω')).toBe('λύω');
+  });
+
+  it('handles labels with multiple em dashes by taking the last segment', () => {
+    expect(extractLemma('Foo — Bar — βλέπω')).toBe('βλέπω');
+  });
+
+  it('trims whitespace around the lemma', () => {
+    expect(extractLemma('Aorist Active Indicative —  λύω ')).toBe('λύω');
+  });
+
+  it('returns the whole string when no em dash is present', () => {
+    expect(extractLemma('λύω')).toBe('λύω');
+  });
+});
 
 // ---------------------------------------------------------------------------
 // normalizeForm
@@ -55,6 +78,14 @@ describe('buildSession', () => {
       expect(['1st', '2nd', '3rd']).toContain(item.person);
       expect(['singular', 'plural']).toContain(item.number);
       expect(item.paradigmLabel).toContain('λύω');
+      expect(item.lemma).toBeTruthy();
+    }
+  });
+
+  it('populates lemma from paradigmLabel', () => {
+    const items = buildSession(DEFAULT_PARSE_SETTINGS, 20);
+    for (const item of items) {
+      expect(item.lemma).toBe(extractLemma(item.paradigmLabel));
     }
   });
 
@@ -143,6 +174,7 @@ describe('gradeAnswer', () => {
     person: '1st' as const,
     number: 'singular' as const,
     paradigmLabel: 'Present Active Indicative — λύω',
+    lemma: 'λύω',
   };
 
   it('returns allCorrect=true for a fully correct answer', () => {

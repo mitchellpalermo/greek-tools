@@ -75,6 +75,8 @@ export interface ParseItem {
   number: ParseNumber;
   /** Display label for the source paradigm, e.g. "Present Active Indicative — λύω" */
   paradigmLabel: string;
+  /** Base verb lemma extracted from paradigmLabel, e.g. "λύω" */
+  lemma: string;
   /** Other valid parses when the same form appears in multiple paradigms. */
   ambiguous?: string[];
 }
@@ -140,6 +142,12 @@ const PERSON_MAP: Record<PersonNum, { person: ParsePerson; number: ParseNumber }
   '2pl': { person: '2nd', number: 'plural' },
   '3pl': { person: '3rd', number: 'plural' },
 };
+
+/** Extracts the lemma from a paradigm label, e.g. "Present Active Indicative — λύω" → "λύω" */
+export function extractLemma(paradigmLabel: string): string {
+  const parts = paradigmLabel.split(' — ');
+  return parts[parts.length - 1].trim();
+}
 
 function parseTenseFromId(id: string): ParseTense | null {
   for (const [seg, tense] of Object.entries(ID_TENSE)) {
@@ -207,6 +215,8 @@ export function buildSession(settings: ParseSettings, count: number): ParseItem[
 
     if (!settings.tenses.includes(tense) || !voiceMatch || !settings.moods.includes(mood)) continue;
 
+    const paradigmLabel = `${paradigm.label} — λύω`;
+    const lemma = extractLemma(paradigmLabel);
     for (const [personNum, form] of Object.entries(paradigm.forms) as [PersonNum, string][]) {
       const { person, number } = PERSON_MAP[personNum];
       allItems.push({
@@ -216,7 +226,8 @@ export function buildSession(settings: ParseSettings, count: number): ParseItem[
         mood,
         person,
         number,
-        paradigmLabel: `${paradigm.label} — λύω`,
+        paradigmLabel,
+        lemma,
       });
     }
   }

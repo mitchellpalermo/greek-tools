@@ -152,7 +152,7 @@ export default function PassageSelector({
             onChange={(e) => onChange({ ...settings, skipRepeatedLemmas: e.target.checked })}
             className="w-4 h-4 rounded accent-[var(--color-accent)]"
           />
-          <span className="text-sm text-text">One form per lemma</span>
+          <span className="text-sm text-text">Skip repeat verbs</span>
         </label>
 
         {/* Verb count feedback */}

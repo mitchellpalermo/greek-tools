@@ -339,6 +339,16 @@ export function extractVerbs(
   return items;
 }
 
+/** Return only the first occurrence of each lemma, in text order. */
+export function deduplicateByLemma(items: GNTParseItem[]): GNTParseItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    if (seen.has(item.lemma)) return false;
+    seen.add(item.lemma);
+    return true;
+  });
+}
+
 /** Shuffle and take the first `count` items. */
 export function sampleVerbs(items: GNTParseItem[], count: number): GNTParseItem[] {
   const out = [...items];
@@ -359,6 +369,7 @@ export interface GNTPassageSettings {
   verseStart: number;
   verseEnd: number; // Infinity means "last verse in chapter"
   sessionLength: 10 | 20 | 30 | 'all';
+  skipRepeatedLemmas: boolean;
 }
 
 const GNT_SETTINGS_KEY = 'greek-tools-gnt-parse-settings-v1';
@@ -369,6 +380,7 @@ export const DEFAULT_GNT_SETTINGS: GNTPassageSettings = {
   verseStart: 1,
   verseEnd: Infinity,
   sessionLength: 20,
+  skipRepeatedLemmas: false,
 };
 
 export function loadGNTSettings(): GNTPassageSettings {
@@ -386,6 +398,7 @@ export function loadGNTSettings(): GNTPassageSettings {
       )
         ? (p.sessionLength as GNTPassageSettings['sessionLength'])
         : 20,
+      skipRepeatedLemmas: typeof p.skipRepeatedLemmas === 'boolean' ? p.skipRepeatedLemmas : false,
     };
   } catch {
     return { ...DEFAULT_GNT_SETTINGS };

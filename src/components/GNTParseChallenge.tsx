@@ -9,6 +9,7 @@ import type {
 } from '../lib/gnt-parse';
 import {
   DEFAULT_GNT_SETTINGS,
+  deduplicateByLemma,
   emptyGNTAnswer,
   extractVerbs,
   formatRangeRef,
@@ -67,18 +68,26 @@ function GNTParseChallengeInner() {
         const chapterData = data[String(settings.chapter)];
         const numVerses = chapterData ? Object.keys(chapterData).length : 0;
         setVerseCount(numVerses);
-        const verbs = extractVerbs(
+        let verbs = extractVerbs(
           data,
           String(settings.chapter),
           meta?.name ?? settings.book,
           settings.verseStart,
           settings.verseEnd,
         );
+        if (settings.skipRepeatedLemmas) verbs = deduplicateByLemma(verbs);
         setVerbCount(verbs.length);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [settings.book, settings.chapter, settings.verseStart, settings.verseEnd, settingsLoaded]);
+  }, [
+    settings.book,
+    settings.chapter,
+    settings.verseStart,
+    settings.verseEnd,
+    settings.skipRepeatedLemmas,
+    settingsLoaded,
+  ]);
 
   function handleSettingsChange(s: GNTPassageSettings) {
     setSettings(s);
@@ -87,13 +96,14 @@ function GNTParseChallengeInner() {
 
   function handleStart() {
     if (!bookData) return;
-    const all = extractVerbs(
+    let all = extractVerbs(
       bookData,
       String(settings.chapter),
       bookName,
       settings.verseStart,
       settings.verseEnd,
     );
+    if (settings.skipRepeatedLemmas) all = deduplicateByLemma(all);
     const count = settings.sessionLength === 'all' ? all.length : settings.sessionLength;
     const items = sampleVerbs(all, count);
     if (items.length === 0) return;

@@ -144,6 +144,17 @@ export default function PassageSelector({
           </div>
         </div>
 
+        {/* Skip repeated lemmas toggle */}
+        <label className="mt-3 flex items-center gap-2 cursor-pointer select-none w-fit">
+          <input
+            type="checkbox"
+            checked={settings.skipRepeatedLemmas}
+            onChange={(e) => onChange({ ...settings, skipRepeatedLemmas: e.target.checked })}
+            className="w-4 h-4 rounded accent-[var(--color-accent)]"
+          />
+          <span className="text-sm text-text">One form per lemma</span>
+        </label>
+
         {/* Verb count feedback */}
         <p className="mt-2 text-xs text-text-muted h-4">
           {loading && 'Loading…'}

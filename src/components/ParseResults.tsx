@@ -9,6 +9,8 @@ interface Props {
   sessionResults: SessionResults;
   onRetry: () => void;
   onChangeSettings: () => void;
+  onReviewMissed?: () => void;
+  isReview?: boolean;
 }
 
 type PropertyKey = 'tense' | 'voice' | 'mood' | 'person' | 'number';
@@ -21,16 +23,25 @@ const PROPERTIES: { key: PropertyKey; label: string }[] = [
   { key: 'number', label: 'Number' },
 ];
 
-export default function ParseResults({ sessionResults, onRetry, onChangeSettings }: Props) {
+export default function ParseResults({
+  sessionResults,
+  onRetry,
+  onChangeSettings,
+  onReviewMissed,
+  isReview = false,
+}: Props) {
   const { results, total } = sessionResults;
   const correct = results.filter((r) => r.allCorrect).length;
+  const missed = total - correct;
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
 
   return (
     <div className="max-w-lg mx-auto space-y-8">
       {/* ── Score hero ──────────────────────────────────────────────────── */}
       <div className="text-center py-8 bg-bg-card rounded-2xl">
-        <p className="text-xs uppercase tracking-widest text-text-muted mb-2">Session Score</p>
+        <p className="text-xs uppercase tracking-widest text-text-muted mb-2">
+          {isReview ? `Review: Missed Verbs (${total})` : 'Session Score'}
+        </p>
         <p className="text-6xl font-extrabold mb-1" style={{ color: scoreColor(pct) }}>
           {correct}/{total}
         </p>
@@ -82,6 +93,14 @@ export default function ParseResults({ sessionResults, onRetry, onChangeSettings
           Change Settings
         </button>
       </div>
+      {onReviewMissed && missed > 0 && (
+        <button
+          onClick={onReviewMissed}
+          className="w-full py-3 rounded-xl text-base font-bold border-2 border-red-500 text-red-600 hover:bg-red-50 transition-colors"
+        >
+          Review Missed ({missed})
+        </button>
+      )}
     </div>
   );
 }

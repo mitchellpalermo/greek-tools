@@ -12,6 +12,7 @@ import {
   deduplicateByLemma,
   emptyGNTAnswer,
   extractVerbs,
+  filterMissedItems,
   formatRangeRef,
   GNT_CASE_LABELS,
   GNT_GENDER_LABELS,
@@ -47,6 +48,7 @@ function GNTParseChallengeInner() {
   const [results, setResults] = useState<GNTParseResult[]>([]);
   const [currentResult, setCurrentResult] = useState<GNTParseResult | null>(null);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [isReview, setIsReview] = useState(false);
 
   // Load settings on mount
   useEffect(() => {
@@ -112,6 +114,19 @@ function GNTParseChallengeInner() {
     setResults([]);
     setAnswer(emptyGNTAnswer());
     setCurrentResult(null);
+    setIsReview(false);
+    setPhase('question');
+  }
+
+  function handleReviewMissed() {
+    const missed = filterMissedItems(session, results);
+    if (missed.length === 0) return;
+    setSession(missed);
+    setCurrentIndex(0);
+    setResults([]);
+    setAnswer(emptyGNTAnswer());
+    setCurrentResult(null);
+    setIsReview(true);
     setPhase('question');
   }
 
@@ -216,7 +231,10 @@ function GNTParseChallengeInner() {
           setSession([]);
           setResults([]);
           setCurrentIndex(0);
+          setIsReview(false);
         }}
+        onReviewMissed={handleReviewMissed}
+        isReview={isReview}
       />
     );
   }

@@ -222,6 +222,15 @@ export function gradeGNTAnswer(item: GNTParseItem, answer: GNTParseAnswer): GNTP
 }
 
 // ---------------------------------------------------------------------------
+// Review helpers
+// ---------------------------------------------------------------------------
+
+/** Returns the subset of items whose corresponding result was not fully correct. */
+export function filterMissedItems<T>(items: T[], results: GNTParseResult[]): T[] {
+  return items.filter((_, i) => i < results.length && !results[i].allCorrect);
+}
+
+// ---------------------------------------------------------------------------
 // Parse code → typed values
 // ---------------------------------------------------------------------------
 

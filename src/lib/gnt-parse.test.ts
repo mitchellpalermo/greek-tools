@@ -11,9 +11,11 @@ import {
   deduplicateByLemma,
   emptyGNTAnswer,
   extractVerbs,
+  filterMissedItems,
   formatRangeRef,
   type GNTParseAnswer,
   type GNTParseItem,
+  type GNTParseResult,
   gradeGNTAnswer,
   loadGNTSettings,
   sampleVerbs,
@@ -497,5 +499,55 @@ describe('deduplicateByLemma', () => {
     const deduped = deduplicateByLemma(items);
     expect(deduped).toHaveLength(2);
     expect(deduped.map((i) => i.lemma)).toEqual(['λύω', 'βοάω']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// filterMissedItems
+// ---------------------------------------------------------------------------
+
+function makeResult(allCorrect: boolean): GNTParseResult {
+  return {
+    tense: allCorrect,
+    voice: allCorrect,
+    mood: allCorrect,
+    person: allCorrect,
+    number: allCorrect,
+    parseCase: null,
+    gender: null,
+    allCorrect,
+  };
+}
+
+describe('filterMissedItems', () => {
+  const items = ['a', 'b', 'c', 'd'];
+
+  it('returns empty array when all results are correct', () => {
+    const results = items.map(() => makeResult(true));
+    expect(filterMissedItems(items, results)).toEqual([]);
+  });
+
+  it('returns all items when all results are wrong', () => {
+    const results = items.map(() => makeResult(false));
+    expect(filterMissedItems(items, results)).toEqual(items);
+  });
+
+  it('returns only the items whose result has allCorrect=false', () => {
+    const results = [makeResult(true), makeResult(false), makeResult(true), makeResult(false)];
+    expect(filterMissedItems(items, results)).toEqual(['b', 'd']);
+  });
+
+  it('preserves original order of missed items', () => {
+    const results = [makeResult(false), makeResult(true), makeResult(false)];
+    expect(filterMissedItems(['x', 'y', 'z'], results)).toEqual(['x', 'z']);
+  });
+
+  it('returns empty array when results array is empty', () => {
+    expect(filterMissedItems(items, [])).toEqual([]);
+  });
+
+  it('handles results shorter than items (partial session)', () => {
+    const results = [makeResult(false), makeResult(true)];
+    expect(filterMissedItems(items, results)).toEqual(['a']);
   });
 });

@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 import type { MorphBook } from '../data/morphgnt';
 import {
+  deduplicateByLemma,
   emptyGNTAnswer,
   extractVerbs,
   formatRangeRef,
@@ -411,5 +412,90 @@ describe('loadGNTSettings — backward compatibility', () => {
     expect(s.verseStart).toBe(3);
     expect(s.verseEnd).toBe(18);
     localStorage.removeItem('greek-tools-gnt-parse-settings-v1');
+  });
+
+  it('defaults skipRepeatedLemmas to false when missing from stored settings', () => {
+    localStorage.setItem(
+      'greek-tools-gnt-parse-settings-v1',
+      JSON.stringify({ book: 'JHN', chapter: 1, verseStart: 1, verseEnd: null, sessionLength: 20 }),
+    );
+    const s = loadGNTSettings();
+    expect(s.skipRepeatedLemmas).toBe(false);
+    localStorage.removeItem('greek-tools-gnt-parse-settings-v1');
+  });
+
+  it('preserves skipRepeatedLemmas: true when saved', () => {
+    localStorage.setItem(
+      'greek-tools-gnt-parse-settings-v1',
+      JSON.stringify({
+        book: 'JHN',
+        chapter: 1,
+        verseStart: 1,
+        verseEnd: null,
+        sessionLength: 20,
+        skipRepeatedLemmas: true,
+      }),
+    );
+    const s = loadGNTSettings();
+    expect(s.skipRepeatedLemmas).toBe(true);
+    localStorage.removeItem('greek-tools-gnt-parse-settings-v1');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// deduplicateByLemma
+// ---------------------------------------------------------------------------
+
+describe('deduplicateByLemma', () => {
+  const FINITE_VERB_2 = { text: 'λύεις', lemma: 'λύω', pos: 'V-', parsing: '2PAI-S--' };
+  // same lemma as FINITE_VERB, different form
+
+  it('returns all items when all lemmas are unique', () => {
+    const book = makeBook([FINITE_VERB, PARTICIPLE]); // λύω, βοάω
+    const items = extractVerbs(book, '1', 'John');
+    expect(deduplicateByLemma(items)).toHaveLength(2);
+  });
+
+  it('keeps only the first occurrence of a repeated lemma', () => {
+    const book = makeBook([FINITE_VERB, FINITE_VERB_2]); // λύω twice
+    const items = extractVerbs(book, '1', 'John');
+    const deduped = deduplicateByLemma(items);
+    expect(deduped).toHaveLength(1);
+    expect(deduped[0].form).toBe('λύει'); // first occurrence kept
+  });
+
+  it('preserves text order', () => {
+    const book = makeBook([PARTICIPLE, FINITE_VERB, FINITE_VERB_2]); // βοάω, λύω, λύω
+    const items = extractVerbs(book, '1', 'John');
+    const deduped = deduplicateByLemma(items);
+    expect(deduped).toHaveLength(2);
+    expect(deduped[0].lemma).toBe('βοάω');
+    expect(deduped[1].lemma).toBe('λύω');
+  });
+
+  it('returns an empty array when given an empty array', () => {
+    expect(deduplicateByLemma([])).toHaveLength(0);
+  });
+
+  it('does not mutate the input array', () => {
+    const book = makeBook([FINITE_VERB, FINITE_VERB_2]);
+    const items = extractVerbs(book, '1', 'John');
+    const copy = [...items];
+    deduplicateByLemma(items);
+    expect(items).toHaveLength(copy.length);
+  });
+
+  it('deduplicates across verse boundaries in a multi-verse book', () => {
+    const FINITE_VERB_2 = { text: 'λύεις', lemma: 'λύω', pos: 'V-', parsing: '2PAI-S--' };
+    const book = makeMultiVerseBook([
+      { verse: 1, word: FINITE_VERB }, // λύω
+      { verse: 2, word: PARTICIPLE }, // βοάω
+      { verse: 3, word: FINITE_VERB_2 }, // λύω again
+    ]);
+    const items = extractVerbs(book, '1', 'John');
+    expect(items).toHaveLength(3);
+    const deduped = deduplicateByLemma(items);
+    expect(deduped).toHaveLength(2);
+    expect(deduped.map((i) => i.lemma)).toEqual(['λύω', 'βοάω']);
   });
 });

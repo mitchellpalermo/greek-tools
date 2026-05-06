@@ -14,6 +14,8 @@ function makeFiniteItem(overrides: Partial<GNTFiniteItem> = {}): GNTFiniteItem {
     form: 'λύομεν',
     lemma: 'λύω',
     verseRef: 'John 1:1',
+    verseWords: [],
+    wordIndex: 0,
     tense: 'present',
     voice: 'active',
     mood: 'indicative',
@@ -29,8 +31,8 @@ const correctAnswer: GNTParseAnswer = {
   mood: 'indicative',
   person: '1st',
   number: 'plural',
-  parseCase: null,
-  gender: null,
+  parseCase: '',
+  gender: '',
 };
 
 const correctResult: GNTParseResult = {

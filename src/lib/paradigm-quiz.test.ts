@@ -54,10 +54,10 @@ describe('buildTableModels', () => {
 
   // ── Nouns ────────────────────────────────────────────────────────────────
 
-  it('includes all 9 noun paradigms', () => {
+  it('includes all 10 noun paradigms', () => {
     const tables = buildTableModels();
     const nouns = tables.filter((t) => t.category === 'noun');
-    expect(nouns.length).toBe(9);
+    expect(nouns.length).toBe(10);
   });
 
   it('noun tables have 2 columns (Singular, Plural)', () => {
@@ -300,6 +300,30 @@ describe('getQuizCells', () => {
     // Gen Pl of ἡμέρα is ἡμερῶν
     const genPl = cells.find((c) => c.rowIndex === 1 && c.colIndex === 1)!;
     expect(genPl.answer).toBe('ἡμερῶν');
+  });
+
+  it('1f-eta paradigm has correct forms for ἀρχή', () => {
+    const tables = buildTableModels();
+    const noun = tables.find((t) => t.id === 'noun-1f-eta')!;
+    expect(noun).toBeDefined();
+    expect(noun.category).toBe('noun');
+    const cells = getQuizCells(noun);
+    expect(cells).toHaveLength(10);
+    // Nom Sg
+    const nomSg = cells.find((c) => c.rowIndex === 0 && c.colIndex === 0)!;
+    expect(nomSg.answer).toBe('ἀρχή');
+    // Gen Sg
+    const genSg = cells.find((c) => c.rowIndex === 1 && c.colIndex === 0)!;
+    expect(genSg.answer).toBe('ἀρχῆς');
+    // Dat Sg
+    const datSg = cells.find((c) => c.rowIndex === 2 && c.colIndex === 0)!;
+    expect(datSg.answer).toBe('ἀρχῇ');
+    // Acc Sg
+    const accSg = cells.find((c) => c.rowIndex === 3 && c.colIndex === 0)!;
+    expect(accSg.answer).toBe('ἀρχήν');
+    // Gen Pl
+    const genPl = cells.find((c) => c.rowIndex === 1 && c.colIndex === 1)!;
+    expect(genPl.answer).toBe('ἀρχῶν');
   });
 });
 

@@ -2,7 +2,7 @@
  * Tests for src/components/DeckBuilder.tsx
  */
 
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CustomDeck } from '../data/customDecks';
@@ -10,10 +10,32 @@ import DeckBuilder from './DeckBuilder';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
+vi.mock('../data/morphgnt', () => ({
+  fetchBooks: vi.fn(),
+  fetchBook: vi.fn(),
+}));
+
+vi.mock('../lib/book-deck', () => ({
+  getBookWordKeys: vi.fn(),
+}));
+
+import { fetchBooks } from '../data/morphgnt';
+import { getBookWordKeys } from '../lib/book-deck';
+
+const mockFetchBooks = vi.mocked(fetchBooks);
+const mockGetBookWordKeys = vi.mocked(getBookWordKeys);
+
+const STUB_BOOKS = [
+  { code: 'PHM', name: 'Philemon', chapters: 1 },
+  { code: 'JHN', name: 'John', chapters: 21 },
+];
+
 beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
   vi.restoreAllMocks();
+  mockFetchBooks.mockResolvedValue(STUB_BOOKS);
+  mockGetBookWordKeys.mockResolvedValue(['καί', 'ὁ', 'λόγος']);
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -484,5 +506,173 @@ describe('Word picker', () => {
       );
     });
     expect(screen.getByText(/no words match/i)).toBeInTheDocument();
+  });
+});
+
+// ─── From GNT Book flow ───────────────────────────────────────────────────────
+
+describe('From GNT Book', () => {
+  it('renders the "+ From GNT Book" button in list view', () => {
+    renderBuilder();
+    expect(screen.getByRole('button', { name: /\+ from gnt book/i })).toBeInTheDocument();
+  });
+
+  it('transitions to from-book view and shows book selector', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /select gnt book/i })).toBeInTheDocument(),
+    );
+    expect(screen.getByText('Philemon')).toBeInTheDocument();
+    expect(screen.getByText('John')).toBeInTheDocument();
+  });
+
+  it('shows "Deck from GNT Book" heading in from-book view', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() => expect(screen.getByText(/deck from gnt book/i)).toBeInTheDocument());
+  });
+
+  it('populates the name field when a book is selected', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /select gnt book/i })).toBeInTheDocument(),
+    );
+    await act(async () => {
+      await user.selectOptions(screen.getByRole('combobox', { name: /select gnt book/i }), 'PHM');
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: /deck name/i })).toHaveValue('Philemon'),
+    );
+  });
+
+  it('shows word count after selecting a book', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /select gnt book/i })).toBeInTheDocument(),
+    );
+    await act(async () => {
+      await user.selectOptions(screen.getByRole('combobox', { name: /select gnt book/i }), 'PHM');
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('status')).toHaveTextContent('3 unique vocabulary words'),
+    );
+  });
+
+  it('creates a deck and returns to list view', async () => {
+    const user = userEvent.setup();
+    const onDecksChange = vi.fn();
+    renderBuilder({ onDecksChange });
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /select gnt book/i })).toBeInTheDocument(),
+    );
+    await act(async () => {
+      await user.selectOptions(screen.getByRole('combobox', { name: /select gnt book/i }), 'PHM');
+    });
+    await waitFor(() => screen.getByRole('status'));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /create deck/i })).not.toBeDisabled(),
+    );
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /create deck/i }));
+    });
+
+    expect(onDecksChange).toHaveBeenCalled();
+    const updatedDecks = onDecksChange.mock.calls[0][0] as CustomDeck[];
+    expect(updatedDecks.some((d) => d.name === 'Philemon')).toBe(true);
+    expect(screen.getByRole('button', { name: /\+ new deck/i })).toBeInTheDocument();
+  });
+
+  it('shows error when creating deck with duplicate name', async () => {
+    const user = userEvent.setup();
+    const existingDeck: CustomDeck = {
+      id: 'x',
+      name: 'Philemon',
+      wordKeys: ['καί'],
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+    renderBuilder({ decks: [existingDeck] });
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /select gnt book/i })).toBeInTheDocument(),
+    );
+    await act(async () => {
+      await user.selectOptions(screen.getByRole('combobox', { name: /select gnt book/i }), 'PHM');
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /create deck/i })).not.toBeDisabled(),
+    );
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /create deck/i }));
+    });
+
+    expect(screen.getByText(/already exists/i)).toBeInTheDocument();
+  });
+
+  it('Cancel button returns to list view without creating a deck', async () => {
+    const user = userEvent.setup();
+    const onDecksChange = vi.fn();
+    renderBuilder({ onDecksChange });
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() => expect(screen.getByText(/deck from gnt book/i)).toBeInTheDocument());
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /cancel/i }));
+    });
+
+    expect(onDecksChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: /\+ new deck/i })).toBeInTheDocument();
+  });
+
+  it('Create Deck button is disabled until a book is selected and loaded', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() =>
+      expect(screen.getByRole('combobox', { name: /select gnt book/i })).toBeInTheDocument(),
+    );
+
+    expect(screen.getByRole('button', { name: /create deck/i })).toBeDisabled();
+  });
+
+  it('Back button returns to list view', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /\+ from gnt book/i }));
+    });
+    await waitFor(() => expect(screen.getByText(/deck from gnt book/i)).toBeInTheDocument());
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /back to deck list/i }));
+    });
+
+    expect(screen.getByRole('button', { name: /\+ new deck/i })).toBeInTheDocument();
   });
 });

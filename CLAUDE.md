@@ -112,6 +112,28 @@ Issue template is at `.github/ISSUE_TEMPLATE/feature.md`.
 - Vocabulary data is pre-processed by `scripts/build-vocabulary.mjs`
 - SRS (Spaced Repetition System) state is persisted in `localStorage` via `src/data/srs.ts`
 
+### MorphGNT morphological ambiguity — grading rule
+
+Several tenses have **identical middle and passive forms** in Greek. MorphGNT tags each occurrence as M or P based on context/translation, not morphology. Any quiz or grading logic that does strict voice equality (`answer === item.voice`) will incorrectly mark a student wrong for choosing the other valid voice.
+
+**Tenses where middle and passive are morphologically identical (accept either):**
+
+| Tense | Why |
+|-------|-----|
+| Present | Single mid/pass paradigm (-ομαι, -ῃ, -εται…) |
+| Imperfect | Single mid/pass paradigm (-ομην, -ου, -ετο…) |
+| Perfect | Single mid/pass paradigm (-μαι, -σαι, -ται…) |
+| Pluperfect | Single mid/pass paradigm (-μην, -σο, -το…) |
+
+**Tenses where middle and passive are distinct (do NOT accept interchangeably):**
+
+| Tense | Why |
+|-------|-----|
+| Future | Future passive uses θη- infix (θήσομαι vs σομαι) |
+| Aorist | Aorist passive uses θη- suffix (ἐλύθην vs ἐλυσάμην) |
+
+This is implemented in `src/lib/gnt-parse.ts` via `MID_PASS_TENSES`, `gradeGNTVoice()`, and `gntVoiceLabel()`. When touching any grading logic for voice — in either `gnt-parse.ts` or `verb-parse.ts` — verify the fix applies to all four affected tenses and that future/aorist remain strict.
+
 ## Error Reporting
 
 Two mechanisms capture runtime errors and send them to PostHog:

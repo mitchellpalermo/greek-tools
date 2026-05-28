@@ -175,7 +175,7 @@ export interface GNTParseResult {
 // Present and imperfect have identical middle and passive forms in Greek.
 // MorphGNT tags each occurrence as one or the other, but a student cannot
 // distinguish them from the form alone, so either answer is accepted.
-const MID_PASS_TENSES = new Set<GNTTense>(['present', 'imperfect']);
+const MID_PASS_TENSES = new Set<GNTTense>(['present', 'imperfect', 'perfect', 'pluperfect']);
 
 /**
  * Returns true when the given voice is correct for the item's tense.

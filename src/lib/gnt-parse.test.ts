@@ -76,6 +76,16 @@ describe('gradeGNTVoice', () => {
     expect(gradeGNTVoice('imperfect', 'middle', 'passive')).toBe(true);
   });
 
+  it('accepts middle/passive interchangeably for perfect tense', () => {
+    expect(gradeGNTVoice('perfect', 'passive', 'middle')).toBe(true);
+    expect(gradeGNTVoice('perfect', 'middle', 'passive')).toBe(true);
+  });
+
+  it('accepts middle/passive interchangeably for pluperfect tense', () => {
+    expect(gradeGNTVoice('pluperfect', 'passive', 'middle')).toBe(true);
+    expect(gradeGNTVoice('pluperfect', 'middle', 'passive')).toBe(true);
+  });
+
   it('does NOT accept middle/passive interchangeably for aorist', () => {
     expect(gradeGNTVoice('aorist', 'passive', 'middle')).toBe(false);
     expect(gradeGNTVoice('aorist', 'middle', 'passive')).toBe(false);
@@ -111,6 +121,16 @@ describe('gntVoiceLabel', () => {
 
   it('returns "Active" for present active', () => {
     expect(gntVoiceLabel('present', 'active')).toBe('Active');
+  });
+
+  it('returns "Middle/Passive" for perfect middle or passive', () => {
+    expect(gntVoiceLabel('perfect', 'middle')).toBe('Middle/Passive');
+    expect(gntVoiceLabel('perfect', 'passive')).toBe('Middle/Passive');
+  });
+
+  it('returns "Middle/Passive" for pluperfect middle or passive', () => {
+    expect(gntVoiceLabel('pluperfect', 'middle')).toBe('Middle/Passive');
+    expect(gntVoiceLabel('pluperfect', 'passive')).toBe('Middle/Passive');
   });
 
   it('returns distinct labels for aorist', () => {

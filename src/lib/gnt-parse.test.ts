@@ -16,7 +16,9 @@ import {
   type GNTParseAnswer,
   type GNTParseItem,
   type GNTParseResult,
+  gntVoiceLabel,
   gradeGNTAnswer,
+  gradeGNTVoice,
   loadGNTSettings,
   sampleVerbs,
 } from './gnt-parse';
@@ -50,6 +52,92 @@ const INFINITIVE = { text: 'λύειν', lemma: 'λύω', pos: 'V-', parsing: '-
 const PARTICIPLE = { text: 'βοώντος', lemma: 'βοάω', pos: 'V-', parsing: '-PAPGSMX' };
 // -=no person, P=Present, A=Active, P=Participle, G=Genitive, S=Singular, M=Masculine
 const NOUN = { text: 'ἀρχῇ', lemma: 'ἀρχή', pos: 'N-', parsing: '---DSF--' };
+
+// ---------------------------------------------------------------------------
+// gradeGNTVoice + gntVoiceLabel — middle/passive ambiguity
+// ---------------------------------------------------------------------------
+
+describe('gradeGNTVoice', () => {
+  it('accepts exact match for any tense', () => {
+    expect(gradeGNTVoice('present', 'active', 'active')).toBe(true);
+    expect(gradeGNTVoice('aorist', 'passive', 'passive')).toBe(true);
+  });
+
+  it('accepts middle when correct is passive for present tense', () => {
+    expect(gradeGNTVoice('present', 'passive', 'middle')).toBe(true);
+  });
+
+  it('accepts passive when correct is middle for present tense', () => {
+    expect(gradeGNTVoice('present', 'middle', 'passive')).toBe(true);
+  });
+
+  it('accepts middle/passive interchangeably for imperfect tense', () => {
+    expect(gradeGNTVoice('imperfect', 'passive', 'middle')).toBe(true);
+    expect(gradeGNTVoice('imperfect', 'middle', 'passive')).toBe(true);
+  });
+
+  it('accepts middle/passive interchangeably for perfect tense', () => {
+    expect(gradeGNTVoice('perfect', 'passive', 'middle')).toBe(true);
+    expect(gradeGNTVoice('perfect', 'middle', 'passive')).toBe(true);
+  });
+
+  it('accepts middle/passive interchangeably for pluperfect tense', () => {
+    expect(gradeGNTVoice('pluperfect', 'passive', 'middle')).toBe(true);
+    expect(gradeGNTVoice('pluperfect', 'middle', 'passive')).toBe(true);
+  });
+
+  it('does NOT accept middle/passive interchangeably for aorist', () => {
+    expect(gradeGNTVoice('aorist', 'passive', 'middle')).toBe(false);
+    expect(gradeGNTVoice('aorist', 'middle', 'passive')).toBe(false);
+  });
+
+  it('does NOT accept middle/passive interchangeably for future', () => {
+    expect(gradeGNTVoice('future', 'passive', 'middle')).toBe(false);
+  });
+
+  it('does NOT accept active as a substitute for passive', () => {
+    expect(gradeGNTVoice('present', 'passive', 'active')).toBe(false);
+    expect(gradeGNTVoice('present', 'active', 'middle')).toBe(false);
+  });
+
+  it('returns false when given is empty', () => {
+    expect(gradeGNTVoice('present', 'passive', '')).toBe(false);
+  });
+});
+
+describe('gntVoiceLabel', () => {
+  it('returns "Middle/Passive" for present middle', () => {
+    expect(gntVoiceLabel('present', 'middle')).toBe('Middle/Passive');
+  });
+
+  it('returns "Middle/Passive" for present passive', () => {
+    expect(gntVoiceLabel('present', 'passive')).toBe('Middle/Passive');
+  });
+
+  it('returns "Middle/Passive" for imperfect middle or passive', () => {
+    expect(gntVoiceLabel('imperfect', 'middle')).toBe('Middle/Passive');
+    expect(gntVoiceLabel('imperfect', 'passive')).toBe('Middle/Passive');
+  });
+
+  it('returns "Active" for present active', () => {
+    expect(gntVoiceLabel('present', 'active')).toBe('Active');
+  });
+
+  it('returns "Middle/Passive" for perfect middle or passive', () => {
+    expect(gntVoiceLabel('perfect', 'middle')).toBe('Middle/Passive');
+    expect(gntVoiceLabel('perfect', 'passive')).toBe('Middle/Passive');
+  });
+
+  it('returns "Middle/Passive" for pluperfect middle or passive', () => {
+    expect(gntVoiceLabel('pluperfect', 'middle')).toBe('Middle/Passive');
+    expect(gntVoiceLabel('pluperfect', 'passive')).toBe('Middle/Passive');
+  });
+
+  it('returns distinct labels for aorist', () => {
+    expect(gntVoiceLabel('aorist', 'middle')).toBe('Middle');
+    expect(gntVoiceLabel('aorist', 'passive')).toBe('Passive');
+  });
+});
 
 // ---------------------------------------------------------------------------
 // extractVerbs
@@ -157,6 +245,47 @@ describe('sampleVerbs', () => {
     const copy = [...all];
     sampleVerbs(all, 2);
     expect(all).toHaveLength(copy.length);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// gradeGNTAnswer — middle/passive present participle (mid-pass ambiguity)
+// ---------------------------------------------------------------------------
+
+describe('gradeGNTAnswer — present middle/passive participle', () => {
+  // Build a fixture tagged as passive by MorphGNT (mirrors σχιζομένους, Mark 1:10)
+  const PASS_PART = { text: 'λυόμενον', lemma: 'λύω', pos: 'V-', parsing: '-PPPASM-' };
+  // P=Present, P=Passive, P=Participle, A=Accusative, S=Singular, M=Masculine
+
+  const book = makeBook([PASS_PART]);
+  const item = extractVerbs(book, '1', 'John')[0];
+
+  it('accepts "passive" (the tagged voice)', () => {
+    const answer: GNTParseAnswer = {
+      tense: 'present',
+      voice: 'passive',
+      mood: 'participle',
+      person: '',
+      number: 'singular',
+      parseCase: 'accusative',
+      gender: 'masculine',
+    };
+    expect(gradeGNTAnswer(item, answer).voice).toBe(true);
+    expect(gradeGNTAnswer(item, answer).allCorrect).toBe(true);
+  });
+
+  it('also accepts "middle" since present middle/passive forms are identical', () => {
+    const answer: GNTParseAnswer = {
+      tense: 'present',
+      voice: 'middle',
+      mood: 'participle',
+      person: '',
+      number: 'singular',
+      parseCase: 'accusative',
+      gender: 'masculine',
+    };
+    expect(gradeGNTAnswer(item, answer).voice).toBe(true);
+    expect(gradeGNTAnswer(item, answer).allCorrect).toBe(true);
   });
 });
 

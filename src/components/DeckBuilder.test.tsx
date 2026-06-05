@@ -6,6 +6,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CustomDeck } from '../data/customDecks';
+import type { MorphBook } from '../data/morphgnt';
 import DeckBuilder from './DeckBuilder';
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
@@ -19,7 +20,7 @@ vi.mock('../lib/book-deck', () => ({
   getBookWordKeys: vi.fn(),
 }));
 
-import { fetchBooks } from '../data/morphgnt';
+import { fetchBook, fetchBooks } from '../data/morphgnt';
 import { getBookWordKeys } from '../lib/book-deck';
 
 const mockFetchBooks = vi.mocked(fetchBooks);
@@ -30,12 +31,29 @@ const STUB_BOOKS = [
   { code: 'JHN', name: 'John', chapters: 21 },
 ];
 
+const MOCK_BOOK: MorphBook = {
+  '1': {
+    '1': [
+      { text: 'Ἐν', lemma: 'ἐν', pos: 'P-', parsing: '--------' },
+      { text: 'ἀρχῇ', lemma: 'ἀρχή', pos: 'N-', parsing: '--------' },
+    ],
+    '2': [
+      { text: 'καί', lemma: 'καί', pos: 'C-', parsing: '--------' },
+      { text: 'θεός', lemma: 'θεός', pos: 'N-', parsing: '--------' },
+    ],
+  },
+  '2': {
+    '1': [{ text: 'λόγος', lemma: 'λόγος', pos: 'N-', parsing: '--------' }],
+  },
+};
+
 beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
   vi.restoreAllMocks();
   mockFetchBooks.mockResolvedValue(STUB_BOOKS);
   mockGetBookWordKeys.mockResolvedValue(['καί', 'ὁ', 'λόγος']);
+  vi.mocked(fetchBook).mockResolvedValue(MOCK_BOOK);
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -674,5 +692,246 @@ describe('From GNT Book', () => {
     });
 
     expect(screen.getByRole('button', { name: /\+ new deck/i })).toBeInTheDocument();
+  });
+});
+
+// ─── Passage view ─────────────────────────────────────────────────────────────
+
+describe('Passage view', () => {
+  async function goToPassage(user: ReturnType<typeof userEvent.setup>) {
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /generate from passage/i }));
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+  }
+
+  it('renders a "Generate from Passage" button in list view', () => {
+    renderBuilder();
+    expect(screen.getByRole('button', { name: /generate from passage/i })).toBeInTheDocument();
+  });
+
+  it('transitions to passage view', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    expect(screen.getByText(/generate from passage/i, { selector: 'h3' })).toBeInTheDocument();
+  });
+
+  it('Back button returns to list view', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /back to deck list/i }));
+    });
+    expect(screen.getByRole('button', { name: /\+ new deck/i })).toBeInTheDocument();
+  });
+
+  it('Cancel button returns to list view', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /cancel/i }));
+    });
+    expect(screen.getByRole('button', { name: /\+ new deck/i })).toBeInTheDocument();
+  });
+
+  it('renders book selector with all NT books', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    expect(screen.getByRole('combobox', { name: /book/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Matthew' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Revelation' })).toBeInTheDocument();
+  });
+
+  it('renders start and end chapter/verse inputs', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    expect(screen.getByRole('spinbutton', { name: /start chapter/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /start verse/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /end chapter/i })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: /end verse/i })).toBeInTheDocument();
+  });
+
+  it('shows a preview count after book loads', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await waitFor(() => {
+      expect(screen.getByRole('status', { name: /passage word count/i })).toBeInTheDocument();
+    });
+  });
+
+  it('shows inline error when chapter is out of range', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    await act(async () => {
+      await user.clear(screen.getByRole('spinbutton', { name: /start chapter/i }));
+      await user.type(screen.getByRole('spinbutton', { name: /start chapter/i }), '99');
+    });
+    expect(screen.getByText(/out of range/i)).toBeInTheDocument();
+  });
+
+  it('shows inline error when start comes after end', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    const startChInput = screen.getByRole('spinbutton', { name: /start chapter/i });
+    await act(async () => {
+      await user.clear(startChInput);
+      await user.type(startChInput, '2');
+    });
+    expect(screen.getByText(/start must come before end/i)).toBeInTheDocument();
+  });
+
+  it('shows "New words only" toggle', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    expect(screen.getByRole('checkbox', { name: /new words only/i })).toBeInTheDocument();
+  });
+
+  it('auto-populates deck name from passage reference', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    expect((screen.getByRole('textbox', { name: /deck name/i }) as HTMLInputElement).value).toMatch(
+      /Matthew/i,
+    );
+  });
+
+  it('does not overwrite a manually edited deck name', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    const nameInput = screen.getByRole('textbox', { name: /deck name/i });
+    await act(async () => {
+      await user.clear(nameInput);
+      await user.type(nameInput, 'My Custom Name');
+    });
+    await act(async () => {
+      await user.clear(screen.getByRole('spinbutton', { name: /end verse/i }));
+      await user.type(screen.getByRole('spinbutton', { name: /end verse/i }), '2');
+    });
+    expect((nameInput as HTMLInputElement).value).toBe('My Custom Name');
+  });
+
+  it('shows name validation error when name is empty', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    await act(async () => {
+      await user.clear(screen.getByRole('textbox', { name: /deck name/i }));
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /generate deck/i }));
+    });
+    expect(screen.getByText(/deck name is required/i)).toBeInTheDocument();
+  });
+
+  it('shows duplicate name error', async () => {
+    const user = userEvent.setup();
+    renderBuilder({ decks: [makeDeck({ name: 'Matthew 1:1' })] });
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    const nameInput = screen.getByRole('textbox', { name: /deck name/i });
+    await act(async () => {
+      await user.clear(nameInput);
+      await user.type(nameInput, 'Matthew 1:1');
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /generate deck/i }));
+    });
+    expect(screen.getByText(/already exists/i)).toBeInTheDocument();
+  });
+
+  it('calls onDecksChange and onActivateDeck after successful save', async () => {
+    const user = userEvent.setup();
+    const onDecksChange = vi.fn();
+    const onActivateDeck = vi.fn();
+    renderBuilder({ onDecksChange, onActivateDeck });
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /generate deck/i }));
+    });
+    expect(onDecksChange).toHaveBeenCalled();
+    expect(onActivateDeck).toHaveBeenCalledWith(expect.any(String));
+  });
+
+  it('calls onClose after successful save', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    renderBuilder({ onClose });
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /generate deck/i }));
+    });
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('blocks save when passage yields zero words after filtering', async () => {
+    const studiedKeys = ['ἐν', 'ἀρχή', 'καί', 'θεός', 'λόγος'];
+    localStorage.setItem(
+      'greek-tools-srs-v2',
+      JSON.stringify(
+        Object.fromEntries(
+          studiedKeys.map((key) => [
+            key,
+            {
+              key,
+              interval: 6,
+              repetition: 1,
+              easeFactor: 2.5,
+              dueDate: '2026-06-01',
+              lastReviewed: '2026-05-01',
+            },
+          ]),
+        ),
+      ),
+    );
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    await act(async () => {
+      await user.click(screen.getByRole('checkbox', { name: /new words only/i }));
+    });
+    await waitFor(() => {
+      expect(screen.getByRole('status', { name: /passage word count/i })).toHaveTextContent('0');
+    });
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /generate deck/i }));
+    });
+    expect(screen.getByText(/no words found/i)).toBeInTheDocument();
+  });
+
+  it('resets chapter/verse inputs when book changes', async () => {
+    const user = userEvent.setup();
+    renderBuilder();
+    await goToPassage(user);
+    await waitFor(() => screen.getByRole('status', { name: /passage word count/i }));
+    await act(async () => {
+      await user.clear(screen.getByRole('spinbutton', { name: /end verse/i }));
+      await user.type(screen.getByRole('spinbutton', { name: /end verse/i }), '2');
+    });
+    await act(async () => {
+      await user.selectOptions(screen.getByRole('combobox', { name: /book/i }), 'MRK');
+    });
+    expect((screen.getByRole('spinbutton', { name: /end verse/i }) as HTMLInputElement).value).toBe(
+      '1',
+    );
   });
 });

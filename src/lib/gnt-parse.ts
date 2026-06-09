@@ -462,3 +462,29 @@ export function formatRangeRef(
 export function saveGNTSettings(s: GNTPassageSettings): void {
   localStorage.setItem(GNT_SETTINGS_KEY, JSON.stringify(s));
 }
+
+/**
+ * Extract verb parse items across a multi-chapter range (inclusive on both ends).
+ * For single-chapter passages, equivalent to extractVerbs.
+ */
+export function extractVerbsMultiChapter(
+  bookData: MorphBook,
+  startCh: number,
+  startVs: number,
+  endCh: number,
+  endVs: number,
+  bookName: string,
+): GNTParseItem[] {
+  const chapters = Object.keys(bookData)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  const items: GNTParseItem[] = [];
+  for (const ch of chapters) {
+    if (ch < startCh || ch > endCh) continue;
+    const vsStart = ch === startCh ? startVs : 1;
+    const vsEnd = ch === endCh ? endVs : Infinity;
+    items.push(...extractVerbs(bookData, String(ch), bookName, vsStart, vsEnd));
+  }
+  return items;
+}

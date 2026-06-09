@@ -11,6 +11,7 @@ import {
   deduplicateByLemma,
   emptyGNTAnswer,
   extractVerbs,
+  extractVerbsMultiChapter,
   filterMissedItems,
   formatRangeRef,
   type GNTParseAnswer,
@@ -678,5 +679,67 @@ describe('filterMissedItems', () => {
   it('handles results shorter than items (partial session)', () => {
     const results = [makeResult(false), makeResult(true)];
     expect(filterMissedItems(items, results)).toEqual(['a']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// extractVerbsMultiChapter
+// ---------------------------------------------------------------------------
+
+describe('extractVerbsMultiChapter', () => {
+  const FINITE_VERB = { text: 'λύει', lemma: 'λύω', pos: 'V-', parsing: '3PAI-S--' };
+
+  function makeMultiChapterBook(): MorphBook {
+    return {
+      '1': {
+        '1': [{ ...FINITE_VERB, text: 'ch1v1' }],
+        '5': [{ ...FINITE_VERB, text: 'ch1v5' }],
+      },
+      '2': {
+        '1': [{ ...FINITE_VERB, text: 'ch2v1' }],
+        '3': [{ ...FINITE_VERB, text: 'ch2v3' }],
+      },
+      '3': {
+        '1': [{ ...FINITE_VERB, text: 'ch3v1' }],
+      },
+    };
+  }
+
+  it('returns all verbs in a single-chapter range', () => {
+    const book = makeMultiChapterBook();
+    const items = extractVerbsMultiChapter(book, 1, 1, 1, 5, 'Test');
+    expect(items).toHaveLength(2);
+  });
+
+  it('returns verbs spanning two chapters', () => {
+    const book = makeMultiChapterBook();
+    const items = extractVerbsMultiChapter(book, 1, 5, 2, 3, 'Test');
+    expect(items).toHaveLength(3); // ch1v5, ch2v1, ch2v3
+  });
+
+  it('respects startVerse in first chapter', () => {
+    const book = makeMultiChapterBook();
+    const items = extractVerbsMultiChapter(book, 1, 2, 2, 1, 'Test');
+    // ch1v1 excluded (verse < 2), ch1v5 included, ch2v1 included
+    expect(items).toHaveLength(2);
+  });
+
+  it('respects endVerse in last chapter', () => {
+    const book = makeMultiChapterBook();
+    const items = extractVerbsMultiChapter(book, 1, 1, 2, 2, 'Test');
+    // ch1v1, ch1v5, ch2v1 included; ch2v3 excluded (verse > 2)
+    expect(items).toHaveLength(3);
+  });
+
+  it('returns all verbs across all chapters when full range given', () => {
+    const book = makeMultiChapterBook();
+    const items = extractVerbsMultiChapter(book, 1, 1, 3, 1, 'Test');
+    expect(items).toHaveLength(5);
+  });
+
+  it('returns empty array when range matches no verses', () => {
+    const book = makeMultiChapterBook();
+    const items = extractVerbsMultiChapter(book, 4, 1, 4, 10, 'Test');
+    expect(items).toHaveLength(0);
   });
 });

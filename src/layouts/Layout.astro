@@ -18,6 +18,7 @@ const navLinks = [
   { href: '/reader', label: 'Reader', tabLabel: 'Reader' },
   { href: '/grammar', label: 'Grammar', tabLabel: 'Grammar' },
   { href: '/quiz', label: 'Quiz', tabLabel: 'Quiz' },
+  { href: '/focus', label: 'Focus', tabLabel: 'Focus' },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -268,6 +269,22 @@ function isActive(href: string) {
               <line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
             <span class="tab-label">Quiz</span>
+          </span>
+        </a>
+
+        <!-- Focus Passages -->
+        <a
+          href="/focus"
+          class:list={["tab-item", isActive('/focus') ? "tab-active" : "tab-inactive"]}
+          aria-label="Focus Passages"
+          aria-current={isActive('/focus') ? 'page' : undefined}
+        >
+          <span class:list={["tab-pill", { "tab-pill-active": isActive('/focus') }]}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+            </svg>
+            <span class="tab-label">Focus</span>
           </span>
         </a>
 

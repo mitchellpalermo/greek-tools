@@ -118,10 +118,8 @@ export default function FocusPassageParsing({ passage, bookName }: Props) {
     if (!currentResult) return;
     const updated = [...results, currentResult];
     setResults(updated);
+    recordParseSession(passage.id, currentResult.allCorrect ? 1 : 0, 1);
     if (currentIndex + 1 >= session.length) {
-      // Persist cumulative parse history at session end
-      const correct = updated.filter((r) => r.allCorrect).length;
-      recordParseSession(passage.id, correct, updated.length);
       setPhase('results');
     } else {
       setCurrentIndex((i) => i + 1);
